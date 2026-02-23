@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Courses</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .course-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            transition: all 0.3s var(--ease-out);
+            cursor: pointer;
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--border-default);
+        }
+
+        .course-banner {
+            height: 140px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .course-banner .banner-icon {
+            font-size: 3rem;
+            color: rgba(255, 255, 255, 0.9);
+            z-index: 1;
+            position: relative;
+        }
+
+        .course-banner .banner-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.15;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/svg%3E");
+        }
+
+        .course-body {
+            padding: var(--space-5);
+        }
+
+        .course-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+        }
+
+        .course-code {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .course-meta {
+            display: flex;
+            gap: 16px;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .course-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .course-meta-item i {
+            font-size: 1rem;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .loading-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--indigo-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" class="active" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"><i
+                    class="ri-logout-box-r-line"></i></button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')"><i
+                class="ri-menu-3-line"></i></button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <div class="page-top-bar slide-up"
+                style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:var(--space-6);">
+                <div>
+                    <h1><i class="ri-book-open-fill" style="color:var(--teal-400);"></i> Courses</h1>
+                    <p class="text-sm text-muted mt-2">Browse and manage academic programs</p>
+                </div>
+                <div class="flex gap-3">
+                    <div class="search-bar">
+                        <i class="ri-search-2-line"></i>
+                        <input type="text" placeholder="Search courses..." id="searchInput" oninput="filterCourses()">
+                    </div>
+                    <button class="btn btn-primary" onclick="openCourseModal()">
+                        <i class="ri-add-line"></i> Add Course
+                    </button>
+                </div>
+            </div>
+
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loader"></div>
+            </div>
+            <div class="course-grid slide-up delay-1" id="courseGrid"></div>
+            <div class="empty-state hidden" id="emptyState">
+                <i class="ri-book-line"></i>
+                <h4>No courses found</h4>
+                <p class="text-muted">Create your first course to get started.</p>
+            </div>
+            <div style="height: 60px;"></div>
+        </div>
+    </main>
+
+    <!-- Course Modal -->
+    <div class="modal-overlay" id="courseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="cModalTitle">Add Course</h3>
+                <button class="btn-icon btn-ghost sm" onclick="Modal.close('courseModal')"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="courseForm">
+                    <input type="hidden" id="cEditId">
+                    <div class="form-group">
+                        <label class="form-label">Course Name</label>
+                        <input class="form-input" id="cName" placeholder="e.g. Data Structures" required>
+                    </div>
+                    <div class="bento-grid cols-2" style="gap:14px;">
+                        <div class="form-group">
+                            <label class="form-label">Course Code</label>
+                            <input class="form-input" id="cCode" placeholder="CS-301" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Credits</label>
+                            <input class="form-input" type="number" id="cCredits" placeholder="4" min="1" max="10"
+                                required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Department</label>
+                        <select class="form-select" id="cDeptId"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="cDesc" rows="3" placeholder="Course description..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="Modal.close('courseModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveCourse()"><i class="ri-save-line"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'auth';
+        let allCourses = [], allDepts = [], allEnrollments = [];
+        const bannerGrads = [
+            'linear-gradient(135deg, #6366f1, #8b5cf6)',
+            'linear-gradient(135deg, #14b8a6, #06b6d4)',
+            'linear-gradient(135deg, #f43f5e, #fb923c)',
+            'linear-gradient(135deg, #f59e0b, #fbbf24)',
+            'linear-gradient(135deg, #10b981, #34d399)',
+            'linear-gradient(135deg, #d946ef, #e879f9)',
+            'linear-gradient(135deg, #0ea5e9, #38bdf8)',
+        ];
+        const courseIcons = ['ri-code-s-slash-fill', 'ri-cpu-fill', 'ri-bar-chart-fill', 'ri-flask-fill', 'ri-palette-fill', 'ri-global-fill', 'ri-lightbulb-fill'];
+
+        async function loadCourses() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const [courses, depts, enrollments] = await Promise.all([
+                    API.getCourses(),
+                    API.getDepartments(),
+                    API.getEnrollments().catch(() => [])
+                ]);
+                allCourses = Array.isArray(courses) ? courses : [];
+                allDepts = Array.isArray(depts) ? depts : [];
+                allEnrollments = Array.isArray(enrollments) ? enrollments : [];
+                // Fill dept dropdown
+                document.getElementById('cDeptId').innerHTML = allDepts.map(d =>
+                    `<option value="${d.departmentId || d.id}">${d.departmentName || d.name}</option>`
+                ).join('');
+                renderCourses(allCourses);
+            } catch (e) { Toast.error('Failed: ' + e.message); }
+            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
+        }
+
+        function getDeptName(id) {
+            const d = allDepts.find(x => (x.departmentId || x.id) === id);
+            return d ? (d.departmentName || d.name) : '—';
+        }
+
+        function renderCourses(courses) {
+            const grid = document.getElementById('courseGrid');
+            const empty = document.getElementById('emptyState');
+            if (!courses.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            grid.innerHTML = courses.map((c, i) => {
+                const cid = c.courseId || c.id;
+                // #44: Enrolled student count
+                const enrolledCount = allEnrollments.filter(e => e.courseId === cid && (e.status || 'Active') === 'Active').length;
+                // #46: Semester info
+                const semester = c.semester || (c.courseCode ? 'Sem ' + (parseInt(c.courseCode.replace(/[^0-9]/g, '').charAt(0)) || '—') : '—');
+                return `
+                <div class="course-card" style="animation-delay:${i * 0.06}s">
+                    <div class="course-banner" style="background:${bannerGrads[i % bannerGrads.length]}">
+                        <div class="banner-pattern"></div>
+                        <i class="${courseIcons[i % courseIcons.length]} banner-icon"></i>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-code">${c.courseCode || c.code || ''}</div>
+                        <div class="course-title">${c.courseName || c.name}</div>
+                        <p class="text-sm text-muted" style="margin-top:6px;">${c.description || 'No description available.'}</p>
+                        <div class="course-meta">
+                            <div class="course-meta-item"><i class="ri-award-fill" style="color:var(--amber-400);"></i> ${c.credits || 0} Credits</div>
+                            <div class="course-meta-item"><i class="ri-building-2-fill" style="color:var(--teal-400);"></i> ${getDeptName(c.departmentId)}</div>
+                            <!-- #44: Enrolled count -->
+                            <div class="course-meta-item"><i class="ri-group-fill" style="color:var(--indigo-400);"></i> ${enrolledCount} Students</div>
+                            <!-- #46: Semester -->
+                            <div class="course-meta-item"><i class="ri-calendar-line" style="color:var(--violet-400);"></i> ${semester}</div>
+                        </div>
+                        <div class="course-actions">
+                            <button class="btn btn-ghost btn-sm" onclick="editCourse(${cid})"><i class="ri-edit-line"></i> Edit</button>
+                            <button class="btn btn-ghost btn-sm" style="color:var(--rose-400);" onclick="deleteCourse(${cid})"><i class="ri-delete-bin-line"></i> Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function filterCourses() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            renderCourses(q ? allCourses.filter(c => `${c.courseName || c.name} ${c.courseCode || c.code} ${c.description}`.toLowerCase().includes(q)) : allCourses);
+        }
+
+        function openCourseModal() {
+            document.getElementById('cModalTitle').textContent = 'Add Course';
+            document.getElementById('courseForm').reset();
+            document.getElementById('cEditId').value = '';
+            Modal.open('courseModal');
+        }
+        function editCourse(id) {
+            const c = allCourses.find(x => (x.courseId || x.id) === id);
+            if (!c) return;
+            document.getElementById('cModalTitle').textContent = 'Edit Course';
+            document.getElementById('cEditId').value = id;
+            document.getElementById('cName').value = c.courseName || c.name || '';
+            document.getElementById('cCode').value = c.courseCode || c.code || '';
+            document.getElementById('cCredits').value = c.credits || '';
+            document.getElementById('cDeptId').value = c.departmentId || '';
+            document.getElementById('cDesc').value = c.description || '';
+            Modal.open('courseModal');
+        }
+        async function saveCourse() {
+            const id = document.getElementById('cEditId').value;
+            const data = {
+                courseName: document.getElementById('cName').value,
+                courseCode: document.getElementById('cCode').value,
+                credits: parseInt(document.getElementById('cCredits').value),
+                departmentId: parseInt(document.getElementById('cDeptId').value),
+                description: document.getElementById('cDesc').value
+            };
+            try {
+                if (id) { await API.updateCourse(id, { ...data, courseId: parseInt(id) }); Toast.success('Course updated!'); }
+                else { await API.createCourse(data); Toast.success('Course created!'); }
+                Modal.close('courseModal'); loadCourses();
+            } catch (e) { Toast.error(e.message); }
+        }
+        async function deleteCourse(id) {
+            if (!confirm('Delete this course?')) return;
+            try { await API.deleteCourse(id); Toast.success('Deleted!'); loadCourses(); }
+            catch (e) { Toast.error(e.message); }
+        }
+        loadCourses();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant - College Management System</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/3d-effects.css">
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: var(--bg-light);
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: var(--space-6);
+            width: calc(100% - 260px);
+            max-width: 1600px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: margin-left var(--transition-base);
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-8);
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+
+        .page-title h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .chat-container {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-xl);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .chat-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: var(--space-6);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .message {
+            display: flex;
+            gap: var(--space-3);
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.25rem;
+        }
+
+        .message.bot .message-avatar {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: var(--gradient-accent);
+            color: white;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            line-height: 1.6;
+        }
+
+        .message.bot .message-bubble {
+            background: var(--bg-light);
+            border-bottom-left-radius: 0;
+        }
+
+        .message.user .message-bubble {
+            background: var(--gradient-primary);
+            color: white;
+            border-bottom-right-radius: 0;
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: var(--space-1);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: var(--space-4);
+        }
+
+        .typing-indicator.show {
+            display: block;
+        }
+
+        .chat-input-container {
+            padding: var(--space-6);
+            background: var(--bg-light);
+            border-top: 1px solid var(--bg-light);
+        }
+
+        .chat-input-form {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid transparent;
+            border-radius: var(--radius-lg);
+            background: white;
+            transition: all var(--transition-base);
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .quick-suggestions {
+            display: flex;
+            gap: var(--space-2);
+            margin-bottom: var(--space-6);
+            flex-wrap: wrap;
+        }
+
+        .suggestion-pill {
+            padding: var(--space-2) var(--space-4);
+            background: var(--bg-secondary);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: var(--radius-full);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .suggestion-pill:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .message-bubble {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="ri-graduation-cap-fill"></i><span>CollegeMS</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link"><i
+                        class="ri-dashboard-fill"></i><span>Dashboard</span></a>
+                <a href="students.html" class="sidebar-link"><i class="ri-group-fill"></i><span>Students</span></a>
+                <a href="courses.html" class="sidebar-link"><i class="ri-book-open-fill"></i><span>Courses</span></a>
+                <a href="enrollment.html" class="sidebar-link"><i
+                        class="ri-file-list-fill"></i><span>Enrollment</span></a>
+                <a href="fees.html" class="sidebar-link"><i
+                        class="ri-money-dollar-circle-fill"></i><span>Fees</span></a>
+                <a href="attendance.html" class="sidebar-link"><i
+                        class="ri-calendar-check-fill"></i><span>Attendance</span></a>
+                <a href="ai-assistant.html" class="sidebar-link active"><i class="ri-robot-2-fill"></i><span>AI
+                        Assistant</span></a>
+            </nav>
+            <div class="sidebar-footer"><a href="../index.html" class="sidebar-link"><i
+                        class="ri-home-fill"></i><span>Back to Home</span></a></div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <div class="page-header animate-fade-in-down">
+                <div class="page-title">
+                    <h1>🤖 AI Assistant</h1>
+                    <p class="page-subtitle">Google Gemini AI-powered intelligent chatbot</p>
+                </div>
+                <button class="btn btn-outline" onclick="clearChat()">
+                    <i class="ri-delete-bin-fill"></i>
+                    Clear Chat
+                </button>
+            </div>
+
+            <!-- Quick Suggestions -->
+            <div class="quick-suggestions animate-fade-in-up">
+                <button class="suggestion-pill" onclick="sendQuickMessage('How many students are enrolled?')">
+                    How many students are enrolled?
+                </button>
+                <button class="suggestion-pill" onclick="sendQuickMessage('List all available courses')">
+                    List all available courses
+                </button>
+                <button class="suggestion-pill" onclick="sendQuickMessage('Show pending fees')">
+                    Show pending fees
+                </button>
+                <button class="suggestion-pill" onclick="sendQuickMessage('What is the attendance rate?')">
+                    What is the attendance rate?
+                </button>
+                <button class="suggestion-pill" onclick="sendQuickMessage('Get student 1 details')">
+                    Get student details
+                </button>
+            </div>
+
+            <!-- Chat Container -->
+            <div class="chat-container animate-fade-in-up">
+                <div class="chat-header">
+                    <div class="message-avatar" style="width: 50px; height: 50px; font-size: 1.5rem;">
+                        🤖
+                    </div>
+                    <div>
+                        <h2>AI Assistant</h2>
+                        <p style="margin: 0; opacity: 0.9; font-size: 0.875rem;">Powered by Google Gemini AI</p>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        <div class="message-avatar">🤖</div>
+                        <div>
+                            <div class="message-bubble">
+                                <p style="margin: 0;">
+                                    👋 Hello! I'm your AI Assistant for the College Management System.
+                                    I can help you with:
+                                    <br><br>
+                                    📊 <strong>Query data:</strong> "How many students?", "Show courses"
+                                    <br>
+                                    ➕ <strong>Create records:</strong> "Add student John Doe"
+                                    <br>
+                                    ✏️ <strong>Update records:</strong> "Change student 5's email"
+                                    <br>
+                                    🗑️ <strong>Delete records:</strong> "Delete course 10"
+                                    <br><br>
+                                    How can I assist you today?
+                                </p>
+                            </div>
+                            <div class="message-time" id="initialTime"></div>
+                        </div>
+                    </div>
+
+                    <div class="typing-indicator" id="typingIndicator">
+                        <div class="message bot">
+                            <div class="message-avatar">🤖</div>
+                            <div>
+                                <div class="message-bubble">
+                                    <div class="typing-indicator">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <form class="chat-input-form" onsubmit="sendMessage(event)">
+                        <input type="text" class="chat-input" id="messageInput"
+                            placeholder="Ask me anything about the college management system..." required>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="ri-send-plane-fill"></i>
+                            Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </main>
+        <!-- Scripts -->
+        <script src="../assets/js/utils.js"></script>
+        <script src="../assets/js/api.js"></script>
+        <script src="../assets/js/3d-effects.js"></script>
+
+        <script>
+            // Set initial time dynamically
+            document.getElementById('initialTime').textContent = new Date().toLocaleTimeString();
+
+            const userId = 'user-' + Date.now();
+            let currentActionId = null; // Store pending actionId
+
+            function sendQuickMessage(message) {
+                document.getElementById('messageInput').value = message;
+                document.querySelector('.chat-input-form').dispatchEvent(new Event('submit'));
+            }
+
+            async function sendMessage(event) {
+                event.preventDefault();
+
+                const input = document.getElementById('messageInput');
+                const message = input.value.trim();
+                if (!message) return;
+
+                // Add user message to chat
+                addMessage('user', message);
+                input.value = '';
+
+                // Show typing indicator
+                document.getElementById('typingIndicator').classList.add('show');
+                scrollToBottom();
+
+                try {
+                    // Call AI API
+                    const response = await api.sendChatMessage(userId, message);
+
+                    // Hide typing indicator
+                    document.getElementById('typingIndicator').classList.remove('show');
+
+                    // Check if confirmation is required
+                    if (response.requiresConfirmation && response.actionId) {
+                        currentActionId = response.actionId;
+                        addConfirmationMessage(response.response, response.actionId);
+                    } else {
+                        // Add normal AI response
+                        addMessage('bot', response.response || 'Sorry, I couldn\'t process that request.');
+                    }
+
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                    document.getElementById('typingIndicator').classList.remove('show');
+                    addMessage('bot', '⚠️ Sorry, I\'m having trouble connecting to the AI service. Please make sure the AI Assistant service is running on port 7006.');
+                }
+
+                scrollToBottom();
+            }
+
+            async function confirmAction(actionId) {
+                try {
+                    document.getElementById('typingIndicator').classList.add('show');
+
+                    const response = await api.confirmAction(actionId, userId);
+
+                    document.getElementById('typingIndicator').classList.remove('show');
+
+                    addMessage('bot', response.response || '✓ Action completed successfully!');
+                    currentActionId = null;
+                } catch (error) {
+                    console.error('Error confirming action:', error);
+                    document.getElementById('typingIndicator').classList.remove('show');
+                    addMessage('bot', '⚠️ Error executing action: ' + error.message);
+                }
+                scrollToBottom();
+            }
+
+            async function cancelAction(actionId) {
+                try {
+                    await api.cancelAction(actionId);
+                    addMessage('bot', '❌ Action cancelled.');
+                    currentActionId = null;
+                } catch (error) {
+                    console.error('Error cancelling action:', error);
+                    addMessage('bot', '⚠️ Error cancelling action.');
+                }
+                scrollToBottom();
+            }
+
+            function addConfirmationMessage(text, actionId) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot';
+
+                const time = new Date().toLocaleTimeString();
+
+                messageDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div>
+          <div class="message-bubble">
+            <p style="margin: 0; white-space: pre-line;">${text}</p>
+            <div style="display: flex; gap: 8px; margin-top: 12px;">
+              <button onclick="confirmAction('${actionId}')" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.875rem;">
+                <i class="ri-check-fill"></i> Confirm
+              </button>
+              <button onclick="cancelAction('${actionId}')" class="btn btn-outline" style="padding: 8px 16px; font-size: 0.875rem;">
+                <i class="ri-close-fill"></i> Cancel
+              </button>
+            </div>
+          </div>
+          <div class="message-time">${time}</div>
+        </div>
+      `;
+
+                messagesContainer.appendChild(messageDiv);
+            }
+
+            function addMessage(type, text) {
+                const messagesContainer = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+
+                const avatar = type === 'bot' ? '🤖' : '👤';
+                const time = new Date().toLocaleTimeString();
+
+                messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div>
+          <div class="message-bubble">
+            <p style="margin: 0;">${text}</p>
+          </div>
+          <div class="message-time">${time}</div>
+        </div>
+      `;
+
+                messagesContainer.appendChild(messageDiv);
+            }
+
+            function scrollToBottom() {
+                const messages = document.getElementById('chatMessages');
+                messages.scrollTop = messages.scrollHeight;
+            }
+
+            async function clearChat() {
+                const confirmed = confirm('Are you sure you want to clear the chat history?');
+                if (!confirmed) return;
+
+                try {
+                    await api.clearChatHistory(userId);
+
+                    const messagesContainer = document.getElementById('chatMessages');
+                    messagesContainer.innerHTML = `
+          <div class="message bot">
+            <div class="message-avatar">🤖</div>
+            <div>
+              <div class="message-bubble">
+                <p style="margin: 0;">
+                  👋 Chat cleared! How can I assist you today?
+                </p>
+              </div>
+              <div class="message-time">${new Date().toLocaleTimeString()}</div>
+            </div>
+          </div>
+          
+          <div class="typing-indicator" id="typingIndicator">
+            <div class="message bot">
+              <div class="message-avatar">🤖</div>
+              <div>
+                <div class="message-bubble">
+                  <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+                    showToast('Chat history cleared!', 'success');
+                } catch (error) {
+                    console.error('Error clearing chat:', error);
+                    showToast('Failed to clear chat history', 'error');
+                }
+            }
+        </script>
+</body>
+
+</html>

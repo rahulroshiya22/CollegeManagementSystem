@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Grades - College Management System</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .gpa-card {
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            text-align: center;
+            margin-bottom: var(--space-6);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .gpa-value {
+            font-size: 3rem;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .gpa-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .grade-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            transition: all var(--transition-fast);
+        }
+
+        .grade-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .grade-letter {
+            width: 50px;
+            height: 50px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .grade-info {
+            flex: 1;
+        }
+
+        .grade-course {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .grade-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .grade-marks {
+            text-align: right;
+        }
+
+        .grade-score {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .grade-total {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <div id="sidebarContainer"></div>
+        <div class="main-content">
+            <div id="headerContainer"></div>
+            <div class="page-body">
+                <div class="gpa-card">
+                    <div class="gpa-label">Cumulative GPA</div>
+                    <div class="gpa-value" id="gpaValue">--</div>
+                </div>
+                <h5 style="font-weight:700;margin-bottom:var(--space-4)"><i class="ri-medal-2-fill"
+                        style="color:var(--primary)"></i> My Grades</h5>
+                <div id="gradesList">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        if (!initPage('My Grades', 'my-grades', 'Student')) { } else { loadGrades(); }
+
+        async function loadGrades() {
+            const studentId = AuthManager.getUserId();
+            try {
+                const gpa = await AuthManager.apiGet(`/grade/student/${studentId}/gpa`);
+                document.getElementById('gpaValue').textContent = gpa?.gpa?.toFixed(2) || 'N/A';
+            } catch { document.getElementById('gpaValue').textContent = 'N/A'; }
+
+            try {
+                const grades = await AuthManager.apiGet(`/grade/student/${studentId}`);
+                const list = Array.isArray(grades) ? grades : [];
+                const container = document.getElementById('gradesList');
+                if (!list.length) { container.innerHTML = '<div class="empty-state"><i class="ri-award-line"></i><p>No grades yet</p></div>'; return; }
+
+                const gradeColors = { 'A+': '#48bb78', 'A': '#48bb78', 'B+': '#4299e1', 'B': '#4299e1', 'C+': '#ecc94b', 'C': '#ecc94b', 'D': '#ed8936', 'F': '#f56565' };
+                container.innerHTML = list.map(g => {
+                    const color = gradeColors[g.gradeLetter] || 'var(--primary)';
+                    return `<div class="grade-card">
+                        <div class="grade-letter" style="background:${color}">${g.gradeLetter || '-'}</div>
+                        <div class="grade-info">
+                            <div class="grade-course">${g.courseName || 'Course ' + g.courseId}</div>
+                            <div class="grade-meta">${g.examType || 'Exam'} · Sem ${g.semester || '-'}</div>
+                        </div>
+                        <div class="grade-marks">
+                            <div class="grade-score">${g.marksObtained}/${g.totalMarks}</div>
+                            <div class="grade-total">GPA: ${g.gradePoints?.toFixed(1) || '-'}</div>
+                        </div>
+                    </div>`;
+                }).join('');
+            } catch { document.getElementById('gradesList').innerHTML = '<div class="empty-state"><p>Could not load grades</p></div>'; }
+        }
+    </script>
+</body>
+
+</html>

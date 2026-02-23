@@ -1,0 +1,554 @@
+{
+    "Routes": [
+        {
+            "UpstreamPathTemplate": "/api/student",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Student",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7001
+                }
+            ],
+            "SwaggerKey": "StudentService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/student/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Student/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7001
+                }
+            ],
+            "SwaggerKey": "StudentService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/course",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Course",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7002
+                }
+            ],
+            "SwaggerKey": "CourseService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/course/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Course/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7002
+                }
+            ],
+            "SwaggerKey": "CourseService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/department",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Department",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7002
+                }
+            ],
+            "SwaggerKey": "CourseService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/department/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Department/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7002
+                }
+            ],
+            "SwaggerKey": "CourseService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/enrollment",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Enrollment",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7003
+                }
+            ],
+            "SwaggerKey": "EnrollmentService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/enrollment/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Enrollment/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7003
+                }
+            ],
+            "SwaggerKey": "EnrollmentService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/fee",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Fee",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7004
+                }
+            ],
+            "SwaggerKey": "FeeService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/fee/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Fee/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7004
+                }
+            ],
+            "SwaggerKey": "FeeService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/attendance",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Attendance",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7005
+                }
+            ],
+            "SwaggerKey": "AttendanceService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/attendance/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Attendance/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7005
+                }
+            ],
+            "SwaggerKey": "AttendanceService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/auth",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Auth",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7007
+                }
+            ],
+            "SwaggerKey": "AuthService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/auth/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Auth/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7007
+                }
+            ],
+            "SwaggerKey": "AuthService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/teacher",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Teacher",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7007
+                }
+            ],
+            "SwaggerKey": "AuthService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/teacher/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Teacher/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7007
+                }
+            ],
+            "SwaggerKey": "AuthService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/admin/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Admin/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7007
+                }
+            ],
+            "SwaggerKey": "AuthService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/timeslot",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/TimeSlot",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/timeslot/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/TimeSlot/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/grade",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Grade",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/grade/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Grade/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/notice",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST"
+            ],
+            "DownstreamPathTemplate": "/api/Notice",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/message/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Message/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/announcement/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Announcement/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/exam/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Exam/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/notice/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "PUT",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Notice/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7008
+                }
+            ],
+            "SwaggerKey": "AcademicService"
+        },
+        {
+            "UpstreamPathTemplate": "/api/chat/{everything}",
+            "UpstreamHttpMethod": [
+                "GET",
+                "POST",
+                "DELETE"
+            ],
+            "DownstreamPathTemplate": "/api/Chat/{everything}",
+            "DownstreamScheme": "https",
+            "DownstreamHostAndPorts": [
+                {
+                    "Host": "localhost",
+                    "Port": 7006
+                }
+            ],
+            "SwaggerKey": "AIAssistantService"
+        }
+    ],
+    "SwaggerEndPoints": [
+        {
+            "Key": "StudentService",
+            "Config": [
+                {
+                    "Name": "Student Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5001/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "CourseService",
+            "Config": [
+                {
+                    "Name": "Course Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5002/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "EnrollmentService",
+            "Config": [
+                {
+                    "Name": "Enrollment Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5003/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "FeeService",
+            "Config": [
+                {
+                    "Name": "Fee Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5004/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "AttendanceService",
+            "Config": [
+                {
+                    "Name": "Attendance Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5005/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "AIAssistantService",
+            "Config": [
+                {
+                    "Name": "AI Assistant Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5006/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "AuthService",
+            "Config": [
+                {
+                    "Name": "Auth Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5007/swagger/v1/swagger.json"
+                }
+            ]
+        },
+        {
+            "Key": "AcademicService",
+            "Config": [
+                {
+                    "Name": "Academic Service API",
+                    "Version": "v1",
+                    "Url": "http://localhost:5008/swagger/v1/swagger.json"
+                }
+            ]
+        }
+    ],
+    "GlobalConfiguration": {
+        "BaseUrl": "https://localhost:7000"
+    }
+}

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 System Logs - College Management System</title>
+
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+        .logs-container {
+            padding: var(--space-6);
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .filters-panel {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--text-primary);
+        }
+
+        .logs-table-container {
+            background: var(--card-bg);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .logs-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .logs-table thead {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .logs-table th {
+            padding: var(--space-4);
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .logs-table td {
+            padding: var(--space-3);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logs-table tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        .logs-table tbody tr:hover {
+            background: var(--hover-bg);
+        }
+
+        .log-level {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .log-level.INF {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .log-level.WRN {
+            background: rgba(251, 146, 60, 0.2);
+            color: #fb923c;
+        }
+
+        .log-level.ERR {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .log-level.DBG {
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+        }
+
+        .trace-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .trace-id:hover {
+            color: var(--primary);
+        }
+
+        .service-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: var(--radius-md);
+            background: var(--gradient-accent);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-top: var(--space-2);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-4);
+        }
+
+        .auto-refresh {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(26px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-12);
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: var(--space-4);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="logs-container">
+        <div class="page-header">
+            <h1>📊 System Logs</h1>
+            <p>Monitor and analyze application logs in real-time</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalLogs">0</div>
+                <div class="stat-label">Total Logs</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="errorCount">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="warningCount">0</div>
+                <div class="stat-label">Warnings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="infoCount">0</div>
+                <div class="stat-label">Information</div>
+            </div>
+        </div>
+
+        <!-- Filters Panel -->
+        <div class="filters-panel">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label>Service</label>
+                    <select id="serviceFilter" class="input">
+                        <option value="">All Services</option>
+                        <option value="StudentService">Student Service</option>
+                        <option value="CourseService">Course Service</option>
+                        <option value="EnrollmentService">Enrollment Service</option>
+                        <option value="FeeService">Fee Service</option>
+                        <option value="AttendanceService">Attendance Service</option>
+                        <option value="AuthService">Auth Service</option>
+                        <option value="NotificationService">Notification Service</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Log Level</label>
+                    <select id="levelFilter" class="input">
+                        <option value="">All Levels</option>
+                        <option value="INF">Information</option>
+                        <option value="WRN">Warning</option>
+                        <option value="ERR">Error</option>
+                        <option value="DBG">Debug</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Start Date</label>
+                    <input type="datetime-local" id="startDate" class="input">
+                </div>
+
+                <div class="filter-group">
+                    <label>End Date</label>
+                    <input type="datetime-local" id="endDate" class="input">
+                </div>
+
+                <div class="filter-group">
+                    <label>Search</label>
+                    <input type="text" id="searchInput" class="input" placeholder="Search in messages...">
+                </div>
+            </div>
+
+            <div style="display: flex; gap: var(--space-3); align-items: center; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="loadLogs()">
+                    <i class="ri-search-line"></i> Apply Filters
+                </button>
+                <button class="btn btn-outline" onclick="clearFilters()">
+                    <i class="ri-refresh-line"></i> Clear
+                </button>
+                <button class="btn btn-outline" onclick="exportToCSV()">
+                    <i class="ri-download-line"></i> Export CSV
+                </button>
+
+                <div class="auto-refresh" style="margin-left: auto;">
+                    <span>Auto-refresh</span>
+                    <div class="toggle-switch" id="autoRefreshToggle" onclick="toggleAutoRefresh()"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Table -->
+        <div class="logs-table-container">
+            <table class="logs-table">
+                <thead>
+                    <tr>
+                        <th style="width: 180px;">Timestamp</th>
+                        <th style="width: 100px;">Level</th>
+                        <th style="width: 150px;">Service</th>
+                        <th style="width: 120px;">Trace ID</th>
+                        <th>Message</th>
+                    </tr>
+                </thead>
+                <tbody id="logsTableBody">
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <i class="ri-file-list-3-line"></i>
+                            <p>No logs found. Click "Apply Filters" to load logs.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let autoRefreshInterval = null;
+
+        async function loadLogs(page = 1) {
+            try {
+                const service = document.getElementById('serviceFilter').value;
+                const level = document.getElementById('levelFilter').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const search = document.getElementById('searchInput').value;
+
+                const params = new URLSearchParams({
+                    page: page,
+                    pageSize: 50
+                });
+
+                if (service) params.append('service', service);
+                if (level) params.append('level', level);
+                if (startDate) params.append('startDate', startDate);
+                if (endDate) params.append('endDate', endDate);
+                if (search) params.append('search', search);
+
+                const response = await fetch(`${API_BASE_URL}/api/logs?${params}`, {
+                    headers: {
+                        'Authorization': `Bearer ${getToken()}`
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load logs');
+
+                const data = await response.json();
+                displayLogs(data.logs);
+                updateStats(data.logs);
+                updatePagination(data.page, data.totalPages);
+                currentPage = data.page;
+                totalPages = data.totalPages;
+            } catch (error) {
+                console.error('Error loading logs:', error);
+                showToast('Failed to load logs', 'error');
+            }
+        }
+
+        function displayLogs(logs) {
+            const tbody = document.getElementById('logsTableBody');
+
+            if (logs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <i class="ri-file-list-3-line"></i>
+                            <p>No logs found matching your filters.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = logs.map(log => `
+                <tr>
+                    <td>${new Date(log.timestamp).toLocaleString()}</td>
+                    <td><span class="log-level ${log.level}">${log.level}</span></td>
+                    <td><span class="service-badge">${log.service}</span></td>
+                    <td><span class="trace-id" onclick="filterByTraceId('${log.traceId}')">${log.traceId.substring(0, 8)}...</span></td>
+                    <td>${escapeHtml(log.message)}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats(logs) {
+            document.getElementById('totalLogs').textContent = logs.length;
+            document.getElementById('errorCount').textContent = logs.filter(l => l.level === 'ERR').length;
+            document.getElementById('warningCount').textContent = logs.filter(l => l.level === 'WRN').length;
+            document.getElementById('infoCount').textContent = logs.filter(l => l.level === 'INF').length;
+        }
+
+        function updatePagination(current, total) {
+            const pagination = document.getElementById('pagination');
+
+            if (total <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button class="btn btn-sm ${current === 1 ? 'disabled' : ''}" 
+                        onclick="loadLogs(${current - 1})" 
+                        ${current === 1 ? 'disabled' : ''}>
+                    <i class="ri-arrow-left-line"></i>
+                </button>
+                <span>Page ${current} of ${total}</span>
+                <button class="btn btn-sm ${current === total ? 'disabled' : ''}" 
+                        onclick="loadLogs(${current + 1})"
+                        ${current === total ? 'disabled' : ''}>
+                    <i class="ri-arrow-right-line"></i>
+                </button>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        function clearFilters() {
+            document.getElementById('serviceFilter').value = '';
+            document.getElementById('levelFilter').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('searchInput').value = '';
+            loadLogs();
+        }
+
+        function filterByTraceId(traceId) {
+            document.getElementById('searchInput').value = traceId;
+            loadLogs();
+        }
+
+        function toggleAutoRefresh() {
+            const toggle = document.getElementById('autoRefreshToggle');
+            toggle.classList.toggle('active');
+
+            if (toggle.classList.contains('active')) {
+                autoRefreshInterval = setInterval(() => loadLogs(currentPage), 5000);
+                showToast('Auto-refresh enabled (5s)', 'success');
+            } else {
+                clearInterval(autoRefreshInterval);
+                showToast('Auto-refresh disabled', 'info');
+            }
+        }
+
+        function exportToCSV() {
+            // Implementation for CSV export
+            showToast('Exporting logs to CSV...', 'info');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Load logs on page load
+        redirectIfNotAuthenticated();
+        loadLogs();
+    </script>
+</body>
+
+</html>

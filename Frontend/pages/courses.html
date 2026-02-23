@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courses - College Management System</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/3d-effects.css">
+    <link rel="stylesheet" href="../assets/css/enhanced-forms.css">
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: var(--bg-light);
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: var(--space-6);
+            width: calc(100% - 260px);
+            max-width: 1600px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: margin-left var(--transition-base);
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-8);
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+
+        .page-title h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Course Cards Grid */
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--space-6);
+        }
+
+        .course-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-base);
+            border-top: 4px solid var(--primary);
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .course-card.dept-cs {
+            border-top-color: #667eea;
+        }
+
+        .course-card.dept-math {
+            border-top-color: #f093fb;
+        }
+
+        .course-card.dept-science {
+            border-top-color: #4facfe;
+        }
+
+        .course-card.dept-arts {
+            border-top-color: #43e97b;
+        }
+
+        .course-header {
+            padding: var(--space-6);
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .course-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .course-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+        }
+
+        .course-department {
+            display: inline-block;
+            padding: var(--space-1) var(--space-3);
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .course-body {
+            padding: var(--space-6);
+        }
+
+        .course-description {
+            color: var(--text-muted);
+            margin-bottom: var(--space-4);
+            line-height: 1.6;
+        }
+
+        .course-meta {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .meta-item i {
+            color: var(--primary);
+        }
+
+        .course-actions {
+            display: flex;
+            gap: var(--space-2);
+            padding-top: var(--space-4);
+            border-top: 1px solid var(--bg-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="ri-graduation-cap-fill"></i>
+                    <span>CollegeMS</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link">
+                    <i class="ri-dashboard-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="students.html" class="sidebar-link">
+                    <i class="ri-group-fill"></i>
+                    <span>Students</span>
+                </a>
+                <a href="courses.html" class="sidebar-link active">
+                    <i class="ri-book-open-fill"></i>
+                    <span>Courses</span>
+                </a>
+                <a href="enrollment.html" class="sidebar-link">
+                    <i class="ri-file-list-fill"></i>
+                    <span>Enrollment</span>
+                </a>
+                <a href="fees.html" class="sidebar-link">
+                    <i class="ri-money-dollar-circle-fill"></i>
+                    <span>Fees</span>
+                </a>
+                <a href="attendance.html" class="sidebar-link">
+                    <i class="ri-calendar-check-fill"></i>
+                    <span>Attendance</span>
+                </a>
+                <a href="ai-assistant.html" class="sidebar-link">
+                    <i class="ri-robot-2-fill"></i>
+                    <span>AI Assistant</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="sidebar-link">
+                    <i class="ri-home-fill"></i>
+                    <span>Back to Home</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <div class="page-header animate-fade-in-down">
+                <div class="page-title">
+                    <h1>📚 Courses</h1>
+                    <p class="page-subtitle">Manage course catalog and information</p>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary magnetic-btn ripple" onclick="showAddCourseModal()">
+                        <i class="ri-book-add-fill"></i>
+                        Add Course
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar animate-fade-in-up">
+                <div class="search-box">
+                    <i class="ri-search-line"></i>
+                    <input type="text" id="searchInput" placeholder="Search courses..." onkeyup="filterCourses()">
+                </div>
+                <select class="form-select" id="deptFilter" onchange="filterCourses()" style="max-width: 200px;">
+                    <option value="">All Departments</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Mathematics">Mathematics</option>
+                    <option value="Science">Science</option>
+                    <option value="Arts">Arts</option>
+                </select>
+                <button class="btn btn-ghost" onclick="clearFilters()">
+                    <i class="ri-filter-off-line"></i>
+                    Clear
+                </button>
+            </div>
+
+            <!-- Courses Grid -->
+            <div class="courses-grid animate-fade-in-up" id="coursesGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Add/Edit Course Modal -->
+    <div class="modal" id="courseModal">
+        <div class="modal-backdrop" onclick="hideCourseModal()"></div>
+        <div class="modal-content animate-scale-in">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Add New Course</h2>
+                <button class="modal-close" onclick="hideCourseModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Progress Bar -->
+                <div class="form-progress">
+                    <div class="form-progress-bar" id="courseFormProgressBar" style="width: 0%"></div>
+                </div>
+                <div class="progress-text">
+                    <i class="ri-checkbox-circle-line"></i>
+                    <span id="courseProgressText">0% Complete</span>
+                </div>
+
+                <form id="courseForm" onsubmit="saveCourse(event)">
+                    <input type="hidden" id="courseId">
+
+                    <!-- Course Information Section -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="ri-book-line"></i>
+                            Course Information
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="courseCode">Course Code <span
+                                    class="required">*</span></label>
+                            <div class="input-with-icon">
+                                <input type="text" class="form-input" id="courseCode" placeholder="CS101" required
+                                    oninput="validateCourseAndUpdateProgress()">
+                                <i class="ri-hashtag input-icon"></i>
+                                <i class="validation-icon" id="courseCode-icon"></i>
+                            </div>
+                            <div class="validation-message" id="courseCode-msg"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="credits">Credits <span class="required">*</span></label>
+                            <div class="input-with-icon">
+                                <input type="number" class="form-input" id="credits" min="1" max="10" placeholder="3"
+                                    required oninput="validateCourseAndUpdateProgress()">
+                                <i class="ri-medal-line input-icon"></i>
+                                <i class="validation-icon" id="credits-icon"></i>
+                            </div>
+                            <div class="validation-message" id="credits-msg"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group form-grid-full">
+                            <label class="form-label" for="courseName">Course Name <span
+                                    class="required">*</span></label>
+                            <div class="input-with-icon">
+                                <input type="text" class="form-input" id="courseName"
+                                    placeholder="Introduction to Computer Science" required
+                                    oninput="validateCourseAndUpdateProgress()">
+                                <i class="ri-book-open-line input-icon"></i>
+                                <i class="validation-icon" id="courseName-icon"></i>
+                            </div>
+                            <div class="validation-message" id="courseName-msg"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group form-grid-full">
+                            <label class="form-label" for="description">Description</label>
+                            <div class="input-with-icon">
+                                <textarea class="form-textarea" id="description" rows="3"
+                                    placeholder="Course description..."
+                                    oninput="validateCourseAndUpdateProgress()"></textarea>
+                                <i class="ri-file-text-line input-icon"></i>
+                            </div>
+                            <div class="validation-message" id="description-msg"></div>
+                        </div>
+                    </div>
+
+                    <!-- Academic Details Section -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <i class="ri-graduation-cap-line"></i>
+                            Academic Details
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label" for="departmentId">Department <span
+                                    class="required">*</span></label>
+                            <div class="input-with-icon">
+                                <select class="form-select" id="departmentId" required
+                                    onchange="validateCourseAndUpdateProgress()">
+                                    <option value="">Select Department</option>
+                                    <option value="1">Computer Science</option>
+                                    <option value="2">Mathematics</option>
+                                    <option value="3">Science</option>
+                                    <option value="4">Arts</option>
+                                </select>
+                                <i class="ri-building-line input-icon"></i>
+                                <i class="validation-icon" id="departmentId-icon"></i>
+                            </div>
+                            <div class="validation-message" id="departmentId-msg"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="semester">Semester <span class="required">*</span></label>
+                            <div class="input-with-icon">
+                                <input type="number" class="form-input" id="semester" min="1" max="8" value="1" required
+                                    oninput="validateCourseAndUpdateProgress()">
+                                <i class="ri-calendar-line input-icon"></i>
+                                <i class="validation-icon" id="semester-icon"></i>
+                            </div>
+                            <div class="validation-message" id="semester-msg"></div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-ghost" onclick="hideCourseModal()">
+                            <i class="ri-close-line"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="courseSubmitBtn">
+                            <i class="ri-save-fill"></i> Save Course
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-backdrop" onclick="hideDeleteModal()"></div>
+        <div class="modal-content animate-scale-in" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title">Confirm Delete</h2>
+                <button class="modal-close" onclick="hideDeleteModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this course?</p>
+                <input type="hidden" id="deleteCourseId">
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="hideDeleteModal()">Cancel</button>
+                <button class="btn btn-primary" style="background: var(--gradient-accent);" onclick="confirmDelete()">
+                    <i class="ri-delete-bin-fill"></i>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/3d-effects.js"></script>
+
+    <script>
+        let courses = [];
+        let filteredCourses = [];
+
+        // Initialize page
+        async function initPage() {
+            await loadCourses();
+        }
+
+        // Load courses from API
+        async function loadCourses() {
+            try {
+                showToast('Loading courses...', 'info', 2000);
+                courses = await api.getCourses();
+                filteredCourses = [...courses];
+                renderCourses();
+                showToast('Courses loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                showToast('Failed to load courses. Check console for details.', 'error');
+                courses = [];
+                filteredCourses = [];
+                renderCourses();
+            }
+        }
+
+        // Render courses
+        function renderCourses() {
+            const grid = document.getElementById('coursesGrid');
+
+            if (filteredCourses.length === 0) {
+                grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-icon">📚</div>
+            <h3>No Courses Found</h3>
+            <p>Start by adding a new course using the "Add Course" button above.</p>
+          </div>
+        `;
+                return;
+            }
+
+            grid.innerHTML = filteredCourses.map(course => {
+                // Handle department as string or object
+                const dept = (typeof course.department === 'object' ? course.department?.name || course.department?.code : course.department) || 'General';
+                const deptClass = getDeptClass(course.department);
+                return `
+          <div class="course-card ${deptClass} animate-fade-in-up">
+            <div class="course-header">
+              <div class="course-code">${course.courseCode || 'N/A'}</div>
+              <h3 class="course-title">${course.courseName || 'Untitled Course'}</h3>
+              <span class="course-department">${dept}</span>
+            </div>
+            <div class="course-body">
+              <p class="course-description">${course.description || 'No description available'}</p>
+              <div class="course-meta">
+                <div class="meta-item">
+                  <i class="ri-book-2-fill"></i>
+                  <span>${course.credits || 0} Credits</span>
+                </div>
+                <div class="meta-item">
+                  <i class="ri-calendar-fill"></i>
+                  <span>Semester ${course.semester || 'N/A'}</span>
+                </div>
+              </div>
+              <div class="course-actions">
+                <button class="btn btn-outline btn-sm" onclick="editCourse(${course.courseId})" style="flex: 1;">
+                  <i class="ri-edit-fill"></i>
+                  Edit
+                </button>
+                <button class="btn btn-ghost btn-sm" onclick="deleteCourse(${course.courseId})">
+                  <i class="ri-delete-bin-fill"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+            }).join('');
+        }
+
+        // Get department class for color coding
+        function getDeptClass(dept) {
+            // Handle null, undefined, or non-string values
+            if (!dept) return 'dept-cs';
+
+            // If department is an object, extract the name or code
+            const deptStr = typeof dept === 'object' ? dept.name || dept.code || '' : dept;
+            if (typeof deptStr !== 'string') return 'dept-cs';
+
+            const deptLower = deptStr.toLowerCase();
+            if (deptLower.includes('computer') || deptLower.includes('cs')) return 'dept-cs';
+            if (deptLower.includes('math')) return 'dept-math';
+            if (deptLower.includes('science')) return 'dept-science';
+            if (deptLower.includes('art')) return 'dept-arts';
+            return 'dept-cs';
+        }
+
+        // Filter courses
+        function filterCourses() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const deptFilter = document.getElementById('deptFilter').value;
+
+            filteredCourses = courses.filter(course => {
+                const matchesSearch = !searchTerm ||
+                    course.courseName?.toLowerCase().includes(searchTerm) ||
+                    course.courseCode?.toLowerCase().includes(searchTerm) ||
+                    course.description?.toLowerCase().includes(searchTerm);
+
+                const matchesDept = !deptFilter || course.department === deptFilter;
+
+                return matchesSearch && matchesDept;
+            });
+
+            renderCourses();
+        }
+
+        // Clear filters
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('deptFilter').value = '';
+            filterCourses();
+        }
+
+        // Show add course modal
+        function showAddCourseModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Course';
+            document.getElementById('courseForm').reset();
+            document.getElementById('courseId').value = '';
+            showModal('courseModal');
+        }
+
+        // Hide course modal
+        function hideCourseModal() {
+            hideModal('courseModal');
+        }
+
+        // Edit course
+        function editCourse(id) {
+            const course = courses.find(c => c.courseId === id);
+            if (!course) {
+                showToast('Course not found', 'error');
+                return;
+            }
+
+            document.getElementById('modalTitle').textContent = 'Edit Course';
+            document.getElementById('courseId').value = course.courseId;
+            document.getElementById('courseCode').value = course.courseCode;
+            document.getElementById('courseName').value = course.courseName;
+            document.getElementById('description').value = course.description || '';
+            document.getElementById('departmentId').value = course.departmentId || 1;
+            document.getElementById('semester').value = course.semester || 1;
+            document.getElementById('credits').value = course.credits;
+
+            showModal('courseModal');
+        }
+
+        // Save course
+        async function saveCourse(event) {
+            event.preventDefault();
+
+            const courseData = {
+                courseCode: document.getElementById('courseCode').value,
+                courseName: document.getElementById('courseName').value,
+                description: document.getElementById('description').value,
+                departmentId: parseInt(document.getElementById('departmentId').value),
+                semester: parseInt(document.getElementById('semester').value),
+                credits: parseInt(document.getElementById('credits').value),
+            };
+
+            const courseId = document.getElementById('courseId').value;
+
+            try {
+                if (courseId) {
+                    await api.updateCourse(courseId, { ...courseData, courseId: parseInt(courseId) });
+                    showToast('Course updated successfully!', 'success');
+                } else {
+                    await api.createCourse(courseData);
+                    showToast('Course added successfully!', 'success');
+                }
+
+                hideCourseModal();
+                await loadCourses();
+            } catch (error) {
+                console.error('Error saving course:', error);
+                showToast('Failed to save course: ' + error.message, 'error');
+            }
+        }
+
+        // Delete course
+        function deleteCourse(id) {
+            document.getElementById('deleteCourseId').value = id;
+            showModal('deleteModal');
+        }
+
+        // Confirm delete
+        async function confirmDelete() {
+            const id = document.getElementById('deleteCourseId').value;
+
+            try {
+                await api.deleteCourse(id);
+                showToast('Course deleted successfully!', 'success');
+                hideDeleteModal();
+                await loadCourses();
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                showToast('Failed to delete course: ' + error.message, 'error');
+            }
+        }
+
+        // Hide delete modal
+        function hideDeleteModal() {
+            hideModal('deleteModal');
+        }
+
+        // Course Form Validation and Progress Tracking
+        function validateCourseAndUpdateProgress() {
+            const form = document.getElementById('courseForm');
+            if (!form) return;
+
+            const requiredInputs = form.querySelectorAll('input[required], select[required]');
+            let filledCount = 0;
+
+            requiredInputs.forEach(input => {
+                const value = input.value.trim();
+                const fieldId = input.id;
+
+                if (value) {
+                    filledCount++;
+                    validateCourseField(input);
+                } else {
+                    input.classList.remove('valid', 'invalid');
+                    const icon = document.getElementById(`${fieldId}-icon`);
+                    if (icon) icon.className = 'validation-icon';
+                }
+            });
+
+            const percentage = (filledCount / requiredInputs.length) * 100;
+            const progressBar = document.getElementById('courseFormProgressBar');
+            const progressText = document.getElementById('courseProgressText');
+
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            if (progressText) progressText.textContent = `${Math.round(percentage)}% Complete`;
+        }
+
+        function validateCourseField(input) {
+            const value = input.value.trim();
+            const type = input.type;
+            const fieldId = input.id;
+            let isValid = true;
+            let message = '';
+
+            if (fieldId === 'courseCode') {
+                isValid = value.length >= 2;
+                message = isValid ? '✓ Valid code' : '✗ Min 2 characters';
+            }
+            else if (fieldId === 'courseName') {
+                isValid = value.length >= 3;
+                message = isValid ? '✓ Valid name' : '✗ Min 3 characters';
+            }
+            else if (fieldId === 'credits') {
+                const num = parseInt(value);
+                isValid = num >= 1 && num <= 10;
+                message = isValid ? '✓ Valid credits' : '✗ Must be 1-10';
+            }
+            else if (fieldId === 'semester') {
+                const num = parseInt(value);
+                isValid = num >= 1 && num <= 8;
+                message = isValid ? '✓ Valid semester' : '✗ Must be 1-8';
+            }
+            else if (value) {
+                isValid = true;
+                message = '✓ Valid';
+            }
+
+            input.classList.toggle('valid', isValid && value);
+            input.classList.toggle('invalid', !isValid && value);
+
+            const icon = document.getElementById(`${fieldId}-icon`);
+            if (icon && value) {
+                icon.className = isValid ? 'validation-icon valid ri-checkbox-circle-fill' : 'validation-icon invalid ri-close-circle-fill';
+            }
+
+            const msgElement = document.getElementById(`${fieldId}-msg`);
+            if (msgElement && value) {
+                msgElement.className = isValid ? 'validation-message success' : 'validation-message error';
+                msgElement.textContent = message;
+            } else if (msgElement) {
+                msgElement.textContent = '';
+            }
+        }
+
+        // Override hideCourseModal to reset form
+        function hideCourseModal() {
+            hideModal('courseModal');
+            document.getElementById('courseForm').reset();
+            document.getElementById('courseFormProgressBar').style.width = '0%';
+            document.getElementById('courseProgressText').textContent = '0% Complete';
+
+            document.querySelectorAll('.form-input, .form-select, .form-textarea').forEach(input => {
+                input.classList.remove('valid', 'invalid');
+            });
+            document.querySelectorAll('.validation-icon').forEach(icon => {
+                icon.className = 'validation-icon';
+            });
+            document.querySelectorAll('.validation-message').forEach(msg => {
+                msg.textContent = '';
+            });
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Messages</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .messages-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 20px;
+            height: calc(100vh - 200px);
+        }
+
+        .message-sidebar {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-list-item {
+            padding: 12px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .message-list-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--indigo-500);
+        }
+
+        .message-list-item.unread {
+            background: rgba(99, 102, 241, 0.05);
+            font-weight: 600;
+        }
+
+        .message-list-item.active-msg {
+            border-color: var(--indigo-500);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .message-content-area {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message-header {
+            border-bottom: 1px solid var(--border-subtle);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .message-body {
+            line-height: 1.8;
+            color: var(--text-primary);
+            flex: 1;
+        }
+
+        .compose-btn {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.8rem;
+        }
+
+        .tab-btn.active {
+            background: var(--grad-primary);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        /* #29: Search bar for messages */
+        .msg-search {
+            margin-bottom: 12px;
+        }
+
+        /* #30: Unread badge */
+        .unread-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--indigo-400);
+        }
+
+        .unread-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background: var(--indigo-500);
+            color: #fff;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0 6px;
+            margin-left: 4px;
+        }
+
+        /* #32: Reply area */
+        .reply-area {
+            border-top: 1px solid var(--border-subtle);
+            padding-top: 16px;
+            margin-top: auto;
+        }
+
+        .reply-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .reply-input-row textarea {
+            flex: 1;
+        }
+
+        /* #31: Delete action */
+        .msg-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        /* #33: Timestamp formatting */
+        .msg-time {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+        }
+
+        @media (max-width: 768px) {
+            .messages-layout {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .message-sidebar {
+                max-height: 40vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div>
+            <span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" class="active" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()" title="Logout">
+                <i class="ri-logout-box-r-line"></i>
+            </button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')">
+            <i class="ri-menu-3-line"></i>
+        </button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <h1 class="slide-up"><i class="ri-message-3-fill" style="color:var(--indigo-400);"></i> Messages</h1>
+            <p class="text-sm text-muted mt-2 slide-up">Communicate with teachers and students</p>
+
+            <div class="messages-layout slide-up delay-1">
+                <div class="message-sidebar">
+                    <button class="btn btn-primary compose-btn" onclick="openComposeModal()">
+                        <i class="ri-mail-send-line"></i> Compose
+                    </button>
+
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" id="tabInbox" onclick="switchTab('inbox', this)">
+                            Inbox <span id="unreadBadge" class="unread-count-badge" style="display:none;">0</span>
+                        </button>
+                        <button class="tab-btn" id="tabSent" onclick="switchTab('sent', this)">Sent</button>
+                    </div>
+
+                    <!-- #29: Message search -->
+                    <div class="msg-search">
+                        <div class="search-bar" style="max-width:100%;">
+                            <i class="ri-search-2-line"></i>
+                            <input type="text" placeholder="Search messages..." id="msgSearch"
+                                oninput="filterMessages()">
+                        </div>
+                    </div>
+
+                    <div id="messageList" style="flex:1;overflow-y:auto;"></div>
+                </div>
+
+                <div class="message-content-area">
+                    <div id="messageContent">
+                        <div class="empty-state">
+                            <i class="ri-mail-line"></i>
+                            <h4>Select a message</h4>
+                            <p class="text-muted">Choose a message from the list to view its contents</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Compose Modal -->
+    <div class="modal-overlay" id="composeModal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3>Compose Message</h3>
+                <button class="btn-icon btn-ghost sm" onclick="Modal.close('composeModal')"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="composeForm">
+                    <div class="form-group">
+                        <label class="form-label">Recipient Type</label>
+                        <select class="form-select" id="recipientRole" onchange="loadRecipients()">
+                            <option value="Teacher">Teacher</option>
+                            <option value="Student">Student</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                    </div>
+                    <!-- #28: Dynamic recipients — loads real teachers/students from API -->
+                    <div class="form-group">
+                        <label class="form-label">Recipient</label>
+                        <select class="form-select" id="recipientId" required>
+                            <option value="">Loading...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <input class="form-input" id="msgSubject" placeholder="Message subject" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Message</label>
+                        <textarea class="form-input" id="msgContent" rows="6" placeholder="Type your message..."
+                            required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="Modal.close('composeModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="sendMessage()">
+                    <i class="ri-send-plane-fill"></i> Send
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'Not authenticated';
+
+        const user = Auth.getUser();
+        const userId = user.userId || 1;
+        const userRole = user.role || 'Admin';
+        let currentTab = 'inbox';
+        let messages = [];
+        let allMessages = [];
+        let selectedMsgId = null;
+        let teachersList = [];
+        let studentsList = [];
+
+        // Preload recipients
+        async function preloadRecipients() {
+            try {
+                const [teachers, students] = await Promise.all([
+                    API.getTeachers().catch(() => []),
+                    API.getStudents().catch(() => [])
+                ]);
+                teachersList = Array.isArray(teachers) ? teachers : [];
+                studentsList = Array.isArray(students) ? students : (students?.students || students?.value || []);
+            } catch { }
+        }
+
+        async function loadMessages() {
+            try {
+                const endpoint = currentTab === 'inbox'
+                    ? `/message/inbox/${userId}/${userRole}`
+                    : `/message/sent/${userId}/${userRole}`;
+
+                allMessages = await API.request(endpoint);
+                allMessages = Array.isArray(allMessages) ? allMessages : [];
+                messages = [...allMessages];
+                filterMessages();
+                updateUnreadBadge();
+            } catch (e) {
+                Toast.error('Failed to load messages: ' + e.message);
+            }
+        }
+
+        // #30: Unread count badge
+        function updateUnreadBadge() {
+            if (currentTab !== 'inbox') return;
+            const unread = allMessages.filter(m => !m.isRead).length;
+            const badge = document.getElementById('unreadBadge');
+            if (unread > 0) {
+                badge.textContent = unread;
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        // #33: Smart timestamp formatting
+        function formatTimestamp(dateStr) {
+            const d = new Date(dateStr);
+            const now = new Date();
+            const diff = now - d;
+            const mins = Math.floor(diff / 60000);
+            const hrs = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (mins < 1) return 'Just now';
+            if (mins < 60) return `${mins}m ago`;
+            if (hrs < 24) return `${hrs}h ago`;
+            if (days < 7) return `${days}d ago`;
+            return Utils.formatDate(dateStr);
+        }
+
+        // #29: Search/filter messages
+        function filterMessages() {
+            const q = document.getElementById('msgSearch').value.toLowerCase();
+            messages = q ? allMessages.filter(m =>
+                (m.subject || '').toLowerCase().includes(q) ||
+                (m.content || '').toLowerCase().includes(q)
+            ) : [...allMessages];
+            renderMessageList();
+        }
+
+        function renderMessageList() {
+            const list = document.getElementById('messageList');
+            if (!messages.length) {
+                list.innerHTML = '<p class="text-muted text-sm" style="text-align:center;padding:20px;">No messages</p>';
+                return;
+            }
+
+            list.innerHTML = messages.map(m => {
+                const isUnread = !m.isRead && currentTab === 'inbox';
+                const isActive = m.messageId === selectedMsgId;
+                return `
+                <div class="message-list-item ${isUnread ? 'unread' : ''} ${isActive ? 'active-msg' : ''}" onclick="viewMessage(${m.messageId})">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        ${isUnread ? '<span class="unread-dot"></span>' : ''}
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-weight:${isUnread ? '600' : '400'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.subject || '(No Subject)'}</div>
+                            <div class="text-sm text-muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(m.content || '').substring(0, 50)}${(m.content || '').length > 50 ? '...' : ''}</div>
+                        </div>
+                        <span class="msg-time">${formatTimestamp(m.sentAt)}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function viewMessage(id) {
+            selectedMsgId = id;
+            const msg = messages.find(m => m.messageId === id);
+            if (!msg) return;
+
+            if (!msg.isRead && currentTab === 'inbox') {
+                try {
+                    await API.request(`/message/${id}/read`, { method: 'PUT' });
+                    msg.isRead = true;
+                    const og = allMessages.find(m => m.messageId === id);
+                    if (og) og.isRead = true;
+                    renderMessageList();
+                    updateUnreadBadge();
+                } catch { }
+            }
+
+            const senderLabel = currentTab === 'inbox'
+                ? `From: ${msg.senderRole || 'Unknown'} (#${msg.senderId || '?'})`
+                : `To: ${msg.receiverRole || 'Unknown'} (#${msg.receiverId || '?'})`;
+
+            document.getElementById('messageContent').innerHTML = `
+                <div class="message-header">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                        <div>
+                            <h3>${msg.subject || '(No Subject)'}</h3>
+                            <p class="text-sm text-muted">${senderLabel} • ${formatTimestamp(msg.sentAt)}</p>
+                        </div>
+                        <!-- #31: Delete button -->
+                        <div class="msg-actions">
+                            <button class="btn btn-ghost btn-sm" style="color:var(--rose-400);" onclick="deleteMessage(${msg.messageId})" title="Delete">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="message-body">
+                    ${(msg.content || '').replace(/\n/g, '<br>')}
+                </div>
+                ${currentTab === 'inbox' ? `
+                <!-- #32: Reply area -->
+                <div class="reply-area">
+                    <h5 style="margin-bottom:8px;font-size:0.8rem;color:var(--text-muted);">Quick Reply</h5>
+                    <div class="reply-input-row">
+                        <textarea class="form-input" id="replyText" rows="2" placeholder="Type a reply..."></textarea>
+                        <button class="btn btn-primary" onclick="sendReply(${msg.messageId})" style="align-self:flex-end;">
+                            <i class="ri-send-plane-fill"></i>
+                        </button>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+        }
+
+        // #31: Delete message
+        async function deleteMessage(id) {
+            if (!confirm('Delete this message?')) return;
+            try {
+                await API.request(`/message/${id}`, { method: 'DELETE' });
+                Toast.success('Message deleted');
+                allMessages = allMessages.filter(m => m.messageId !== id);
+                messages = messages.filter(m => m.messageId !== id);
+                selectedMsgId = null;
+                renderMessageList();
+                document.getElementById('messageContent').innerHTML = '<div class="empty-state"><i class="ri-mail-line"></i><h4>Select a message</h4></div>';
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        // #32: Reply
+        async function sendReply(originalMsgId) {
+            const text = document.getElementById('replyText').value.trim();
+            if (!text) { Toast.error('Type a reply'); return; }
+            const original = allMessages.find(m => m.messageId === originalMsgId);
+            if (!original) return;
+
+            try {
+                await API.request(`/message?senderId=${userId}&senderRole=${userRole}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        receiverId: original.senderId,
+                        receiverRole: original.senderRole,
+                        subject: `Re: ${original.subject || ''}`,
+                        content: text
+                    })
+                });
+                Toast.success('Reply sent!');
+                document.getElementById('replyText').value = '';
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        function switchTab(tab, btn) {
+            currentTab = tab;
+            selectedMsgId = null;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            document.getElementById('messageContent').innerHTML = '<div class="empty-state"><i class="ri-mail-line"></i><h4>Select a message</h4></div>';
+            loadMessages();
+        }
+
+        function openComposeModal() {
+            document.getElementById('composeForm').reset();
+            loadRecipients();
+            Modal.open('composeModal');
+        }
+
+        // #28: Dynamic recipients — loads real teachers + students from API
+        async function loadRecipients() {
+            const role = document.getElementById('recipientRole').value;
+            const select = document.getElementById('recipientId');
+            select.innerHTML = '<option value="">Loading...</option>';
+
+            try {
+                let recipients = [];
+                if (role === 'Teacher') {
+                    if (!teachersList.length) await preloadRecipients();
+                    recipients = teachersList.map(t => ({
+                        id: t.teacherId || t.id,
+                        name: `${t.firstName || t.name || ''} ${t.lastName || ''}`
+                    }));
+                } else if (role === 'Student') {
+                    if (!studentsList.length) await preloadRecipients();
+                    recipients = studentsList.map(s => ({
+                        id: s.studentId || s.id,
+                        name: `${s.firstName || s.name || ''} ${s.lastName || ''}`
+                    }));
+                } else {
+                    recipients = [{ id: 1, name: 'System Admin' }];
+                }
+
+                select.innerHTML = '<option value="">Select recipient...</option>' +
+                    recipients.map(r => `<option value="${r.id}">${r.name.trim()}</option>`).join('');
+            } catch (e) {
+                select.innerHTML = '<option value="">Failed to load</option>';
+            }
+        }
+
+        async function sendMessage() {
+            const recipientId = document.getElementById('recipientId').value;
+            const subject = document.getElementById('msgSubject').value;
+            const content = document.getElementById('msgContent').value;
+            if (!recipientId || !subject || !content) { Toast.error('Fill all fields'); return; }
+
+            const data = {
+                receiverId: parseInt(recipientId),
+                receiverRole: document.getElementById('recipientRole').value,
+                subject: subject,
+                content: content
+            };
+
+            try {
+                await API.request(`/message?senderId=${userId}&senderRole=${userRole}`, {
+                    method: 'POST',
+                    body: JSON.stringify(data)
+                });
+                Toast.success('Message sent!');
+                Modal.close('composeModal');
+                loadMessages();
+            } catch (e) {
+                Toast.error('Failed to send message: ' + e.message);
+            }
+        }
+
+        preloadRecipients();
+        loadMessages();
+    </script>
+</body>
+
+</html>

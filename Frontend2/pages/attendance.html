@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Attendance Manager</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .att-tabs {
+            display: flex;
+            gap: 4px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-xl);
+            padding: 4px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .att-tab {
+            padding: 10px 20px;
+            border-radius: var(--radius-lg);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+            border: none;
+            background: transparent;
+        }
+
+        .att-tab.active {
+            background: var(--indigo-500);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .att-tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        /* Mark Attendance Panel */
+        .mark-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .mark-left,
+        .mark-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .slot-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+
+        .slot-card:hover,
+        .slot-card.selected {
+            border-color: var(--indigo-400);
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .slot-card.selected {
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
+        }
+
+        .slot-card .sc-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .slot-card .sc-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+        }
+
+        .slot-card .sc-title {
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .slot-card .sc-sub {
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+        }
+
+        .slot-card .sc-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.72rem;
+            color: var(--text-secondary);
+            flex-wrap: wrap;
+        }
+
+        .slot-card .sc-meta span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .stud-list {
+            max-height: 480px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .stud-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-lg);
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            transition: all 0.2s;
+        }
+
+        .stud-row:hover {
+            background: var(--bg-glass-hover);
+        }
+
+        .stud-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .stud-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stud-info .s-name {
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .stud-info .s-roll {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .att-toggle {
+            display: flex;
+            gap: 4px;
+        }
+
+        .att-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border-subtle);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.15s;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .att-btn.present {
+            background: rgba(52, 211, 153, 0.2);
+            border-color: var(--emerald-400);
+            color: var(--emerald-400);
+        }
+
+        .att-btn.absent {
+            background: rgba(248, 113, 113, 0.2);
+            border-color: var(--rose-400);
+            color: var(--rose-400);
+        }
+
+        .att-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Stats Panel */
+        .stat-cards-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .att-stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .att-stat-card .asv {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--text-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .att-stat-card .asl {
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .att-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 4px;
+        }
+
+        .att-table th {
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            font-weight: 600;
+        }
+
+        .att-table td {
+            padding: 10px 16px;
+            font-size: 0.82rem;
+            background: var(--bg-glass);
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .att-table td:first-child {
+            border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+            border-left: 1px solid var(--border-subtle);
+        }
+
+        .att-table td:last-child {
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            border-right: 1px solid var(--border-subtle);
+        }
+
+        .badge-present {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--emerald-400);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .badge-absent {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--rose-400);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+        }
+
+        .pct-bar {
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.06);
+            overflow: hidden;
+            width: 80px;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 8px;
+        }
+
+        .pct-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        /* Report Panel */
+        .report-filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .report-filters select,
+        .report-filters input {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-lg);
+            font-size: 0.85rem;
+        }
+
+        .heatmap {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 24px);
+            gap: 3px;
+            justify-content: center;
+        }
+
+        .hm-cell {
+            width: 22px;
+            height: 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .hm-cell:hover {
+            transform: scale(1.4);
+            z-index: 2;
+        }
+
+        .submit-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--bg-glass);
+            border-radius: var(--radius-xl);
+            margin-top: 16px;
+            border: 1px solid var(--border-subtle);
+        }
+
+        .submit-bar .sb-info {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+        }
+
+        .submit-bar .sb-info strong {
+            color: var(--indigo-400);
+        }
+
+        .loading-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--indigo-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* #23: Low-attendance flag */
+        .low-att-flag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--rose-400);
+            background: rgba(244, 63, 94, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        tr.low-att td {
+            background: rgba(244, 63, 94, 0.04) !important;
+        }
+
+        @media(max-width:768px) {
+            .mark-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-cards-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" class="active" data-tip="Attendance"><i class="ri-calendar-check-line"></i>
+                Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"><i
+                    class="ri-logout-box-r-line"></i></button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')"><i
+                class="ri-menu-3-line"></i></button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <div class="slide-up" style="margin-bottom:var(--space-6);">
+                <h1><i class="ri-calendar-check-fill" style="color:var(--emerald-400);"></i> Attendance Manager</h1>
+                <p class="text-sm text-muted mt-2">Mark attendance by timetable slot, view reports & statistics</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="att-tabs slide-up delay-1">
+                <button class="att-tab active" onclick="switchTab('mark')"><i class="ri-checkbox-circle-line"></i> Mark
+                    Attendance</button>
+                <button class="att-tab" onclick="switchTab('records')"><i class="ri-list-check-2"></i> Records</button>
+                <button class="att-tab" onclick="switchTab('stats')"><i class="ri-pie-chart-2-line"></i>
+                    Statistics</button>
+                <button class="att-tab" onclick="switchTab('report')"><i class="ri-file-chart-line"></i>
+                    Reports</button>
+            </div>
+
+            <!-- Tab: Mark Attendance -->
+            <div class="tab-panel active" id="tab-mark">
+                <div class="mark-grid">
+                    <div class="mark-left">
+                        <div class="glass-card" style="padding:16px;">
+                            <h3 style="margin-bottom:12px;font-size:0.92rem;"><i class="ri-calendar-line"
+                                    style="color:var(--sky-400);"></i> Select Date</h3>
+                            <input type="date" id="attDate"
+                                style="width:100%;padding:10px;background:var(--bg-glass);border:1px solid var(--border-subtle);color:var(--text-primary);border-radius:var(--radius-lg);"
+                                onchange="filterSlots()">
+                        </div>
+                        <div class="glass-card" style="padding:16px;">
+                            <h3 style="margin-bottom:12px;font-size:0.92rem;"><i class="ri-time-line"
+                                    style="color:var(--amber-400);"></i> Today's Slots</h3>
+                            <div id="slotList" style="display:flex;flex-direction:column;gap:8px;"></div>
+                        </div>
+                    </div>
+                    <div class="mark-right">
+                        <div class="glass-card" style="padding:16px;" id="studListCard">
+                            <div
+                                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                                <h3 style="font-size:0.92rem;"><i class="ri-group-line"
+                                        style="color:var(--violet-400);"></i> Student List</h3>
+                                <div style="display:flex;gap:8px;">
+                                    <button class="btn btn-sm btn-ghost" onclick="markAll(true)"
+                                        title="Mark All Present"><i class="ri-checkbox-circle-fill"
+                                            style="color:var(--emerald-400);"></i> All P</button>
+                                    <button class="btn btn-sm btn-ghost" onclick="markAll(false)"
+                                        title="Mark All Absent"><i class="ri-close-circle-fill"
+                                            style="color:var(--rose-400);"></i> All A</button>
+                                </div>
+                            </div>
+                            <div class="stud-list" id="studList">
+                                <p class="text-muted text-center" style="padding:40px 0;font-size:0.85rem;">Select a
+                                    slot to view enrolled students</p>
+                            </div>
+                            <div class="submit-bar" id="submitBar" style="display:none;">
+                                <div class="sb-info"><strong id="presentCount">0</strong> Present · <strong
+                                        id="absentCount">0</strong> Absent</div>
+                                <button class="btn btn-primary" onclick="submitAttendance()"><i
+                                        class="ri-save-3-line"></i> Submit Attendance</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Records -->
+            <div class="tab-panel" id="tab-records">
+                <div class="glass-card" style="padding:20px;">
+                    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+                        <select id="recCourse" onchange="filterRecords()"
+                            style="background:var(--bg-glass);border:1px solid var(--border-subtle);color:var(--text-primary);padding:8px 14px;border-radius:var(--radius-lg);font-size:0.85rem;">
+                            <option value="all">All Courses</option>
+                        </select>
+                        <input type="date" id="recDate" onchange="filterRecords()"
+                            style="background:var(--bg-glass);border:1px solid var(--border-subtle);color:var(--text-primary);padding:8px 14px;border-radius:var(--radius-lg);font-size:0.85rem;">
+                        <!-- #26: Export CSV button -->
+                        <button class="btn btn-ghost btn-sm" onclick="exportAttendanceCSV()"
+                            style="margin-left:auto;"><i class="ri-download-2-line"></i> Export CSV</button>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="att-table" id="recTable">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Course</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <!-- #22: Attendance % column -->
+                                    <th>Attendance %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Statistics -->
+            <div class="tab-panel" id="tab-stats">
+                <div class="stat-cards-row" id="statCards"></div>
+                <div class="glass-card" style="padding:20px;">
+                    <h3 style="margin-bottom:16px;font-size:0.92rem;">Course-wise Attendance</h3>
+                    <div style="overflow-x:auto;">
+                        <table class="att-table">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Total Classes</th>
+                                    <th>Avg Attendance</th>
+                                    <th>Rate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courseStatsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Report -->
+            <div class="tab-panel" id="tab-report">
+                <div class="glass-card" style="padding:20px;">
+                    <h3 style="margin-bottom:16px;font-size:0.92rem;">Student Attendance Report</h3>
+                    <div class="report-filters">
+                        <select id="rptStudent" style="min-width:200px;" onchange="loadReport()">
+                            <option value="">Select Student</option>
+                        </select>
+                        <select id="rptCourse" onchange="loadReport()">
+                            <option value="all">All Courses</option>
+                        </select>
+                    </div>
+                    <div id="reportContent" style="text-align:center;padding:40px;color:var(--text-tertiary);">Select a
+                        student to view report</div>
+                </div>
+            </div>
+
+            <div class="loading-overlay" id="loadingOverlay" style="display:none;">
+                <div class="loader"></div>
+            </div>
+            <div style="height:60px;"></div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'auth';
+        let slots = [], courses = [], students = [], teachers = [], enrollments = [], attendance = [], selectedSlot = null, attendanceMap = {};
+        const avatarColors = ['#818cf8', '#2dd4bf', '#fb923c', '#f472b6', '#a78bfa', '#fbbf24', '#34d399', '#38bdf8', '#f87171', '#c084fc'];
+
+        async function loadAll() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const [sl, c, s, t, e, a] = await Promise.all([
+                    API.getTimeSlots(), API.getCourses(), API.getStudents(), API.getTeachers(), API.getEnrollments(), API.getAttendance()
+                ]);
+                slots = Array.isArray(sl) ? sl : [];
+                courses = Array.isArray(c) ? c : [];
+                students = Array.isArray(s) ? s : (s || []);
+                teachers = Array.isArray(t) ? t : (t || []);
+                enrollments = Array.isArray(e) ? e : [];
+                attendance = Array.isArray(a) ? a : [];
+                // Set today
+                document.getElementById('attDate').value = new Date().toISOString().split('T')[0];
+                // Populate course filters
+                ['recCourse', 'rptCourse'].forEach(id => {
+                    const sel = document.getElementById(id);
+                    courses.forEach(c => { const o = document.createElement('option'); o.value = c.courseId || c.id; o.textContent = (c.courseCode || c.code) + ' — ' + (c.courseName || c.name); sel.appendChild(o); });
+                });
+                // Populate student filter
+                const sSel = document.getElementById('rptStudent');
+                students.forEach(s => { const o = document.createElement('option'); o.value = s.studentId || s.id; o.textContent = (s.firstName || '') + ' ' + (s.lastName || '') + ' (' + (s.rollNumber || '') + ')'; sSel.appendChild(o); });
+
+                filterSlots();
+                filterRecords();
+                renderStats();
+            } catch (e) { Toast.error('Load failed: ' + e.message); }
+            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
+        }
+
+        function switchTab(t) {
+            document.querySelectorAll('.att-tab').forEach((e, i) => e.classList.toggle('active', e.textContent.toLowerCase().includes(t.substring(0, 4))));
+            document.querySelectorAll('.tab-panel').forEach(e => e.classList.remove('active'));
+            document.getElementById('tab-' + t).classList.add('active');
+        }
+
+        /* ---- MARK TAB ---- */
+        function filterSlots() {
+            const date = document.getElementById('attDate').value;
+            if (!date) { document.getElementById('slotList').innerHTML = '<p class="text-muted text-sm">Select a date</p>'; return; }
+            const d = new Date(date);
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayName = dayNames[d.getDay()];
+            const daySlots = slots.filter(s => s.dayOfWeek === dayName);
+            if (!daySlots.length) { document.getElementById('slotList').innerHTML = `<p class="text-muted text-sm">No classes on ${dayName}</p>`; return; }
+            document.getElementById('slotList').innerHTML = daySlots.map((s, i) => {
+                const ci = courses.find(c => (c.courseId || c.id) === s.courseId);
+                const cname = ci ? (ci.courseName || ci.name) : 'Unknown';
+                const ccode = ci ? (ci.courseCode || ci.code) : '?';
+                const tname = getTeacherName(s.teacherId);
+                const colors = ['var(--indigo-500)', 'var(--teal-400)', 'var(--amber-400)', 'var(--rose-400)', 'var(--violet-400)', 'var(--sky-400)'];
+                const clr = colors[i % colors.length];
+                return `<div class="slot-card" data-slot-id="${s.timeSlotId || s.id}" onclick="selectSlot(${s.timeSlotId || s.id})">
+                    <div class="sc-header">
+                        <div class="sc-icon" style="background:${clr}20;color:${clr};"><i class="ri-book-open-fill"></i></div>
+                        <div><div class="sc-title">${cname}</div><div class="sc-sub">${ccode}</div></div>
+                    </div>
+                    <div class="sc-meta">
+                        <span><i class="ri-time-line"></i>${formatT(s.startTime)}–${formatT(s.endTime)}</span>
+                        <span><i class="ri-map-pin-line"></i>${s.room || 'TBA'}</span>
+                        <span><i class="ri-user-line"></i>${tname}</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function selectSlot(slotId) {
+            selectedSlot = slots.find(s => (s.timeSlotId || s.id) === slotId);
+            if (!selectedSlot) return;
+            document.querySelectorAll('.slot-card').forEach(e => e.classList.toggle('selected', parseInt(e.dataset.slotId) === slotId));
+            // Get enrolled students for this course
+            const cid = selectedSlot.courseId;
+            const enrolled = enrollments.filter(e => e.courseId === cid && e.status === 'Active');
+            const studs = enrolled.map(e => students.find(s => (s.studentId || s.id) === e.studentId)).filter(Boolean);
+            // Check existing attendance
+            const date = document.getElementById('attDate').value;
+            attendanceMap = {};
+            studs.forEach(s => {
+                const sid = s.studentId || s.id;
+                const existing = attendance.find(a => a.studentId === sid && a.courseId === cid && a.date?.startsWith(date));
+                attendanceMap[sid] = existing ? existing.isPresent : true; // default present
+            });
+            renderStudents(studs);
+        }
+
+        function renderStudents(studs) {
+            if (!studs.length) {
+                document.getElementById('studList').innerHTML = '<p class="text-muted text-center" style="padding:30px;">No students enrolled in this course</p>';
+                document.getElementById('submitBar').style.display = 'none';
+                return;
+            }
+            document.getElementById('studList').innerHTML = studs.map((s, i) => {
+                const sid = s.studentId || s.id;
+                const isP = attendanceMap[sid] !== false;
+                const clr = avatarColors[i % avatarColors.length];
+                const init = ((s.firstName || '?')[0] + (s.lastName || '?')[0]).toUpperCase();
+                return `<div class="stud-row">
+                    <div class="stud-avatar" style="background:${clr};">${init}</div>
+                    <div class="stud-info">
+                        <div class="s-name">${s.firstName || ''} ${s.lastName || ''}</div>
+                        <div class="s-roll">${s.rollNumber || '—'}</div>
+                    </div>
+                    <div class="att-toggle">
+                        <button class="att-btn ${isP ? 'present' : ''}" onclick="toggleAtt(${sid},true,this)" title="Present"><i class="ri-check-line"></i></button>
+                        <button class="att-btn ${!isP ? 'absent' : ''}" onclick="toggleAtt(${sid},false,this)" title="Absent"><i class="ri-close-line"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
+            document.getElementById('submitBar').style.display = 'flex';
+            updateCounts();
+        }
+
+        function toggleAtt(sid, present, btn) {
+            attendanceMap[sid] = present;
+            const row = btn.closest('.stud-row');
+            const btns = row.querySelectorAll('.att-btn');
+            btns[0].className = 'att-btn' + (present ? ' present' : '');
+            btns[1].className = 'att-btn' + (!present ? ' absent' : '');
+            updateCounts();
+        }
+        function markAll(present) {
+            Object.keys(attendanceMap).forEach(k => attendanceMap[k] = present);
+            if (selectedSlot) selectSlot(selectedSlot.timeSlotId || selectedSlot.id);
+        }
+        function updateCounts() {
+            const vals = Object.values(attendanceMap);
+            document.getElementById('presentCount').textContent = vals.filter(v => v).length;
+            document.getElementById('absentCount').textContent = vals.filter(v => !v).length;
+        }
+
+        async function submitAttendance() {
+            if (!selectedSlot) { Toast.error('Select a slot first'); return; }
+            const date = document.getElementById('attDate').value;
+            if (!date) { Toast.error('Select a date'); return; }
+            const records = Object.entries(attendanceMap).map(([sid, isP]) => ({ studentId: parseInt(sid), courseId: selectedSlot.courseId, date: date, isPresent: isP, remarks: null }));
+            try {
+                for (const r of records) { await API.createAttendance(r); }
+                Toast.success(`Attendance saved for ${records.length} students!`);
+                // Reload attendance
+                const freshAtt = await API.getAttendance();
+                attendance = Array.isArray(freshAtt) ? freshAtt : [];
+            } catch (e) { Toast.error('Error: ' + e.message); }
+        }
+
+        /* ---- RECORDS TAB ---- */
+        // #22: Calculate student's attendance % for a course
+        function getStudentAttPct(sid, cid) {
+            let recs = attendance.filter(a => a.studentId == sid);
+            if (cid) recs = recs.filter(a => a.courseId == cid);
+            if (!recs.length) return null;
+            const present = recs.filter(a => a.isPresent).length;
+            return parseFloat((present / recs.length * 100).toFixed(1));
+        }
+
+        function filterRecords() {
+            const fc = document.getElementById('recCourse').value;
+            const fd = document.getElementById('recDate').value;
+            let recs = attendance;
+            if (fc !== 'all') recs = recs.filter(r => r.courseId == fc);
+            if (fd) recs = recs.filter(r => r.date?.startsWith(fd));
+            recs = recs.slice(-100);
+            document.getElementById('recBody').innerHTML = recs.length ? recs.map(r => {
+                const s = students.find(x => (x.studentId || x.id) === r.studentId);
+                const c = courses.find(x => (x.courseId || x.id) === r.courseId);
+                const pct = getStudentAttPct(r.studentId, r.courseId);
+                const isLow = pct !== null && pct < 75;
+                const pctClr = pct >= 75 ? 'var(--emerald-400)' : (pct >= 50 ? 'var(--amber-400)' : 'var(--rose-400)');
+                return `<tr class="${isLow ? 'low-att' : ''}">
+                    <td>${s ? (s.firstName + ' ' + s.lastName) : '#' + r.studentId} ${isLow ? '<span class="low-att-flag"><i class="ri-alert-line"></i> Low</span>' : ''}</td>
+                    <td>${c ? (c.courseCode || c.code) : '#' + r.courseId}</td>
+                    <td>${r.date ? new Date(r.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</td>
+                    <td><span class="${r.isPresent ? 'badge-present' : 'badge-absent'}">${r.isPresent ? 'Present' : 'Absent'}</span></td>
+                    <td>${pct !== null ? `<span style="font-weight:700;color:${pctClr};">${pct}%</span> <div class="pct-bar"><div class="pct-fill" style="width:${pct}%;background:${pctClr};"></div></div>` : '—'}</td>
+                </tr>`;
+            }).join('') : '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--text-tertiary);">No records found</td></tr>';
+        }
+
+        // #26: Export attendance data to CSV
+        function exportAttendanceCSV() {
+            const fc = document.getElementById('recCourse').value;
+            const fd = document.getElementById('recDate').value;
+            let recs = attendance;
+            if (fc !== 'all') recs = recs.filter(r => r.courseId == fc);
+            if (fd) recs = recs.filter(r => r.date?.startsWith(fd));
+            if (!recs.length) { Toast.error('No records to export'); return; }
+
+            let csv = 'Student,Roll Number,Course,Date,Status,Attendance %\n';
+            recs.forEach(r => {
+                const s = students.find(x => (x.studentId || x.id) === r.studentId);
+                const c = courses.find(x => (x.courseId || x.id) === r.courseId);
+                const pct = getStudentAttPct(r.studentId, r.courseId);
+                csv += `"${s ? (s.firstName + ' ' + s.lastName) : '#' + r.studentId}","${s?.rollNumber || ''}","${c ? (c.courseName || c.name) : '#' + r.courseId}","${r.date?.split('T')[0] || ''}","${r.isPresent ? 'Present' : 'Absent'}","${pct !== null ? pct + '%' : ''}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `attendance_report_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            Toast.success(`Exported ${recs.length} records`);
+        }
+
+        /* ---- STATS TAB (#27 enhanced) ---- */
+        function renderStats() {
+            const totalClasses = attendance.length;
+            const present = attendance.filter(a => a.isPresent).length;
+            const absent = totalClasses - present;
+            const rate = totalClasses ? (present / totalClasses * 100).toFixed(1) : 0;
+
+            // #23/#27: Count low-attendance students
+            const studentPcts = {};
+            attendance.forEach(a => {
+                const sid = a.studentId;
+                if (!studentPcts[sid]) studentPcts[sid] = { total: 0, present: 0 };
+                studentPcts[sid].total++;
+                if (a.isPresent) studentPcts[sid].present++;
+            });
+            const lowAttStudents = Object.entries(studentPcts).filter(([, v]) => v.total > 0 && (v.present / v.total * 100) < 75);
+
+            document.getElementById('statCards').innerHTML = `
+                <div class="att-stat-card"><div class="asv">${totalClasses}</div><div class="asl">Total Records</div></div>
+                <div class="att-stat-card"><div class="asv" style="background:linear-gradient(135deg,var(--emerald-400),var(--teal-400));-webkit-background-clip:text;">${present}</div><div class="asl">Present</div></div>
+                <div class="att-stat-card"><div class="asv" style="background:linear-gradient(135deg,var(--rose-400),var(--pink-400));-webkit-background-clip:text;">${absent}</div><div class="asl">Absent</div></div>
+                <div class="att-stat-card"><div class="asv">${rate}%</div><div class="asl">Attendance Rate</div></div>
+                <div class="att-stat-card"><div class="asv" style="background:linear-gradient(135deg,var(--rose-400),var(--amber-400));-webkit-background-clip:text;">${lowAttStudents.length}</div><div class="asl">Low Attendance (< 75%)</div></div>
+                <div class="att-stat-card"><div class="asv">${Object.keys(studentPcts).length}</div><div class="asl">Students Tracked</div></div>`;
+            // Course-wise stats
+            const courseMap = {};
+            attendance.forEach(a => {
+                if (!courseMap[a.courseId]) courseMap[a.courseId] = { total: 0, present: 0 };
+                courseMap[a.courseId].total++;
+                if (a.isPresent) courseMap[a.courseId].present++;
+            });
+            document.getElementById('courseStatsBody').innerHTML = Object.entries(courseMap).map(([cid, v]) => {
+                const c = courses.find(x => (x.courseId || x.id) == cid);
+                const r = (v.present / v.total * 100).toFixed(1);
+                const clr = parseFloat(r) >= 75 ? 'var(--emerald-400)' : (parseFloat(r) >= 50 ? 'var(--amber-400)' : 'var(--rose-400)');
+                return `<tr>
+                    <td>${c ? (c.courseCode || c.code) + ' — ' + (c.courseName || c.name) : 'Course #' + cid}</td>
+                    <td>${v.total}</td>
+                    <td>${v.present} / ${v.total}</td>
+                    <td>${r}% <div class="pct-bar"><div class="pct-fill" style="width:${r}%;background:${clr};"></div></div></td>
+                </tr>`;
+            }).join('') || '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-tertiary);">No data</td></tr>';
+        }
+
+        /* ---- REPORT TAB ---- */
+        function loadReport() {
+            const sid = document.getElementById('rptStudent').value;
+            const cid = document.getElementById('rptCourse').value;
+            if (!sid) { document.getElementById('reportContent').innerHTML = 'Select a student'; return; }
+            let recs = attendance.filter(a => a.studentId == sid);
+            if (cid !== 'all') recs = recs.filter(a => a.courseId == cid);
+            const total = recs.length, present = recs.filter(a => a.isPresent).length, absent = total - present;
+            const pct = total ? (present / total * 100).toFixed(1) : 0;
+            const student = students.find(s => (s.studentId || s.id) == sid);
+            const name = student ? (student.firstName + ' ' + student.lastName) : 'Student #' + sid;
+            // Generate monthly heatmap
+            const dates = {}; recs.forEach(r => { const d = r.date?.split('T')[0]; if (d) dates[d] = r.isPresent; });
+            const today = new Date(); const startMonth = new Date(today.getFullYear(), today.getMonth() - 2, 1);
+            let heatHtml = '';
+            for (let d = new Date(startMonth); d <= today; d.setDate(d.getDate() + 1)) {
+                const ds = d.toISOString().split('T')[0];
+                const val = dates[ds];
+                const clr = val === true ? 'rgba(52,211,153,0.6)' : (val === false ? 'rgba(248,113,113,0.6)' : 'rgba(255,255,255,0.04)');
+                heatHtml += `<div class="hm-cell" style="background:${clr};" title="${ds}: ${val === true ? 'Present' : (val === false ? 'Absent' : 'No record')}"></div>`;
+            }
+            document.getElementById('reportContent').innerHTML = `
+                <div style="text-align:left;">
+                    <h3 style="margin-bottom:16px;">${name} — Attendance Report</h3>
+                    <div class="stat-cards-row" style="margin-bottom:20px;">
+                        <div class="att-stat-card"><div class="asv">${total}</div><div class="asl">Total</div></div>
+                        <div class="att-stat-card"><div class="asv" style="background:linear-gradient(135deg,var(--emerald-400),var(--teal-400));-webkit-background-clip:text;">${present}</div><div class="asl">Present</div></div>
+                        <div class="att-stat-card"><div class="asv" style="background:linear-gradient(135deg,var(--rose-400),var(--pink-400));-webkit-background-clip:text;">${absent}</div><div class="asl">Absent</div></div>
+                        <div class="att-stat-card"><div class="asv">${pct}%</div><div class="asl">Rate</div></div>
+                    </div>
+                    <h4 style="margin-bottom:10px;font-size:0.85rem;color:var(--text-secondary);">Attendance Heatmap (Last 3 Months)</h4>
+                    <div class="heatmap">${heatHtml}</div>
+                    <div style="display:flex;gap:16px;margin-top:12px;justify-content:center;">
+                        <span style="font-size:0.72rem;display:flex;align-items:center;gap:4px;color:var(--text-tertiary);"><div style="width:12px;height:12px;border-radius:3px;background:rgba(52,211,153,0.6);"></div> Present</span>
+                        <span style="font-size:0.72rem;display:flex;align-items:center;gap:4px;color:var(--text-tertiary);"><div style="width:12px;height:12px;border-radius:3px;background:rgba(248,113,113,0.6);"></div> Absent</span>
+                        <span style="font-size:0.72rem;display:flex;align-items:center;gap:4px;color:var(--text-tertiary);"><div style="width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);"></div> No record</span>
+                    </div>
+                </div>`;
+        }
+
+        /* ---- Helpers ---- */
+        function formatT(ts) { if (!ts) return '?'; if (typeof ts === 'string') { const p = ts.split(':'); const h = parseInt(p[0]), m = p[1]; return (h > 12 ? h - 12 : h) + ':' + m + (h >= 12 ? ' PM' : ' AM'); } return '?'; }
+        function getTeacherName(id) { if (!id) return '—'; const t = teachers.find(x => (x.teacherId || x.id) === id); return t ? (t.user ? t.user.firstName + ' ' + t.user.lastName : (t.displayName || t.name || 'T#' + id)) : 'T#' + id; }
+
+        loadAll();
+    </script>
+</body>
+
+</html>

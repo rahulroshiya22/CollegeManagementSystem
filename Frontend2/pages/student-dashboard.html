@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Student Portal</title>
+    <meta name="description" content="Student Dashboard - College Management System">
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* ─── Student Dashboard Specifics ─── */
+        .greeting {
+            margin-bottom: var(--space-2);
+        }
+
+        .greeting h1 {
+            font-size: 1.75rem;
+        }
+
+        .greeting .wave {
+            display: inline-block;
+            animation: wave 2s ease-in-out infinite;
+            transform-origin: 70% 70%;
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                transform: rotate(0)
+            }
+
+            15% {
+                transform: rotate(14deg)
+            }
+
+            30% {
+                transform: rotate(-8deg)
+            }
+
+            40% {
+                transform: rotate(14deg)
+            }
+
+            50% {
+                transform: rotate(-4deg)
+            }
+
+            60% {
+                transform: rotate(10deg)
+            }
+        }
+
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            padding: 6px 16px;
+            font-size: .78rem;
+            color: var(--text-secondary);
+        }
+
+        /* Profile Card */
+        .profile-card {
+            display: flex;
+            gap: var(--space-8);
+            align-items: flex-start;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 28px;
+            display: grid;
+            place-items: center;
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 12px 40px rgba(99, 102, 241, .3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h2 {
+            font-size: 1.4rem;
+            margin-bottom: 4px;
+        }
+
+        .profile-info .dept {
+            font-size: .85rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .profile-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .profile-tags .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, .1);
+            border: 1px solid rgba(99, 102, 241, .2);
+            border-radius: var(--radius-full);
+            padding: 5px 14px;
+            font-size: .72rem;
+            font-weight: 600;
+            color: var(--indigo-300);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Data Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table thead th {
+            padding: 12px 16px;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--text-tertiary);
+            text-align: left;
+            border-bottom: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, .02);
+        }
+
+        .data-table thead th:first-child {
+            border-radius: var(--radius-lg) 0 0 0;
+        }
+
+        .data-table thead th:last-child {
+            border-radius: 0 var(--radius-lg) 0 0;
+        }
+
+        .data-table tbody td {
+            padding: 14px 16px;
+            font-size: .85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(99, 102, 241, .04);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Grade & Status Chips */
+        .chip {
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+            font-size: .72rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .chip-emerald {
+            background: rgba(16, 185, 129, .12);
+            color: var(--emerald-400);
+        }
+
+        .chip-amber {
+            background: rgba(245, 158, 11, .12);
+            color: var(--amber-400);
+        }
+
+        .chip-rose {
+            background: rgba(244, 63, 94, .12);
+            color: var(--rose-400);
+        }
+
+        .chip-indigo {
+            background: rgba(99, 102, 241, .12);
+            color: var(--indigo-400);
+        }
+
+        .chip-teal {
+            background: rgba(20, 184, 166, .12);
+            color: var(--teal-400);
+        }
+
+        .chip-sky {
+            background: rgba(56, 189, 248, .12);
+            color: var(--sky-400);
+        }
+
+        .chip-violet {
+            background: rgba(139, 92, 246, .12);
+            color: var(--violet-400);
+        }
+
+        /* Progress Bars */
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width .6s var(--ease-spring);
+        }
+
+        /* Info Row */
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-row .info-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-lg);
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .info-row .info-label {
+            font-size: .65rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--text-tertiary);
+            font-weight: 700;
+        }
+
+        .info-row .info-value {
+            font-size: .88rem;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* Timetable */
+        .tt-grid {
+            display: grid;
+            gap: 0;
+        }
+
+        .tt-day-header {
+            padding: 10px 16px;
+            font-weight: 700;
+            font-size: .8rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, .03);
+            border-bottom: 1px solid var(--border-subtle);
+            letter-spacing: .03em;
+            text-transform: uppercase;
+        }
+
+        .tt-slot {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+        }
+
+        .tt-slot:last-child {
+            border-bottom: none;
+        }
+
+        .tt-time {
+            width: 56px;
+            font-size: .78rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            flex-shrink: 0;
+            text-align: center;
+        }
+
+        .tt-bar {
+            width: 3px;
+            height: 32px;
+            border-radius: 2px;
+            flex-shrink: 0;
+        }
+
+        /* Notice Items */
+        .notice-item {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        .notice-item:last-child {
+            border-bottom: none;
+        }
+
+        .notice-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .n-title {
+            font-size: .85rem;
+            font-weight: 600;
+        }
+
+        .n-time {
+            font-size: .72rem;
+            color: var(--text-tertiary);
+            margin-top: 2px;
+        }
+
+        /* Message Items */
+        .msg-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .msg-row:hover {
+            background: rgba(99, 102, 241, .03);
+            margin: 0 -16px;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        .msg-row:last-child {
+            border-bottom: none;
+        }
+
+        .msg-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--indigo-400);
+            flex-shrink: 0;
+        }
+
+        .msg-dot.read {
+            background: var(--border-subtle);
+        }
+
+        /* Schedule Mini Card */
+        .schedule-card {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all .2s;
+        }
+
+        .schedule-card:hover {
+            background: rgba(99, 102, 241, .05);
+            transform: translateY(-1px);
+        }
+
+        .schedule-time {
+            font-size: .75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            width: 50px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* Fees Row */
+        .fee-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        .fee-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Section Header */
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-5);
+        }
+
+        .section-header h4 {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-header h4 i {
+            font-size: 1.15rem;
+        }
+
+        /* Tab Panels */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+            animation: fadeIn .3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @media(max-width:768px) {
+            .profile-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .profile-tags {
+                justify-content: center;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- ─── Header ─── -->
+    <header class="neo-header">
+        <a href="student-dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="#" class="active" data-tab="overview" onclick="switchTab(event,'overview')"><i
+                    class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="#" data-tab="profile" onclick="switchTab(event,'profile')"><i class="ri-user-3-line"></i>
+                Profile</a>
+            <a href="#" data-tab="courses" onclick="switchTab(event,'courses')"><i class="ri-book-open-line"></i>
+                Courses</a>
+            <a href="#" data-tab="attendance" onclick="switchTab(event,'attendance')"><i
+                    class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="#" data-tab="grades" onclick="switchTab(event,'grades')"><i class="ri-bar-chart-line"></i>
+                Grades</a>
+            <a href="#" data-tab="exams" onclick="switchTab(event,'exams')"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="#" data-tab="fees" onclick="switchTab(event,'fees')"><i class="ri-money-dollar-circle-line"></i>
+                Fees</a>
+            <a href="#" data-tab="timetable" onclick="switchTab(event,'timetable')"><i class="ri-calendar-2-line"></i>
+                Timetable</a>
+            <a href="#" data-tab="messages" onclick="switchTab(event,'messages')"><i class="ri-mail-line"></i>
+                Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()" title="Logout"><i
+                    class="ri-logout-box-r-line"></i></button>
+            <div class="header-avatar" id="headerAvatar">ST</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')"><i
+                class="ri-menu-3-line"></i></button>
+    </header>
+
+    <!-- ─── Main Content ─── -->
+    <main class="page-wrapper">
+        <div class="container">
+
+            <!-- Greeting -->
+            <div class="greeting slide-up">
+                <h1><span class="wave">👋</span> Welcome back, <span id="studentName"
+                        class="text-gradient">Student</span></h1>
+                <div class="date-badge mt-2">
+                    <i class="ri-calendar-2-line"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- ═══ Stat Cards ═══ -->
+            <div class="bento-grid mt-8" style="grid-template-columns:repeat(4,1fr);">
+                <div class="glass-card stat-card tilt slide-up delay-1">
+                    <div class="stat-blob" style="background:var(--indigo-500);"></div>
+                    <div class="stat-icon" style="background:var(--grad-primary);"><i class="ri-book-open-fill"></i>
+                    </div>
+                    <div class="stat-value" id="statCourses">0</div>
+                    <div class="stat-label">Enrolled Courses</div>
+                    <div class="stat-trend up" id="trendCourses"><i class="ri-arrow-up-s-fill"></i> Active</div>
+                </div>
+                <div class="glass-card stat-card tilt slide-up delay-2">
+                    <div class="stat-blob" style="background:var(--teal-500);"></div>
+                    <div class="stat-icon" style="background:var(--grad-teal);"><i class="ri-calendar-check-fill"></i>
+                    </div>
+                    <div class="stat-value" id="statAttendance">—</div>
+                    <div class="stat-label">Attendance</div>
+                    <div class="stat-trend up" id="trendAtt"><i class="ri-arrow-up-s-fill"></i> Overall</div>
+                </div>
+                <div class="glass-card stat-card tilt slide-up delay-3">
+                    <div class="stat-blob" style="background:var(--amber-500);"></div>
+                    <div class="stat-icon" style="background:var(--grad-amber);"><i class="ri-bar-chart-fill"></i></div>
+                    <div class="stat-value" id="statCGPA">—</div>
+                    <div class="stat-label">Current CGPA</div>
+                    <div class="stat-trend up" id="trendCgpa"><i class="ri-arrow-up-s-fill"></i> Grade</div>
+                </div>
+                <div class="glass-card stat-card tilt slide-up delay-4">
+                    <div class="stat-blob" style="background:var(--rose-500);"></div>
+                    <div class="stat-icon" style="background:var(--grad-rose);"><i
+                            class="ri-money-dollar-circle-fill"></i></div>
+                    <div class="stat-value" id="statFees">₹0</div>
+                    <div class="stat-label">Pending Fees</div>
+                    <div class="stat-trend" id="trendFees"><i class="ri-checkbox-circle-fill"></i> Status</div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Overview (Dashboard) ═══ -->
+            <div class="tab-panel active" id="tab-overview">
+                <div class="bento-grid mt-8" style="grid-template-columns:1.3fr 1fr;">
+                    <!-- Today's Schedule -->
+                    <div class="glass-card slide-up delay-2">
+                        <div class="section-header">
+                            <h4><i class="ri-calendar-event-fill" style="color:var(--sky-400);"></i> Today's Schedule
+                            </h4>
+                            <span class="badge badge-indigo" id="todayDay">—</span>
+                        </div>
+                        <div id="todaySchedule" style="display:grid;gap:10px;">
+                            <p class="text-muted text-sm">Loading schedule...</p>
+                        </div>
+                    </div>
+
+                    <!-- Notices & Announcements -->
+                    <div class="glass-card slide-up delay-3">
+                        <div class="section-header">
+                            <h4><i class="ri-megaphone-fill" style="color:var(--amber-400);"></i> Notices</h4>
+                            <span class="badge badge-amber">New</span>
+                        </div>
+                        <div id="noticesList">
+                            <p class="text-muted text-sm">Loading notices...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Info Cards -->
+                <div class="bento-grid mt-6" style="grid-template-columns:1fr 1fr 1fr;">
+                    <div class="glass-card slide-up delay-3">
+                        <div class="section-header">
+                            <h4><i class="ri-mail-fill" style="color:var(--fuchsia-400);"></i> Recent Messages</h4>
+                            <span class="badge badge-indigo" id="overviewUnread">0</span>
+                        </div>
+                        <div id="overviewMessages">
+                            <p class="text-muted text-sm">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="glass-card slide-up delay-4">
+                        <div class="section-header">
+                            <h4><i class="ri-edit-2-fill" style="color:var(--violet-400);"></i> Upcoming Exams</h4>
+                        </div>
+                        <div id="overviewExams">
+                            <p class="text-muted text-sm">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="glass-card slide-up delay-5">
+                        <div class="section-header">
+                            <h4><i class="ri-wallet-3-fill" style="color:var(--rose-400);"></i> Fee Summary</h4>
+                        </div>
+                        <div id="overviewFees">
+                            <p class="text-muted text-sm">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Profile ═══ -->
+            <div class="tab-panel" id="tab-profile">
+                <div class="bento-grid mt-8" style="grid-template-columns:1fr 1fr;">
+                    <div class="glass-card slide-up delay-2">
+                        <div class="section-header">
+                            <h4><i class="ri-user-3-fill" style="color:var(--indigo-400);"></i> Personal Information
+                            </h4>
+                        </div>
+                        <div id="profileInfo">
+                            <p class="text-muted text-sm">Loading...</p>
+                        </div>
+                    </div>
+                    <div class="glass-card slide-up delay-3">
+                        <div class="section-header">
+                            <h4><i class="ri-graduation-cap-fill" style="color:var(--teal-400);"></i> Academic Details
+                            </h4>
+                        </div>
+                        <div id="academicInfo">
+                            <p class="text-muted text-sm">Loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Courses ═══ -->
+            <div class="tab-panel" id="tab-courses">
+                <div class="glass-card mt-8 slide-up delay-2">
+                    <div class="section-header">
+                        <h4><i class="ri-book-open-fill" style="color:var(--teal-400);"></i> Enrolled Courses</h4>
+                        <span class="badge badge-teal" id="courseCount">0 courses</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="coursesTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Course Code</th>
+                                    <th>Course Name</th>
+                                    <th>Credits</th>
+                                    <th>Department</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesBody">
+                                <tr>
+                                    <td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">
+                                        Loading courses...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Attendance ═══ -->
+            <div class="tab-panel" id="tab-attendance">
+                <div class="glass-card mt-8 slide-up delay-2">
+                    <div class="section-header">
+                        <h4><i class="ri-calendar-check-fill" style="color:var(--emerald-400);"></i> Attendance Records
+                        </h4>
+                        <span class="badge badge-emerald" id="overallAtt">Overall: —</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="attendanceTable">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Classes Attended</th>
+                                    <th>Total Classes</th>
+                                    <th>Percentage</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceBody">
+                                <tr>
+                                    <td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">
+                                        Loading attendance...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Grades ═══ -->
+            <div class="tab-panel" id="tab-grades">
+                <div class="glass-card mt-8 slide-up delay-2">
+                    <div class="section-header">
+                        <h4><i class="ri-bar-chart-fill" style="color:var(--amber-400);"></i> Grades & Results</h4>
+                        <span class="badge badge-amber" id="cgpaBadge">CGPA: —</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="gradesTable">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Semester</th>
+                                    <th>Marks</th>
+                                    <th>Grade</th>
+                                    <th>GPA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gradesBody">
+                                <tr>
+                                    <td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">
+                                        Loading grades...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Exams ═══ -->
+            <div class="tab-panel" id="tab-exams">
+                <div class="bento-grid mt-8" style="grid-template-columns:1fr 1fr;">
+                    <div class="glass-card slide-up delay-2">
+                        <div class="section-header">
+                            <h4><i class="ri-file-list-3-fill" style="color:var(--violet-400);"></i> Exam Results</h4>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Exam</th>
+                                        <th>Marks</th>
+                                        <th>%</th>
+                                        <th>Grade</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="examResultsBody">
+                                    <tr>
+                                        <td colspan="5" class="text-muted text-sm"
+                                            style="text-align:center;padding:40px;">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="glass-card slide-up delay-3">
+                        <div class="section-header">
+                            <h4><i class="ri-calendar-todo-fill" style="color:var(--sky-400);"></i> Upcoming Exams</h4>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Exam</th>
+                                        <th>Course</th>
+                                        <th>Date</th>
+                                        <th>Total Marks</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="upcomingExamsBody">
+                                    <tr>
+                                        <td colspan="4" class="text-muted text-sm"
+                                            style="text-align:center;padding:40px;">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Fees ═══ -->
+            <div class="tab-panel" id="tab-fees">
+                <div class="glass-card mt-8 slide-up delay-2">
+                    <div class="section-header">
+                        <h4><i class="ri-money-dollar-circle-fill" style="color:var(--rose-400);"></i> Fee Ledger</h4>
+                        <span class="badge badge-rose" id="feeSummary">Total: ₹0</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="feesTable">
+                            <thead>
+                                <tr>
+                                    <th>Fee Type</th>
+                                    <th>Amount</th>
+                                    <th>Due Date</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="feesBody">
+                                <tr>
+                                    <td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">
+                                        Loading fees...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Timetable ═══ -->
+            <div class="tab-panel" id="tab-timetable">
+                <div class="glass-card mt-8 slide-up delay-2">
+                    <div class="section-header">
+                        <h4><i class="ri-calendar-2-fill" style="color:var(--sky-400);"></i> Weekly Timetable</h4>
+                    </div>
+                    <div class="tt-grid" id="timetableGrid">
+                        <p class="text-muted text-sm" style="padding:40px;text-align:center;">Loading timetable...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ TAB: Messages ═══ -->
+            <div class="tab-panel" id="tab-messages">
+                <div class="glass-card mt-8 slide-up delay-2">
+                    <div class="section-header">
+                        <h4><i class="ri-mail-fill" style="color:var(--fuchsia-400);"></i> Messages Inbox</h4>
+                        <span class="badge badge-indigo" id="unreadBadge">0 unread</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table class="data-table" id="messagesTable">
+                            <thead>
+                                <tr>
+                                    <th style="width:10px;"></th>
+                                    <th>Subject</th>
+                                    <th>Preview</th>
+                                    <th>From</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="messagesBody">
+                                <tr>
+                                    <td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">
+                                        Loading messages...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height:60px;"></div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'auth';
+        const user = Auth.getUser();
+        document.getElementById('studentName').textContent = user?.displayName || 'Student';
+        document.getElementById('headerAvatar').textContent = Utils.initials(user?.displayName || 'ST');
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // ─── Tab Switching ───
+        function switchTab(e, tab) {
+            e.preventDefault();
+            document.querySelectorAll('#mainNav a').forEach(a => a.classList.remove('active'));
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('mainNav').classList.remove('mobile-open');
+        }
+
+        let myStudent = null, myCourseIds = [], allCourses = [], allDepts = [];
+
+        // ─── Main Loader ───
+        async function loadStudentPortal() {
+            try {
+                const [students, enrollments, courses, departments] = await Promise.allSettled([
+                    API.getStudents(), API.getEnrollments(), API.getCourses(), API.getDepartments()
+                ]);
+                const studs = Array.isArray(students.value) ? students.value : [];
+                const enrs = Array.isArray(enrollments.value) ? enrollments.value : [];
+                allCourses = Array.isArray(courses.value) ? courses.value : [];
+                allDepts = Array.isArray(departments.value) ? departments.value : [];
+
+                myStudent = studs.find(s => s.email === user?.email);
+                if (!myStudent) { document.getElementById('statCourses').textContent = '!'; return; }
+
+                // Resolve department
+                const dept = allDepts.find(d => d.departmentId === myStudent.departmentId || d.id === myStudent.departmentId);
+                const deptName = dept?.departmentName || dept?.name || myStudent.department || 'N/A';
+
+                // Enrollments
+                const myEnr = enrs.filter(e => e.studentId === (myStudent.studentId || myStudent.id));
+                myCourseIds = myEnr.map(e => e.courseId);
+                const myCourses = myCourseIds.map(id => allCourses.find(c => (c.courseId || c.id) === id)).filter(Boolean);
+
+                // Stat cards
+                document.getElementById('statCourses').textContent = myCourses.length;
+                document.getElementById('trendCourses').innerHTML = `<i class="ri-arrow-up-s-fill"></i> ${myCourses.length} active`;
+
+                // Profile tab
+                renderProfile(deptName);
+                renderCourses(myCourses, deptName);
+
+                // Load all other sections
+                loadAttendance(); loadGrades(); loadExams(); loadFees(); loadTimetable(); loadTodaySchedule(); loadNotices(); loadMessages();
+
+            } catch (e) { console.error('Portal error:', e); }
+        }
+
+        function getDeptName(deptId) {
+            const d = allDepts.find(x => x.departmentId === deptId || x.id === deptId);
+            return d?.departmentName || d?.name || 'N/A';
+        }
+
+        // ─── Profile ───
+        function renderProfile(deptName) {
+            const s = myStudent;
+            const personalFields = [
+                { icon: 'ri-user-fill', bg: 'rgba(99,102,241,.12)', color: 'var(--indigo-400)', label: 'Full Name', value: `${s.firstName || ''} ${s.lastName || ''}`.trim() || '—' },
+                { icon: 'ri-mail-fill', bg: 'rgba(20,184,166,.12)', color: 'var(--teal-400)', label: 'Email', value: s.email || '—' },
+                { icon: 'ri-phone-fill', bg: 'rgba(244,63,94,.12)', color: 'var(--rose-400)', label: 'Phone', value: s.phone || '—' },
+                { icon: 'ri-cake-2-fill', bg: 'rgba(217,70,239,.12)', color: 'var(--fuchsia-400)', label: 'Date of Birth', value: Utils.formatDate(s.dateOfBirth) },
+                { icon: 'ri-men-fill', bg: 'rgba(16,185,129,.12)', color: 'var(--emerald-400)', label: 'Gender', value: s.gender || '—' },
+                { icon: 'ri-map-pin-fill', bg: 'rgba(139,92,246,.12)', color: 'var(--violet-400)', label: 'Address', value: s.address || '—' },
+            ];
+            const academicFields = [
+                { icon: 'ri-id-card-fill', bg: 'rgba(99,102,241,.12)', color: 'var(--indigo-400)', label: 'Student ID', value: s.studentId || s.id || '—' },
+                { icon: 'ri-hashtag', bg: 'rgba(56,189,248,.12)', color: 'var(--sky-400)', label: 'Roll Number', value: s.rollNumber || '—' },
+                { icon: 'ri-building-2-fill', bg: 'rgba(245,158,11,.12)', color: 'var(--amber-400)', label: 'Department', value: deptName },
+                { icon: 'ri-calendar-fill', bg: 'rgba(99,102,241,.12)', color: 'var(--indigo-400)', label: 'Admission Year', value: s.admissionYear || '—' },
+                { icon: 'ri-checkbox-circle-fill', bg: 'rgba(16,185,129,.12)', color: 'var(--emerald-400)', label: 'Status', value: s.status || 'Active' },
+                { icon: 'ri-book-open-fill', bg: 'rgba(20,184,166,.12)', color: 'var(--teal-400)', label: 'Courses Enrolled', value: myCourseIds.length },
+            ];
+            const renderRows = fields => fields.map(f => `<div class="info-row"><div class="info-icon" style="background:${f.bg};color:${f.color};"><i class="${f.icon}"></i></div><div style="flex:1;"><div class="info-label">${f.label}</div><div class="info-value">${f.value}</div></div></div>`).join('');
+            document.getElementById('profileInfo').innerHTML = renderRows(personalFields);
+            document.getElementById('academicInfo').innerHTML = renderRows(academicFields);
+        }
+
+        // ─── Courses Table ───
+        function renderCourses(myCourses, deptName) {
+            const body = document.getElementById('coursesBody');
+            document.getElementById('courseCount').textContent = myCourses.length + ' courses';
+            if (!myCourses.length) { body.innerHTML = '<tr><td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">No courses enrolled yet.</td></tr>'; return; }
+            body.innerHTML = myCourses.map((c, i) => {
+                const cd = getDeptName(c.departmentId);
+                return `<tr>
+                    <td style="font-weight:700;color:var(--text-tertiary);">${i + 1}</td>
+                    <td><span class="chip chip-indigo">${c.courseCode || '—'}</span></td>
+                    <td style="font-weight:600;">${c.courseName || c.name || '—'}</td>
+                    <td>${c.credits || '—'}</td>
+                    <td>${cd}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        // ─── Attendance ───
+        async function loadAttendance() {
+            if (!myStudent) return;
+            try {
+                const data = await API.getAttendanceByStudent(myStudent.studentId || myStudent.id);
+                const records = Array.isArray(data) ? data : [];
+                const body = document.getElementById('attendanceBody');
+                if (!records.length) { body.innerHTML = '<tr><td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">No attendance records.</td></tr>'; document.getElementById('statAttendance').textContent = '—'; return; }
+
+                const byCourse = {};
+                records.forEach(r => { const id = r.courseId; if (!byCourse[id]) byCourse[id] = []; byCourse[id].push(r); });
+                let totalP = 0, totalR = 0, html = '';
+                for (const [cid, recs] of Object.entries(byCourse)) {
+                    const course = allCourses.find(c => (c.courseId || c.id) == cid);
+                    const present = recs.filter(r => r.status === 'Present' || r.isPresent).length;
+                    const pct = Math.round((present / recs.length) * 100);
+                    totalP += present; totalR += recs.length;
+                    const color = pct >= 75 ? 'var(--emerald-400)' : pct >= 50 ? 'var(--amber-400)' : 'var(--rose-400)';
+                    const chipClass = pct >= 75 ? 'chip-emerald' : pct >= 50 ? 'chip-amber' : 'chip-rose';
+                    html += `<tr>
+                        <td style="font-weight:600;">${course?.courseName || 'Course #' + cid}</td>
+                        <td>${present}</td>
+                        <td>${recs.length}</td>
+                        <td><span class="chip ${chipClass}">${pct}%</span></td>
+                        <td style="min-width:120px;"><div class="progress-track"><div class="progress-fill" style="width:${pct}%;background:${color};"></div></div></td>
+                    </tr>`;
+                }
+                body.innerHTML = html;
+                const overall = totalR ? Math.round((totalP / totalR) * 100) : 0;
+                document.getElementById('statAttendance').textContent = overall + '%';
+                document.getElementById('overallAtt').textContent = 'Overall: ' + overall + '%';
+                const tColor = overall >= 75 ? 'up' : '';
+                document.getElementById('trendAtt').innerHTML = `<i class="ri-arrow-${overall >= 75 ? 'up' : 'down'}-s-fill"></i> ${overall}% overall`;
+                if (overall < 75) document.getElementById('trendAtt').classList.add('down');
+            } catch (e) { console.error('Attendance:', e); }
+        }
+
+        // ─── Grades ───
+        async function loadGrades() {
+            if (!myStudent) return;
+            try {
+                const data = await API.getGradesByStudent(myStudent.studentId || myStudent.id);
+                const grades = Array.isArray(data) ? data : [];
+                const body = document.getElementById('gradesBody');
+                if (!grades.length) { body.innerHTML = '<tr><td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">No grades recorded.</td></tr>'; return; }
+                const gpaMap = { 'A+': 10, 'A': 9, 'B+': 8, 'B': 7, 'C': 6, 'D': 5, 'F': 0 };
+                const gradeColors = { 'A+': 'chip-emerald', 'A': 'chip-teal', 'B+': 'chip-sky', 'B': 'chip-indigo', 'C': 'chip-amber', 'D': 'chip-amber', 'F': 'chip-rose' };
+                let totalGpa = 0, html = '';
+                grades.forEach(g => {
+                    const course = allCourses.find(c => (c.courseId || c.id) === g.courseId);
+                    totalGpa += gpaMap[g.grade] || 0;
+                    html += `<tr>
+                        <td style="font-weight:600;">${course?.courseName || 'Course #' + g.courseId}</td>
+                        <td>Sem ${g.semester || '—'}</td>
+                        <td>${g.marksObtained ?? '—'}/${g.totalMarks ?? '—'}</td>
+                        <td><span class="chip ${gradeColors[g.grade] || 'chip-indigo'}">${g.grade || '—'}</span></td>
+                        <td style="font-weight:700;">${gpaMap[g.grade]?.toFixed(1) || '—'}</td>
+                    </tr>`;
+                });
+                body.innerHTML = html;
+                const cgpa = (totalGpa / grades.length).toFixed(1);
+                document.getElementById('statCGPA').textContent = cgpa;
+                document.getElementById('cgpaBadge').textContent = 'CGPA: ' + cgpa;
+                document.getElementById('trendCgpa').innerHTML = `<i class="ri-arrow-up-s-fill"></i> ${cgpa}/10`;
+            } catch (e) { console.error('Grades:', e); }
+        }
+
+        // ─── Exams ───
+        async function loadExams() {
+            if (!myStudent) return;
+            try {
+                const [examsRes, resultsRes] = await Promise.allSettled([
+                    API.getExams(), API.getExamResultsByStudent(myStudent.studentId || myStudent.id)
+                ]);
+                const exams = Array.isArray(examsRes.value) ? examsRes.value : [];
+                const results = Array.isArray(resultsRes.value) ? resultsRes.value : [];
+
+                // Results table
+                const rb = document.getElementById('examResultsBody');
+                if (results.length) {
+                    rb.innerHTML = results.map(r => {
+                        const exam = exams.find(e => e.examId === r.examId);
+                        return `<tr>
+                            <td style="font-weight:600;">${exam?.title || 'Exam #' + r.examId}</td>
+                            <td>${r.obtainedMarks}/${r.totalMarks}</td>
+                            <td>${Number(r.percentage).toFixed(1)}%</td>
+                            <td><span class="chip ${r.isPassed ? 'chip-emerald' : 'chip-rose'}">${r.grade}</span></td>
+                            <td><span class="chip ${r.isPassed ? 'chip-emerald' : 'chip-rose'}">${r.isPassed ? 'Passed' : 'Failed'}</span></td>
+                        </tr>`;
+                    }).join('');
+                } else rb.innerHTML = '<tr><td colspan="5" class="text-muted text-sm" style="text-align:center;padding:30px;">No results yet.</td></tr>';
+
+                // Upcoming
+                const upcoming = exams.filter(e => myCourseIds.includes(e.courseId) && !results.some(r => r.examId === e.examId) && e.isPublished);
+                const ub = document.getElementById('upcomingExamsBody');
+                if (upcoming.length) {
+                    ub.innerHTML = upcoming.map(e => {
+                        const course = allCourses.find(c => (c.courseId || c.id) === e.courseId);
+                        return `<tr>
+                            <td style="font-weight:600;">${e.title}</td>
+                            <td>${course?.courseName || '—'}</td>
+                            <td>${Utils.formatDate(e.scheduledDate)}</td>
+                            <td>${e.totalMarks}</td>
+                        </tr>`;
+                    }).join('');
+                } else ub.innerHTML = '<tr><td colspan="4" class="text-muted text-sm" style="text-align:center;padding:30px;">No upcoming exams.</td></tr>';
+
+                // Overview sidebar
+                const oe = document.getElementById('overviewExams');
+                if (upcoming.length) {
+                    oe.innerHTML = upcoming.slice(0, 3).map(e => {
+                        const course = allCourses.find(c => (c.courseId || c.id) === e.courseId);
+                        return `<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);"><i class="ri-calendar-todo-fill" style="color:var(--violet-400);margin-top:2px;"></i><div><div style="font-weight:600;font-size:.85rem;">${e.title}</div><div class="text-xs text-muted">${course?.courseName || ''} • ${Utils.formatDate(e.scheduledDate)}</div></div></div>`;
+                    }).join('');
+                } else oe.innerHTML = '<p class="text-muted text-sm">No upcoming exams.</p>';
+
+            } catch (e) { console.error('Exams:', e); }
+        }
+
+        // ─── Fees ───
+        async function loadFees() {
+            if (!myStudent) return;
+            try {
+                const data = await API.getFeesByStudent(myStudent.studentId || myStudent.id);
+                const fees = Array.isArray(data) ? data : [];
+                const body = document.getElementById('feesBody');
+                if (!fees.length) { body.innerHTML = '<tr><td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">No fee records.</td></tr>'; return; }
+                let pending = 0, totalAmt = 0;
+                body.innerHTML = fees.map(f => {
+                    const isPaid = f.status === 'Paid' || f.isPaid;
+                    const amt = f.amount || f.totalAmount || 0;
+                    const paid = f.paidAmount || (isPaid ? amt : 0);
+                    if (!isPaid) pending += amt - paid;
+                    totalAmt += amt;
+                    return `<tr>
+                        <td style="font-weight:600;">${f.feeType || f.description || 'Fee'}</td>
+                        <td>${Utils.formatCurrency(amt)}</td>
+                        <td>${Utils.formatDate(f.dueDate)}</td>
+                        <td>${Utils.formatCurrency(paid)}</td>
+                        <td><span class="chip ${isPaid ? 'chip-emerald' : 'chip-rose'}"><i class="ri-${isPaid ? 'checkbox-circle' : 'time'}-fill"></i> ${isPaid ? 'Paid' : 'Pending'}</span></td>
+                    </tr>`;
+                }).join('');
+                document.getElementById('statFees').textContent = Utils.formatCurrency(pending);
+                document.getElementById('feeSummary').textContent = 'Total: ' + Utils.formatCurrency(totalAmt);
+                document.getElementById('trendFees').innerHTML = pending > 0
+                    ? `<i class="ri-error-warning-fill"></i> ${Utils.formatCurrency(pending)} due`
+                    : `<i class="ri-checkbox-circle-fill"></i> All paid`;
+                if (pending > 0) document.getElementById('trendFees').className = 'stat-trend down';
+
+                // Overview sidebar
+                const of_ = document.getElementById('overviewFees');
+                const paidCount = fees.filter(f => f.status === 'Paid' || f.isPaid).length;
+                of_.innerHTML = `
+                    <div class="info-row"><div class="info-icon" style="background:rgba(16,185,129,.12);color:var(--emerald-400);"><i class="ri-checkbox-circle-fill"></i></div><div><div class="info-label">Paid</div><div class="info-value">${paidCount} of ${fees.length}</div></div></div>
+                    <div class="info-row"><div class="info-icon" style="background:rgba(244,63,94,.12);color:var(--rose-400);"><i class="ri-error-warning-fill"></i></div><div><div class="info-label">Pending Amount</div><div class="info-value">${Utils.formatCurrency(pending)}</div></div></div>
+                    <div class="info-row"><div class="info-icon" style="background:rgba(99,102,241,.12);color:var(--indigo-400);"><i class="ri-wallet-3-fill"></i></div><div><div class="info-label">Total Fees</div><div class="info-value">${Utils.formatCurrency(totalAmt)}</div></div></div>
+                `;
+            } catch (e) { console.error('Fees:', e); }
+        }
+
+        // ─── Timetable ───
+        async function loadTimetable() {
+            if (!myStudent) return;
+            try {
+                const data = await API.getTimeSlots();
+                const slots = Array.isArray(data) ? data : [];
+                const mySlots = slots.filter(s => myCourseIds.includes(s.courseId));
+                const el = document.getElementById('timetableGrid');
+                if (!mySlots.length) { el.innerHTML = '<p class="text-muted text-sm" style="padding:40px;text-align:center;">No timetable data available.</p>'; return; }
+                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const barColors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--amber-400)', 'var(--rose-400)', 'var(--sky-400)', 'var(--fuchsia-400)'];
+                let html = '';
+                days.forEach(day => {
+                    const daySlots = mySlots.filter(s => s.dayOfWeek === day || s.day === day).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+                    if (!daySlots.length) return;
+                    html += `<div class="tt-day-header"><i class="ri-calendar-line" style="margin-right:6px;"></i>${day}</div>`;
+                    daySlots.forEach((s, i) => {
+                        const course = allCourses.find(c => (c.courseId || c.id) === s.courseId);
+                        const time = s.startTime ? s.startTime.substring(0, 5) : '—';
+                        const end = s.endTime ? s.endTime.substring(0, 5) : '';
+                        html += `<div class="tt-slot"><div class="tt-time" style="color:${barColors[i % barColors.length]};">${time}${end ? ' - ' + end : ''}</div><div class="tt-bar" style="background:${barColors[i % barColors.length]};"></div><div><div style="font-weight:600;font-size:.85rem;">${course?.courseName || 'Class'}</div><div class="text-xs text-muted">Room ${s.room || s.roomNumber || '—'}</div></div></div>`;
+                    });
+                });
+                el.innerHTML = html || '<p class="text-muted text-sm" style="padding:40px;text-align:center;">No scheduled classes.</p>';
+            } catch (e) { console.error('Timetable:', e); }
+        }
+
+        // ─── Today's Schedule ───
+        async function loadTodaySchedule() {
+            if (!myStudent) return;
+            try {
+                const data = await API.getTimeSlots();
+                const slots = Array.isArray(data) ? data : [];
+                const mySlots = slots.filter(s => myCourseIds.includes(s.courseId));
+                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const today = days[new Date().getDay()];
+                document.getElementById('todayDay').textContent = today;
+                const todaySlots = mySlots.filter(s => s.dayOfWeek === today || s.day === today).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+                const el = document.getElementById('todaySchedule');
+                const colors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--amber-400)', 'var(--rose-400)', 'var(--sky-400)'];
+                if (todaySlots.length) {
+                    el.innerHTML = todaySlots.map((s, i) => {
+                        const course = allCourses.find(c => (c.courseId || c.id) === s.courseId);
+                        const time = s.startTime ? s.startTime.substring(0, 5) : '—';
+                        const end = s.endTime ? s.endTime.substring(0, 5) : '';
+                        return `<div class="schedule-card"><div class="schedule-time" style="color:${colors[i % colors.length]};">${time}</div><div style="width:3px;height:36px;border-radius:2px;background:${colors[i % colors.length]};flex-shrink:0;"></div><div style="flex:1;"><div style="font-weight:700;font-size:.9rem;">${course?.courseName || 'Class'}</div><div class="text-xs text-muted">${end ? time + ' - ' + end : ''} • Room ${s.room || s.roomNumber || '—'}</div></div></div>`;
+                    }).join('');
+                } else el.innerHTML = '<div style="text-align:center;padding:30px;"><i class="ri-calendar-close-fill" style="font-size:2rem;color:var(--text-tertiary);"></i><p class="text-muted text-sm mt-2">No classes scheduled for today</p></div>';
+            } catch (e) { console.error('Today schedule:', e); }
+        }
+
+        // ─── Notices ───
+        async function loadNotices() {
+            try {
+                const [noticesRes, announcementsRes] = await Promise.allSettled([
+                    API.getActiveNotices('Student'), API.getAnnouncements()
+                ]);
+                const notices = Array.isArray(noticesRes.value) ? noticesRes.value : [];
+                const anns = Array.isArray(announcementsRes.value) ? announcementsRes.value : [];
+                const all = [...notices.map(n => ({ title: n.title, time: n.createdAt || n.publishedAt, type: 'notice' })), ...anns.map(a => ({ title: a.title, time: a.createdAt, type: 'announcement' }))].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 8);
+                const el = document.getElementById('noticesList');
+                const dotColors = ['var(--rose-400)', 'var(--indigo-400)', 'var(--teal-400)', 'var(--amber-400)', 'var(--emerald-400)'];
+                if (all.length) {
+                    el.innerHTML = all.map((n, i) => `<div class="notice-item"><div class="notice-dot" style="background:${dotColors[i % dotColors.length]};"></div><div><div class="n-title">${n.title}</div><div class="n-time">${Utils.formatDate(n.time)} • ${n.type === 'announcement' ? '📢 Announcement' : '📌 Notice'}</div></div></div>`).join('');
+                } else el.innerHTML = '<p class="text-muted text-sm">No notices.</p>';
+            } catch (e) { console.error('Notices:', e); }
+        }
+
+        // ─── Messages ───
+        async function loadMessages() {
+            if (!myStudent) return;
+            try {
+                const [inboxRes, unreadRes] = await Promise.allSettled([
+                    API.getMessageInbox(myStudent.studentId || myStudent.id, 'Student'),
+                    API.getUnreadCount(myStudent.studentId || myStudent.id, 'Student')
+                ]);
+                const msgs = Array.isArray(inboxRes.value) ? inboxRes.value : [];
+                const unread = unreadRes.value?.unreadCount || 0;
+                document.getElementById('unreadBadge').textContent = unread + ' unread';
+                document.getElementById('overviewUnread').textContent = unread;
+
+                const body = document.getElementById('messagesBody');
+                if (!msgs.length) { body.innerHTML = '<tr><td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">No messages.</td></tr>'; return; }
+                body.innerHTML = msgs.slice(0, 12).map(m => `<tr>
+                    <td><div class="msg-dot ${m.isRead ? 'read' : ''}"></div></td>
+                    <td style="font-weight:${m.isRead ? '500' : '700'};">${m.subject || 'No Subject'}</td>
+                    <td class="text-muted" style="font-size:.8rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(m.content || '').substring(0, 50)}...</td>
+                    <td class="text-muted" style="font-size:.8rem;">${m.senderName || '—'}</td>
+                    <td class="text-muted" style="font-size:.8rem;">${Utils.formatDate(m.sentAt)}</td>
+                </tr>`).join('');
+
+                // Overview sidebar
+                const om = document.getElementById('overviewMessages');
+                if (msgs.length) {
+                    om.innerHTML = msgs.slice(0, 3).map(m => `<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.04);"><div class="msg-dot ${m.isRead ? 'read' : ''}" style="margin-top:5px;"></div><div><div style="font-weight:${m.isRead ? '500' : '700'};font-size:.82rem;">${m.subject || 'No Subject'}</div><div class="text-xs text-muted">${Utils.formatDate(m.sentAt)}</div></div></div>`).join('');
+                } else om.innerHTML = '<p class="text-muted text-sm">No messages.</p>';
+            } catch (e) { console.error('Messages:', e); }
+        }
+
+        loadStudentPortal();
+    </script>
+</body>
+
+</html>

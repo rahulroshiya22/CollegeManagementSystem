@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - College Management System</title>
+    <meta name="description" content="Student Dashboard - View your courses, attendance, grades and fees">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-5);
+            margin-bottom: var(--space-6);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .attendance-ring {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-4);
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-primary);
+            position: relative;
+        }
+
+        .attendance-ring svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .attendance-ring circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        .ring-bg {
+            stroke: var(--bg-light);
+        }
+
+        [data-theme="dark"] .ring-bg {
+            stroke: rgba(255, 255, 255, 0.08);
+        }
+
+        .ring-fill {
+            stroke: var(--success);
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+
+        .fee-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: var(--bg-light);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-2);
+        }
+
+        [data-theme="dark"] .fee-card {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .fee-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .fee-info {
+            flex: 1;
+        }
+
+        .fee-amount {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .fee-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .course-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        [data-theme="dark"] .course-item {
+            border-bottom-color: rgba(255, 255, 255, 0.04);
+        }
+
+        .course-item:last-child {
+            border-bottom: none;
+        }
+
+        .course-badge {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .course-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .course-code {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .quick-link {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            color: var(--text-primary);
+            border: 1px solid transparent;
+        }
+
+        .quick-link:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .quick-link i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: var(--space-2);
+            color: var(--primary);
+        }
+
+        .quick-link span {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <div id="sidebarContainer"></div>
+        <div class="main-content">
+            <div id="headerContainer"></div>
+            <div class="page-body">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-label">Enrolled Courses</span>
+                            <div class="stat-icon"><i class="ri-book-2-fill"></i></div>
+                        </div>
+                        <p class="stat-value" id="statCourses">--</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-label">Overall Attendance</span>
+                            <div class="stat-icon"><i class="ri-checkbox-multiple-fill"></i></div>
+                        </div>
+                        <p class="stat-value" id="statAttendance">--%</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-label">GPA</span>
+                            <div class="stat-icon"><i class="ri-award-fill"></i></div>
+                        </div>
+                        <p class="stat-value" id="statGPA">--</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-label">Pending Fees</span>
+                            <div class="stat-icon"><i class="ri-money-dollar-circle-fill"></i></div>
+                        </div>
+                        <p class="stat-value" id="statFees">₹--</p>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="quick-links">
+                    <a class="quick-link" href="my-timetable.html"><i
+                            class="ri-calendar-schedule-fill"></i><span>Timetable</span></a>
+                    <a class="quick-link" href="my-attendance.html"><i
+                            class="ri-checkbox-multiple-fill"></i><span>Attendance</span></a>
+                    <a class="quick-link" href="my-grades.html"><i class="ri-award-fill"></i><span>Grades</span></a>
+                    <a class="quick-link" href="my-fees.html"><i
+                            class="ri-money-dollar-circle-fill"></i><span>Fees</span></a>
+                    <a class="quick-link" href="my-courses.html"><i class="ri-book-2-fill"></i><span>Courses</span></a>
+                    <a class="quick-link" href="notices.html"><i
+                            class="ri-notification-3-fill"></i><span>Notices</span></a>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Attendance Ring -->
+                    <div class="panel">
+                        <h5 class="section-title"><i class="ri-pie-chart-2-fill"></i> Attendance Overview</h5>
+                        <div id="attendanceChart" style="text-align:center">
+                            <div class="attendance-ring" id="attendanceRing">
+                                <svg viewBox="0 0 100 100">
+                                    <circle class="ring-bg" cx="50" cy="50" r="42" />
+                                    <circle class="ring-fill" id="ringFill" cx="50" cy="50" r="42"
+                                        stroke-dasharray="264" stroke-dashoffset="264" />
+                                </svg>
+                                <span id="attendancePercent">--%</span>
+                            </div>
+                            <p style="font-size:0.85rem;color:var(--text-muted)" id="attendanceNote">Loading...</p>
+                        </div>
+                    </div>
+
+                    <!-- Fee Summary -->
+                    <div class="panel">
+                        <h5 class="section-title"><i class="ri-wallet-3-fill"></i> Fee Status</h5>
+                        <div id="feeList">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        if (!initPage('Student Dashboard', 'dashboard', 'Student')) {
+            // Redirect
+        } else {
+            loadStudentData();
+        }
+
+        async function loadStudentData() {
+            const user = AuthManager.getUser();
+            const studentId = user?.userId || 0;
+
+            loadEnrolledCourses(studentId);
+            loadAttendanceSummary(studentId);
+            loadGPA(studentId);
+            loadFees(studentId);
+        }
+
+        async function loadEnrolledCourses(studentId) {
+            try {
+                const data = await AuthManager.apiGet(`/enrollment/student/${studentId}`);
+                const enrollments = Array.isArray(data) ? data : [];
+                document.getElementById('statCourses').textContent = enrollments.length;
+            } catch {
+                document.getElementById('statCourses').textContent = '0';
+            }
+        }
+
+        async function loadAttendanceSummary(studentId) {
+            try {
+                const summary = await AuthManager.apiGet(`/attendance/student/${studentId}/summary`);
+                const percent = summary?.attendancePercentage ? Math.round(summary.attendancePercentage) : 0;
+
+                document.getElementById('statAttendance').textContent = percent + '%';
+                document.getElementById('attendancePercent').textContent = percent + '%';
+
+                // Animate ring
+                const circumference = 264;
+                const offset = circumference - (percent / 100) * circumference;
+                const ring = document.getElementById('ringFill');
+                setTimeout(() => { ring.style.strokeDashoffset = offset; }, 300);
+
+                // Color based on percentage
+                if (percent >= 75) ring.style.stroke = 'var(--success)';
+                else if (percent >= 60) ring.style.stroke = 'var(--warning)';
+                else ring.style.stroke = 'var(--error)';
+
+                const note = document.getElementById('attendanceNote');
+                note.textContent = `${summary?.totalPresent || 0} present out of ${summary?.totalClasses || 0} classes`;
+            } catch {
+                document.getElementById('statAttendance').textContent = 'N/A';
+                document.getElementById('attendancePercent').textContent = 'N/A';
+                document.getElementById('attendanceNote').textContent = 'No attendance data';
+            }
+        }
+
+        async function loadGPA(studentId) {
+            try {
+                const data = await AuthManager.apiGet(`/grade/student/${studentId}/gpa`);
+                document.getElementById('statGPA').textContent = data?.gpa || '0.0';
+            } catch {
+                document.getElementById('statGPA').textContent = 'N/A';
+            }
+        }
+
+        async function loadFees(studentId) {
+            try {
+                const summary = await AuthManager.apiGet(`/fee/student/${studentId}/summary`);
+                const pending = summary?.totalPending || 0;
+                document.getElementById('statFees').textContent = `₹${pending.toLocaleString()}`;
+
+                const fees = await AuthManager.apiGet(`/fee/student/${studentId}`);
+                const feeList = Array.isArray(fees) ? fees.slice(0, 5) : [];
+                const container = document.getElementById('feeList');
+
+                if (!feeList.length) {
+                    container.innerHTML = '<div class="empty-state"><i class="ri-money-dollar-circle-line"></i><p>No fee records</p></div>';
+                    return;
+                }
+
+                container.innerHTML = feeList.map(f => {
+                    const isPaid = f.status === 'Paid';
+                    return `
+                        <div class="fee-card">
+                            <div class="fee-icon" style="background: ${isPaid ? 'var(--gradient-green)' : 'var(--gradient-orange)'}">
+                                <i class="${isPaid ? 'ri-check-line' : 'ri-time-line'}"></i>
+                            </div>
+                            <div class="fee-info">
+                                <div class="fee-amount">${f.description || f.feeType} — ₹${f.amount?.toLocaleString()}</div>
+                                <div class="fee-desc">${isPaid ? 'Paid' : f.status} · Due: ${new Date(f.dueDate).toLocaleDateString()}</div>
+                            </div>
+                            <span class="badge ${isPaid ? 'badge-success' : 'badge-warning'}">${f.status}</span>
+                        </div>
+                    `;
+                }).join('');
+            } catch {
+                document.getElementById('statFees').textContent = '₹0';
+                document.getElementById('feeList').innerHTML = '<div class="empty-state"><p>No fee data</p></div>';
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - College Management System</title>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link rel="stylesheet" href="../assets/css/components.css">
+    <link rel="stylesheet" href="../assets/css/3d-effects.css">
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: var(--bg-light);
+        }
+
+        .dashboard-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: var(--space-6);
+            width: calc(100% - 260px);
+            max-width: 1600px;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: margin-left var(--transition-base);
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-8);
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+
+        .page-title h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .attendance-form {
+            background: var(--bg-secondary);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-6);
+        }
+
+        .attendance-list {
+            background: var(--bg-secondary);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+        }
+
+        .attendance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-4);
+            background: var(--bg-light);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-3);
+        }
+
+        .attendance-toggle {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .toggle-btn {
+            padding: var(--space-2) var(--space-4);
+            border: 2px solid var(--bg-light);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .toggle-btn.present {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+
+        .toggle-btn.absent {
+            background: var(--error);
+            color: white;
+            border-color: var(--error);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo"><i class="ri-graduation-cap-fill"></i><span>CollegeMS</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="sidebar-link"><i
+                        class="ri-dashboard-fill"></i><span>Dashboard</span></a>
+                <a href="students.html" class="sidebar-link"><i class="ri-group-fill"></i><span>Students</span></a>
+                <a href="courses.html" class="sidebar-link"><i class="ri-book-open-fill"></i><span>Courses</span></a>
+                <a href="enrollment.html" class="sidebar-link"><i
+                        class="ri-file-list-fill"></i><span>Enrollment</span></a>
+                <a href="fees.html" class="sidebar-link"><i
+                        class="ri-money-dollar-circle-fill"></i><span>Fees</span></a>
+                <a href="attendance.html" class="sidebar-link active"><i
+                        class="ri-calendar-check-fill"></i><span>Attendance</span></a>
+                <a href="ai-assistant.html" class="sidebar-link"><i class="ri-robot-2-fill"></i><span>AI
+                        Assistant</span></a>
+            </nav>
+            <div class="sidebar-footer"><a href="../index.html" class="sidebar-link"><i
+                        class="ri-home-fill"></i><span>Back to Home</span></a></div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <div class="page-header animate-fade-in-down">
+                <div class="page-title">
+                    <h1>📅 Attendance Tracking</h1>
+                    <p class="page-subtitle">High-performance Dapper-based attendance management</p>
+                </div>
+            </div>
+
+            <!-- Attendance Form -->
+            <div class="attendance-form animate-fade-in-up">
+                <h3 style="margin-bottom: var(--space-4);">Mark Attendance</h3>
+                <form id="attendanceForm" onsubmit="submitAttendance(event)">
+                    <div class="form-group">
+                        <label class="form-label" for="courseSelect">Select Course *</label>
+                        <select class="form-select" id="courseSelect" required onchange="loadStudentsFor Course()">
+                            <option value="">Choose a course...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="attendanceDate">Date *</label>
+                        <input type="date" class="form-input" id="attendanceDate" required>
+                    </div>
+
+                    <div id="studentsList" style="margin-top: var(--space-6);"></div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-4);">
+                        <i class="ri-save-fill"></i> Save Attendance
+                    </button>
+                </form>
+            </div>
+
+            <!-- Recent Attendance -->
+            <div class="attendance-list animate-fade-in-up">
+                <h3 style="margin-bottom: var(--space-4);">Recent Attendance Records</h3>
+                <div id="recentAttendance"></div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/utils.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/3d-effects.js"></script>
+
+    <script>
+        let courses = [];
+        let students = [];
+        let enrollments = [];
+        let attendanceRecords = [];
+
+        async function initPage() {
+            document.getElementById('attendanceDate').valueAsDate = new Date();
+            await Promise.all([loadCourses(), loadAttendance()]);
+        }
+
+        async function loadCourses() {
+            try {
+                courses = await api.getCourses();
+                const select = document.getElementById('courseSelect');
+                courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.courseId;
+                    option.textContent = `${course.courseCode} - ${course.courseName}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading courses:', error);
+            }
+        }
+
+        async function loadStudentsForCourse() {
+            const courseId = document.getElementById('courseSelect').value;
+            if (!courseId) {
+                document.getElementById('studentsList').innerHTML = '';
+                return;
+            }
+
+            try {
+                enrollments = await api.getEnrollments();
+                students = await api.getStudents();
+
+                const enrolledStudents = enrollments
+                    .filter(e => e.courseId == courseId)
+                    .map(e => students.find(s => s.studentId === e.studentId))
+                    .filter(s => s);
+
+                const html = enrolledStudents.map(student => `
+          <div class="attendance-item">
+            <div>
+              <strong>${student.firstName} ${student.lastName}</strong>
+              <p style="margin: 0; color: var(--text-muted); font-size: 0.875rem;">${student.email}</p>
+            </div>
+            <div class="attendance-toggle">
+              <button type="button" class="toggle-btn present" data-student="${student.studentId}" data-status="Present" onclick="toggleAttendance(this)">
+                <i class="ri-check-fill"></i> Present
+              </button>
+              <button type="button" class="toggle-btn" data-student="${student.studentId}" data-status="Absent" onclick="toggleAttendance(this)">
+                <i class="ri-close-fill"></i> Absent
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+                document.getElementById('studentsList').innerHTML = html || '<p>No students enrolled in this course</p>';
+            } catch (error) {
+                console.error('Error loading students:', error);
+                showToast('Failed to load students', 'error');
+            }
+        }
+
+        function toggleAttendance(btn) {
+            const parent = btn.parentElement;
+            parent.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('present', 'absent'));
+            btn.classList.add(btn.dataset.status.toLowerCase());
+        }
+
+        async function submitAttendance(event) {
+            event.preventDefault();
+
+            const courseId = parseInt(document.getElementById('courseSelect').value);
+            const date = document.getElementById('attendanceDate').value;
+            const buttons = document.querySelectorAll('.toggle-btn.present, .toggle-btn.absent');
+
+            const records = Array.from(buttons).map(btn => ({
+                studentId: parseInt(btn.dataset.student),
+                courseId: courseId,
+                date: date,
+                status: btn.dataset.status
+            }));
+
+            try {
+                showToast('Saving attendance...', 'info', 2000);
+                await Promise.all(records.map(record => api.createAttendance(record)));
+                showToast('Attendance saved successfully!', 'success');
+                await loadAttendance();
+                document.getElementById('attendanceForm').reset();
+                document.getElementById('studentsList').innerHTML = '';
+            } catch (error) {
+                console.error('Error saving attendance:', error);
+                showToast('Failed to save attendance', 'error');
+            }
+        }
+
+        async function loadAttendance() {
+            try {
+                attendanceRecords = await api.getAttendance();
+                const container = document.getElementById('recentAttendance');
+
+                if (attendanceRecords.length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted);">No attendance records yet</p>';
+                    return;
+                }
+
+                container.innerHTML = attendanceRecords.slice(0, 10).map(record => {
+                    // Map backend fields: isPresent (bool) and remarks (string)
+                    const status = record.remarks || (record.isPresent ? 'Present' : 'Absent');
+                    const statusClass = record.isPresent ? 'success' : 'error';
+
+                    return `
+          <div class="attendance-item">
+            <div>
+              <strong>Attendance #${record.attendanceId}</strong>
+              <p style="margin: 0; color: var(--text-muted); font-size: 0.875rem;">
+                Student #${record.studentId} | Course #${record.courseId} | ${formatDate(record.date)}
+              </p>
+            </div>
+            <span class="badge badge-${statusClass}">${status}</span>
+          </div>
+        `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading attendance:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+
+</html>

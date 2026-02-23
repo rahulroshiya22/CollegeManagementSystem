@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Teachers</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .teacher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .teacher-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-2xl);
+            padding: 0;
+            overflow: hidden;
+            transition: all 0.3s var(--ease-out);
+        }
+
+        .teacher-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--border-default);
+        }
+
+        .teacher-top {
+            height: 80px;
+            position: relative;
+        }
+
+        .teacher-avatar-wrap {
+            position: absolute;
+            bottom: -30px;
+            left: 24px;
+        }
+
+        .teacher-avatar-lg {
+            width: 64px;
+            height: 64px;
+            border-radius: 20px;
+            display: grid;
+            place-items: center;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+            border: 3px solid var(--bg-root);
+        }
+
+        .teacher-info {
+            padding: 40px 24px 24px;
+        }
+
+        .teacher-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .teacher-email {
+            font-size: 0.78rem;
+            color: var(--text-tertiary);
+        }
+
+        .teacher-badges {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .teacher-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin-top: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .teacher-stat {
+            text-align: center;
+            padding: 12px 8px;
+            background: var(--bg-glass);
+        }
+
+        .teacher-stat .val {
+            font-size: 1.1rem;
+            font-weight: 800;
+        }
+
+        .teacher-stat .lbl {
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .loading-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--indigo-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        /* Teacher stats cards */
+        .teacher-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: var(--space-6);
+        }
+
+        .tstat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-2xl);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.3s var(--ease-out);
+        }
+
+        .tstat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-default);
+        }
+
+        .tstat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .tstat-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .tstat-lbl {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .dept-filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: var(--space-5);
+        }
+
+        .dept-chip {
+            padding: 6px 16px;
+            border-radius: var(--radius-full);
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dept-chip:hover,
+        .dept-chip.active {
+            background: rgba(217, 70, 239, 0.15);
+            border-color: rgba(217, 70, 239, 0.3);
+            color: var(--fuchsia-400);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" class="active" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"><i
+                    class="ri-logout-box-r-line"></i></button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')"><i
+                class="ri-menu-3-line"></i></button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <div class="slide-up"
+                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-8);flex-wrap:wrap;gap:16px;">
+                <div>
+                    <h1><i class="ri-user-star-fill" style="color:var(--fuchsia-400);"></i> Faculty Members</h1>
+                    <p class="text-sm text-muted mt-2">View and manage teaching staff</p>
+                </div>
+                <div style="display:flex;gap:12px;align-items:center;">
+                    <div class="search-bar">
+                        <i class="ri-search-2-line"></i>
+                        <input type="text" placeholder="Search faculty..." id="searchInput" oninput="filterTeachers()">
+                    </div>
+                    <button class="btn btn-ghost" onclick="exportTeacherCSV()" title="Export CSV"><i
+                            class="ri-download-2-line"></i> Export</button>
+                    <button class="btn btn-primary" onclick="openAddModal()">
+                        <i class="ri-add-line"></i> Add Teacher
+                    </button>
+                </div>
+            </div>
+
+            <!-- Teacher Stats -->
+            <div class="teacher-stats-row slide-up delay-1" id="teacherStatsRow"></div>
+            <!-- Department Filter -->
+            <div class="dept-filter-row slide-up delay-1" id="deptFilterRow"></div>
+
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loader"></div>
+            </div>
+            <div class="teacher-grid slide-up delay-2" id="teacherGrid"></div>
+            <div class="empty-state hidden" id="emptyState">
+                <i class="ri-user-star-line"></i>
+                <h4>No teachers found</h4>
+                <p class="text-muted">Faculty data will appear here.</p>
+            </div>
+            <div style="height:60px;"></div>
+        </div>
+    </main>
+
+    <!-- Add/Edit Teacher Modal -->
+    <div class="modal-overlay" id="teacherModal" style="display:none;">
+        <div class="modal-content" style="max-width:520px;">
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="ri-user-star-line"></i> Add Teacher</h3>
+                <button class="btn-icon btn-ghost" onclick="closeModal()" style="border-radius:50%;"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body" style="padding:20px;">
+                <form id="teacherForm">
+                    <!-- #41: Photo upload -->
+                    <div style="text-align:center;margin-bottom:16px;">
+                        <div id="tPhotoPreview"
+                            style="width:80px;height:80px;border-radius:50%;margin:0 auto 8px;background:var(--bg-glass);border:2px dashed var(--border-subtle);display:grid;place-items:center;overflow:hidden;cursor:pointer;"
+                            onclick="document.getElementById('tPhotoInput').click()">
+                            <i class="ri-camera-line" style="font-size:1.5rem;color:var(--text-tertiary);"></i>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;">
+                            <input type="file" id="tPhotoInput" accept="image/*" style="display:none;"
+                                onchange="previewTeacherPhoto(this)">
+                            <button type="button" class="btn btn-ghost btn-sm"
+                                onclick="document.getElementById('tPhotoInput').click()"><i
+                                    class="ri-upload-2-line"></i>
+                                Upload File</button>
+                            <span style="color:var(--text-tertiary);font-size:0.78rem;">or</span>
+                        </div>
+                        <div style="margin-top:6px;">
+                            <input class="form-input" id="tPhotoUrl" placeholder="Paste image URL (https://...)"
+                                style="font-size:0.82rem;">
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                        <div class="form-group"><label class="form-label">First Name *</label><input class="form-input"
+                                id="tFirstName" required></div>
+                        <div class="form-group"><label class="form-label">Last Name *</label><input class="form-input"
+                                id="tLastName" required></div>
+                    </div>
+                    <div class="form-group" style="margin-top:12px;"><label class="form-label">Email *</label><input
+                            class="form-input" type="email" id="tEmail" required></div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;">
+                        <div class="form-group"><label class="form-label">Department *</label>
+                            <select class="form-select" id="tDepartment" required>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Information Technology">Information Technology</option>
+                                <option value="Electronics">Electronics</option>
+                                <option value="Mechanical">Mechanical</option>
+                                <option value="Civil">Civil</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label class="form-label">Specialization *</label><input
+                                class="form-input" id="tSpecialization" required></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;">
+                        <div class="form-group"><label class="form-label">Phone</label><input class="form-input"
+                                id="tPhone"></div>
+                        <div class="form-group"><label class="form-label">Qualification</label><input class="form-input"
+                                id="tQualification" placeholder="M.Tech, Ph.D etc."></div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;">
+                        <div class="form-group"><label class="form-label">Experience (years)</label><input
+                                class="form-input" type="number" id="tExperience" min="0" value="0"></div>
+                        <div class="form-group"><label class="form-label">Password *</label><input class="form-input"
+                                type="password" id="tPassword" required></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer"
+                style="padding:16px 20px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border-subtle);">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveTeacher()"><i class="ri-save-line"></i> Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'auth';
+        let allTeachers = [], timeSlots = [], allCourses = [];
+        const topGrads = [
+            'linear-gradient(135deg, #6366f1, #a78bfa)',
+            'linear-gradient(135deg, #d946ef, #f0abfc)',
+            'linear-gradient(135deg, #14b8a6, #5eead4)',
+            'linear-gradient(135deg, #f43f5e, #fda4af)',
+            'linear-gradient(135deg, #f59e0b, #fcd34d)',
+            'linear-gradient(135deg, #0ea5e9, #7dd3fc)',
+            'linear-gradient(135deg, #10b981, #6ee7b7)',
+        ];
+
+        async function loadTeachers() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const [data, slots, courses] = await Promise.all([
+                    API.getTeachers(),
+                    API.getTimeSlots().catch(() => []),
+                    API.getCourses().catch(() => [])
+                ]);
+                allTeachers = Array.isArray(data) ? data : (data || []);
+                timeSlots = Array.isArray(slots) ? slots : [];
+                allCourses = Array.isArray(courses) ? courses : [];
+                renderTeachers(allTeachers);
+            } catch (e) { Toast.error('Failed: ' + e.message); }
+            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
+        }
+
+        function renderTeachers(teachers) {
+            const grid = document.getElementById('teacherGrid');
+            const empty = document.getElementById('emptyState');
+            if (!teachers.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            grid.innerHTML = teachers.map((t, i) => {
+                const name = t.firstName ? `${t.firstName} ${t.lastName || ''}`.trim() : (t.displayName || t.name || t.email?.split('@')[0] || 'Teacher');
+                const tid = t.teacherId || t.id;
+                // #42: Get assigned courses from timetable
+                const assignedSlots = timeSlots.filter(s => s.teacherId === tid);
+                const assignedCourseIds = [...new Set(assignedSlots.map(s => s.courseId))];
+                const assignedCourseNames = assignedCourseIds.map(cid => {
+                    const c = allCourses.find(x => (x.courseId || x.id) === cid);
+                    return c ? (c.courseCode || c.code) : '';
+                }).filter(Boolean);
+
+                // #43: Availability — teaching today?
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const today = dayNames[new Date().getDay()];
+                const teachingToday = assignedSlots.some(s => s.dayOfWeek === today);
+
+                return `
+                <div class="teacher-card" style="animation-delay:${i * 0.05}s">
+                    <div class="teacher-top" style="background:${topGrads[i % topGrads.length]}">
+                        <div class="teacher-avatar-wrap">
+                            <div class="teacher-avatar-lg" style="background:${topGrads[(i + 2) % topGrads.length]}">${Utils.initials(name)}</div>
+                        </div>
+                    </div>
+                    <div class="teacher-info">
+                        <div class="teacher-name">${name}</div>
+                        <div class="teacher-email">${t.email || t.user?.email || '—'}</div>
+                        <!-- #43: Availability status -->
+                        <div style="margin:6px 0;">
+                            <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:600;padding:2px 10px;border-radius:10px;background:${teachingToday ? 'rgba(52,211,153,0.12)' : 'rgba(255,255,255,0.05)'};color:${teachingToday ? 'var(--emerald-400)' : 'var(--text-tertiary)'};">
+                                <span style="width:6px;height:6px;border-radius:50%;background:${teachingToday ? 'var(--emerald-400)' : 'var(--text-tertiary)'};"></span>
+                                ${teachingToday ? 'Teaching Today' : 'Not Scheduled Today'}
+                            </span>
+                        </div>
+                        <div class="teacher-badges">
+                            <span class="badge badge-fuchsia">${t.qualification || t.specialization || 'Faculty'}</span>
+                            <span class="badge badge-indigo">${t.department || 'General'}</span>
+                        </div>
+                        <!-- #42: Assigned courses -->
+                        ${assignedCourseNames.length ? `<div style="margin-top:8px;font-size:0.72rem;color:var(--text-secondary);"><i class="ri-book-open-line" style="color:var(--teal-400);"></i> ${assignedCourseNames.join(', ')}</div>` : '<div style="margin-top:8px;font-size:0.72rem;color:var(--text-tertiary);"><i class="ri-book-open-line"></i> No courses assigned</div>'}
+                        <div class="teacher-stats">
+                            <div class="teacher-stat">
+                                <div class="val" style="color:var(--indigo-400)">${t.experience || 0}</div>
+                                <div class="lbl">Yrs Exp</div>
+                            </div>
+                            <div class="teacher-stat">
+                                <div class="val" style="color:var(--teal-400)">${assignedCourseNames.length}</div>
+                                <div class="lbl">Courses</div>
+                            </div>
+                            <div class="teacher-stat">
+                                <div class="val">
+                                    <button class="btn-icon btn-ghost sm" style="color:var(--rose-400);" onclick="deleteTeacher(${tid})"><i class="ri-delete-bin-line"></i></button>
+                                </div>
+                                <div class="lbl">Delete</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        let currentDeptFilter = 'all';
+
+        function filterTeachers() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = allTeachers;
+            if (currentDeptFilter !== 'all') {
+                filtered = filtered.filter(t => (t.department || '').toLowerCase() === currentDeptFilter.toLowerCase());
+            }
+            if (q) {
+                filtered = filtered.filter(t => {
+                    const n = t.displayName || t.name || `${t.firstName || ''} ${t.lastName || ''}` || t.email || '';
+                    return n.toLowerCase().includes(q) || (t.department || '').toLowerCase().includes(q) || (t.specialization || '').toLowerCase().includes(q);
+                });
+            }
+            renderTeachers(filtered);
+        }
+
+        // Teacher stats cards
+        function renderTeacherStats() {
+            const total = allTeachers.length;
+            const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const today = dayNames[new Date().getDay()];
+            const teachingToday = allTeachers.filter(t => {
+                const tid = t.teacherId || t.id;
+                return timeSlots.some(s => s.teacherId === tid && s.dayOfWeek === today);
+            }).length;
+            const avgExp = total ? Math.round(allTeachers.reduce((s, t) => s + (t.experience || 0), 0) / total) : 0;
+            const assignedCourseCount = new Set(timeSlots.map(s => s.courseId)).size;
+
+            document.getElementById('teacherStatsRow').innerHTML = `
+                <div class="tstat-card">
+                    <div class="tstat-icon" style="background:rgba(217,70,239,0.15);color:var(--fuchsia-400);"><i class="ri-user-star-fill"></i></div>
+                    <div><div class="tstat-val" style="color:var(--fuchsia-400);">${total}</div><div class="tstat-lbl">Total Faculty</div></div>
+                </div>
+                <div class="tstat-card">
+                    <div class="tstat-icon" style="background:rgba(52,211,153,0.15);color:var(--emerald-400);"><i class="ri-calendar-check-fill"></i></div>
+                    <div><div class="tstat-val" style="color:var(--emerald-400);">${teachingToday}</div><div class="tstat-lbl">Teaching Today</div></div>
+                </div>
+                <div class="tstat-card">
+                    <div class="tstat-icon" style="background:rgba(99,102,241,0.15);color:var(--indigo-400);"><i class="ri-award-fill"></i></div>
+                    <div><div class="tstat-val" style="color:var(--indigo-400);">${avgExp}<span style="font-size:0.85rem;color:var(--text-tertiary);"> yrs</span></div><div class="tstat-lbl">Avg Experience</div></div>
+                </div>
+                <div class="tstat-card">
+                    <div class="tstat-icon" style="background:rgba(14,165,233,0.15);color:var(--sky-400);"><i class="ri-book-open-fill"></i></div>
+                    <div><div class="tstat-val" style="color:var(--sky-400);">${assignedCourseCount}</div><div class="tstat-lbl">Courses Assigned</div></div>
+                </div>`;
+
+            // Department filter chips
+            const deptCounts = {};
+            allTeachers.forEach(t => {
+                const d = t.department || 'General';
+                deptCounts[d] = (deptCounts[d] || 0) + 1;
+            });
+            let chipHtml = `<button class="dept-chip ${currentDeptFilter === 'all' ? 'active' : ''}" onclick="currentDeptFilter='all';filterTeachers();renderTeacherStats();">All (${total})</button>`;
+            Object.entries(deptCounts).sort((a, b) => b[1] - a[1]).forEach(([dept, count]) => {
+                chipHtml += `<button class="dept-chip ${currentDeptFilter === dept ? 'active' : ''}" onclick="currentDeptFilter='${dept}';filterTeachers();renderTeacherStats();">${dept} (${count})</button>`;
+            });
+            document.getElementById('deptFilterRow').innerHTML = chipHtml;
+        }
+
+        // Export teachers CSV
+        function exportTeacherCSV() {
+            if (!allTeachers.length) { Toast.error('No teachers to export'); return; }
+            const headers = ['Name', 'Email', 'Department', 'Specialization', 'Qualification', 'Experience', 'Phone'];
+            const rows = allTeachers.map(t => [
+                `${t.firstName || ''} ${t.lastName || ''}`.trim() || t.displayName || t.name || '',
+                t.email || t.user?.email || '',
+                t.department || '', t.specialization || '', t.qualification || '',
+                t.experience || 0, t.phoneNumber || t.phone || ''
+            ]);
+            const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `teachers_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+            Toast.success('CSV exported!');
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').innerHTML = '<i class="ri-user-star-line"></i> Add Teacher';
+            document.getElementById('teacherForm').reset();
+            document.getElementById('tPassword').parentElement.style.display = '';
+            document.getElementById('tPhotoPreview').innerHTML = '<i class="ri-camera-line" style="font-size:1.5rem;color:var(--text-tertiary);"></i>';
+            document.getElementById('tPhotoUrl').value = '';
+            document.getElementById('teacherModal').style.display = 'flex';
+        }
+
+        // #41: Photo preview
+        function previewTeacherPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    document.getElementById('tPhotoPreview').innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('teacherModal').style.display = 'none';
+        }
+
+        async function saveTeacher() {
+            const photoUrlInput = document.getElementById('tPhotoUrl').value.trim();
+            const photoFile = document.getElementById('tPhotoInput').files[0];
+            const data = {
+                firstName: document.getElementById('tFirstName').value,
+                lastName: document.getElementById('tLastName').value,
+                email: document.getElementById('tEmail').value,
+                password: document.getElementById('tPassword').value,
+                department: document.getElementById('tDepartment').value,
+                specialization: document.getElementById('tSpecialization').value,
+                phoneNumber: document.getElementById('tPhone').value,
+                qualification: document.getElementById('tQualification').value,
+                experience: parseInt(document.getElementById('tExperience').value) || 0
+            };
+            // Add photo URL if provided
+            if (photoUrlInput) data.photoUrl = photoUrlInput;
+
+            if (!data.firstName || !data.lastName || !data.email || !data.password) {
+                Toast.error('Please fill all required fields'); return;
+            }
+            try {
+                // POST /api/teacher auto-creates the auth User with Teacher role
+                // No need for separate API.register() call!
+                await API.createTeacher(data);
+
+                // Upload photo if file provided
+                if (photoFile) {
+                    try {
+                        await API.uploadPhoto(photoFile);
+                    } catch (photoErr) { console.warn('Photo upload failed:', photoErr.message); }
+                }
+
+                Toast.success('Teacher added! They can login with email: ' + data.email);
+                closeModal();
+                loadTeachers();
+            } catch (e) { Toast.error('Error: ' + e.message); }
+        }
+
+        async function deleteTeacher(id) {
+            if (!confirm('Are you sure you want to delete this teacher?')) return;
+            try {
+                await API.deleteTeacher(id);
+                Toast.success('Teacher removed!');
+                loadTeachers();
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        loadTeachers().then(() => renderTeacherStats());
+    </script>
+</body>
+
+</html>

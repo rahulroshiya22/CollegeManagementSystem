@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - College Management System</title>
+    <meta name="description" content="Teacher Dashboard - View your courses, timetable, and manage attendance & grades">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-5);
+            margin-bottom: var(--space-6);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            box-shadow: var(--shadow-md);
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .timetable-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            margin-bottom: var(--space-2);
+            background: var(--bg-light);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-fast);
+        }
+
+        [data-theme="dark"] .timetable-item {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .timetable-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .tt-time {
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 700;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .tt-info {
+            flex: 1;
+        }
+
+        .tt-course {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .tt-room {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .quick-action-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            border: 1px solid transparent;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .quick-action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .quick-action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin: 0 auto var(--space-3);
+            color: white;
+        }
+
+        .quick-action-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .course-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            background: var(--bg-light);
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: var(--space-1);
+        }
+
+        [data-theme="dark"] .course-chip {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout" id="layout">
+        <div id="sidebarContainer"></div>
+
+        <div class="main-content">
+            <div id="headerContainer"></div>
+
+            <div class="page-body">
+                <!-- Stats -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-label">My Courses</span>
+                            <div class="stat-icon"><i class="ri-book-2-fill"></i></div>
+                        </div>
+                        <p class="stat-value" id="statCourses">--</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-label">Today's Classes</span>
+                            <div class="stat-icon"><i class="ri-calendar-event-fill"></i></div>
+                        </div>
+                        <p class="stat-value" id="statTodayClasses">--</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="stat-label">Time Slots</span>
+                            <div class="stat-icon"><i class="ri-time-fill"></i></div>
+                        </div>
+                        <p class="stat-value" id="statTimeSlots">--</p>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a class="quick-action-card" href="mark-attendance.html">
+                        <div class="quick-action-icon" style="background: var(--gradient-primary)">
+                            <i class="ri-checkbox-multiple-fill"></i>
+                        </div>
+                        <span class="quick-action-label">Mark Attendance</span>
+                    </a>
+                    <a class="quick-action-card" href="teacher-grades.html">
+                        <div class="quick-action-icon" style="background: var(--gradient-green)">
+                            <i class="ri-award-fill"></i>
+                        </div>
+                        <span class="quick-action-label">Enter Grades</span>
+                    </a>
+                    <a class="quick-action-card" href="teacher-timetable.html">
+                        <div class="quick-action-icon" style="background: var(--gradient-blue)">
+                            <i class="ri-calendar-schedule-fill"></i>
+                        </div>
+                        <span class="quick-action-label">My Timetable</span>
+                    </a>
+                    <a class="quick-action-card" href="notices.html">
+                        <div class="quick-action-icon" style="background: var(--gradient-orange)">
+                            <i class="ri-notification-3-fill"></i>
+                        </div>
+                        <span class="quick-action-label">Notices</span>
+                    </a>
+                </div>
+
+                <!-- Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Today's Timetable -->
+                    <div class="panel">
+                        <h5 class="section-title"><i class="ri-calendar-todo-fill"></i> Today's Schedule</h5>
+                        <div id="todaySchedule">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- My Courses -->
+                    <div class="panel">
+                        <h5 class="section-title"><i class="ri-book-open-fill"></i> My Courses</h5>
+                        <div id="myCourses">
+                            <div class="loading-spinner">
+                                <div class="spinner"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        if (!initPage('Teacher Dashboard', 'dashboard', 'Teacher')) {
+            // Will redirect
+        } else {
+            loadTeacherData();
+        }
+
+        const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const TODAY = DAYS[new Date().getDay()];
+
+        async function loadTeacherData() {
+            const user = AuthManager.getUser();
+            const teacherId = user?.userId || 0;
+
+            loadTeacherTimetable(teacherId);
+            loadTeacherCourses(teacherId);
+        }
+
+        async function loadTeacherTimetable(teacherId) {
+            try {
+                const slots = await AuthManager.apiGet(`/timeslot/teacher/${teacherId}`);
+                const allSlots = Array.isArray(slots) ? slots : [];
+
+                // Stats
+                document.getElementById('statTimeSlots').textContent = allSlots.length;
+
+                // Today's classes
+                const todaySlots = allSlots.filter(s => s.dayOfWeek === TODAY);
+                document.getElementById('statTodayClasses').textContent = todaySlots.length;
+
+                const container = document.getElementById('todaySchedule');
+
+                if (!todaySlots.length) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="ri-rest-time-fill"></i>
+                            <p>No classes today (${TODAY})</p>
+                        </div>`;
+                    return;
+                }
+
+                // Sort by start time
+                todaySlots.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+                container.innerHTML = todaySlots.map(slot => `
+                    <div class="timetable-item">
+                        <div class="tt-time">${formatTime(slot.startTime)}</div>
+                        <div class="tt-info">
+                            <div class="tt-course">${slot.courseName}</div>
+                            <div class="tt-room">Room ${slot.roomNumber} · ${formatTime(slot.startTime)} - ${formatTime(slot.endTime)}</div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Timetable error:', err);
+                document.getElementById('todaySchedule').innerHTML = '<div class="empty-state"><p>No timetable data</p></div>';
+                document.getElementById('statTodayClasses').textContent = '0';
+                document.getElementById('statTimeSlots').textContent = '0';
+            }
+        }
+
+        async function loadTeacherCourses(teacherId) {
+            try {
+                const courses = await AuthManager.apiGet(`/course/teacher/${teacherId}`);
+                const courseList = Array.isArray(courses) ? courses : [];
+
+                document.getElementById('statCourses').textContent = courseList.length;
+
+                const container = document.getElementById('myCourses');
+
+                if (!courseList.length) {
+                    container.innerHTML = '<div class="empty-state"><i class="ri-book-line"></i><p>No courses assigned</p></div>';
+                    return;
+                }
+
+                container.innerHTML = courseList.map(c => `
+                    <div class="course-chip">
+                        <i class="ri-book-2-line" style="color:var(--primary)"></i>
+                        ${c.courseName} (${c.courseCode})
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error('Courses error:', err);
+                document.getElementById('myCourses').innerHTML = '<div class="empty-state"><p>No course data</p></div>';
+                document.getElementById('statCourses').textContent = '0';
+            }
+        }
+
+        function formatTime(timeStr) {
+            if (!timeStr) return '';
+            const parts = timeStr.split(':');
+            let h = parseInt(parts[0]);
+            const m = parts[1];
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return `${h}:${m} ${ampm}`;
+        }
+    </script>
+</body>
+
+</html>

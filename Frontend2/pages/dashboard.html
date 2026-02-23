@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Dashboard</title>
+    <meta name="description" content="Admin Dashboard - College Management System">
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* ─── Dashboard Specific ─── */
+        .greeting {
+            margin-bottom: var(--space-2);
+        }
+
+        .greeting h1 {
+            font-size: 1.75rem;
+        }
+
+        .greeting .wave {
+            display: inline-block;
+            animation: wave 2s ease-in-out infinite;
+            transform-origin: 70% 70%;
+        }
+
+        @keyframes wave {
+
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+
+            15% {
+                transform: rotate(14deg);
+            }
+
+            30% {
+                transform: rotate(-8deg);
+            }
+
+            40% {
+                transform: rotate(14deg);
+            }
+
+            50% {
+                transform: rotate(-4deg);
+            }
+
+            60% {
+                transform: rotate(10deg);
+            }
+        }
+
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-full);
+            padding: 6px 16px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        /* Chart placeholder */
+        .chart-area {
+            width: 100%;
+            height: 220px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(20, 184, 166, 0.05));
+            border-radius: var(--radius-xl);
+            display: flex;
+            align-items: flex-end;
+            padding: 0 var(--space-3);
+            gap: 8px;
+            overflow: hidden;
+        }
+
+        .chart-bar {
+            flex: 1;
+            background: var(--grad-primary);
+            border-radius: 6px 6px 0 0;
+            transition: height 0.8s var(--ease-spring);
+            position: relative;
+            min-height: 8px;
+            opacity: 0.7;
+        }
+
+        .chart-bar:hover {
+            opacity: 1;
+        }
+
+        .chart-bar::after {
+            content: attr(data-label);
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+        }
+
+        /* Recent list */
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4) 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: var(--radius-lg);
+            display: grid;
+            place-items: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-text {
+            flex: 1;
+        }
+
+        .activity-text .title {
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .activity-text .meta {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Quick Actions Grid */
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .quick-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .quick-action:hover {
+            background: var(--bg-glass-hover);
+            border-color: var(--border-default);
+            transform: translateY(-2px);
+        }
+
+        .quick-action i {
+            font-size: 1.3rem;
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            border-radius: var(--radius-md);
+        }
+
+        .quick-action span {
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        /* Campus image card */
+        .campus-card {
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+            min-height: 200px;
+        }
+
+        .campus-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            inset: 0;
+        }
+
+        .campus-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(transparent 40%, rgba(6, 6, 15, 0.95));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: var(--space-6);
+        }
+
+        .campus-overlay h4 {
+            font-size: 1.1rem;
+        }
+
+        .campus-overlay p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* Notice ticker */
+        .notice-card {
+            padding-bottom: var(--space-3);
+        }
+
+        .notice-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .notice-item:last-child {
+            border-bottom: none;
+        }
+
+        .notice-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+
+        .notice-item .n-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .notice-item .n-time {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+
+    <!-- ─── Floating Header ─── -->
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div>
+            <span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" class="active" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i>
+                Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()" title="Logout">
+                <i class="ri-logout-box-r-line"></i>
+            </button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')">
+            <i class="ri-menu-3-line"></i>
+        </button>
+    </header>
+
+    <!-- ─── Main ─── -->
+    <main class="page-wrapper">
+        <div class="container">
+
+            <!-- Greeting -->
+            <div class="greeting slide-up">
+                <h1><span class="wave">👋</span> Welcome back, <span id="userName" class="text-gradient">Admin</span>
+                </h1>
+                <div class="date-badge mt-2">
+                    <i class="ri-calendar-2-line"></i>
+                    <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Stat Cards Row -->
+            <div class="bento-grid mt-8" style="grid-template-columns: repeat(4, 1fr);">
+                <div class="glass-card stat-card tilt slide-up delay-1">
+                    <div class="stat-blob" style="background: var(--indigo-500);"></div>
+                    <div class="stat-icon" style="background: var(--grad-primary);"><i class="ri-group-fill"></i></div>
+                    <div class="stat-value" id="statStudents">0</div>
+                    <div class="stat-label">Total Students</div>
+                    <div class="stat-trend up"><i class="ri-arrow-up-s-fill"></i> 12% this semester</div>
+                </div>
+                <div class="glass-card stat-card tilt slide-up delay-2">
+                    <div class="stat-blob" style="background: var(--teal-500);"></div>
+                    <div class="stat-icon" style="background: var(--grad-teal);"><i class="ri-user-star-fill"></i></div>
+                    <div class="stat-value" id="statTeachers">0</div>
+                    <div class="stat-label">Faculty Members</div>
+                    <div class="stat-trend up"><i class="ri-arrow-up-s-fill"></i> 5 new hired</div>
+                </div>
+                <div class="glass-card stat-card tilt slide-up delay-3">
+                    <div class="stat-blob" style="background: var(--amber-500);"></div>
+                    <div class="stat-icon" style="background: var(--grad-amber);"><i class="ri-book-open-fill"></i>
+                    </div>
+                    <div class="stat-value" id="statCourses">0</div>
+                    <div class="stat-label">Active Courses</div>
+                    <div class="stat-trend up"><i class="ri-arrow-up-s-fill"></i> 3 newly added</div>
+                </div>
+                <div class="glass-card stat-card tilt slide-up delay-4">
+                    <div class="stat-blob" style="background: var(--rose-500);"></div>
+                    <div class="stat-icon" style="background: var(--grad-rose);"><i
+                            class="ri-money-dollar-circle-fill"></i></div>
+                    <div class="stat-value" id="statRevenue">₹0</div>
+                    <div class="stat-label">Fee Collection</div>
+                    <div class="stat-trend up"><i class="ri-arrow-up-s-fill"></i> 89% collected</div>
+                </div>
+            </div>
+
+            <!-- Bento Layout -->
+            <div class="bento-grid mt-8" style="grid-template-columns: 2fr 1fr;">
+                <!-- Chart Card -->
+                <div class="glass-card slide-up delay-2">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h4>Enrollment Overview</h4>
+                            <p class="text-sm text-muted">Monthly student enrollments this year</p>
+                        </div>
+                        <div class="tabs">
+                            <button class="tab-btn active">Monthly</button>
+                            <button class="tab-btn">Weekly</button>
+                        </div>
+                    </div>
+                    <div class="chart-area" id="chartArea">
+                        <!-- Bars will be injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="glass-card slide-up delay-3">
+                    <h4 class="mb-4">Quick Actions</h4>
+                    <div class="quick-grid">
+                        <a href="students.html" class="quick-action">
+                            <i class="ri-user-add-fill"
+                                style="background:rgba(99,102,241,0.15); color:var(--indigo-400);"></i>
+                            <span>Add Student</span>
+                        </a>
+                        <a href="courses.html" class="quick-action">
+                            <i class="ri-book-2-fill"
+                                style="background:rgba(20,184,166,0.15); color:var(--teal-400);"></i>
+                            <span>New Course</span>
+                        </a>
+                        <a href="enrollment.html" class="quick-action">
+                            <i class="ri-file-add-fill"
+                                style="background:rgba(245,158,11,0.15); color:var(--amber-400);"></i>
+                            <span>Enroll</span>
+                        </a>
+                        <a href="fees.html" class="quick-action">
+                            <i class="ri-wallet-3-fill"
+                                style="background:rgba(244,63,94,0.15); color:var(--rose-400);"></i>
+                            <span>Record Fee</span>
+                        </a>
+                        <a href="attendance.html" class="quick-action">
+                            <i class="ri-calendar-check-fill"
+                                style="background:rgba(16,185,129,0.15); color:var(--emerald-400);"></i>
+                            <span>Attendance</span>
+                        </a>
+                        <a href="timetable.html" class="quick-action">
+                            <i class="ri-calendar-2-fill"
+                                style="background:rgba(56,189,248,0.15); color:var(--sky-400);"></i>
+                            <span>Timetable</span>
+                        </a>
+                        <a href="teachers.html" class="quick-action">
+                            <i class="ri-user-star-fill"
+                                style="background:rgba(217,70,239,0.15); color:var(--fuchsia-400);"></i>
+                            <span>Teachers</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Third Row: Activity + Campus + Notices -->
+            <div class="bento-grid mt-8" style="grid-template-columns: 1fr 1fr 1fr;">
+                <!-- Recent Activity -->
+                <div class="glass-card slide-up delay-3">
+                    <h4 class="mb-4"><i class="ri-time-line" style="color:var(--indigo-400);"></i> Recent Activity</h4>
+                    <div id="activityList">
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background:rgba(99,102,241,0.15); color:var(--indigo-400);"><i
+                                    class="ri-user-add-fill"></i></div>
+                            <div class="activity-text">
+                                <div class="title">New Student Registered</div>
+                                <div class="meta">John Doe • 2 mins ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:rgba(20,184,166,0.15); color:var(--teal-400);">
+                                <i class="ri-book-open-fill"></i>
+                            </div>
+                            <div class="activity-text">
+                                <div class="title">Course Updated</div>
+                                <div class="meta">Data Structures • 15 mins ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background:rgba(245,158,11,0.15); color:var(--amber-400);"><i
+                                    class="ri-wallet-3-fill"></i></div>
+                            <div class="activity-text">
+                                <div class="title">Fee Payment Received</div>
+                                <div class="meta">₹25,000 • 1 hour ago</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon"
+                                style="background:rgba(16,185,129,0.15); color:var(--emerald-400);"><i
+                                    class="ri-check-double-fill"></i></div>
+                            <div class="activity-text">
+                                <div class="title">Attendance Marked</div>
+                                <div class="meta">CS-301 • 2 hours ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campus Card -->
+                <div class="glass-card campus-card slide-up delay-4">
+                    <img src="https://images.unsplash.com/photo-1562774053-701939374585?w=600&h=400&fit=crop&q=80"
+                        alt="Campus" loading="lazy">
+                    <div class="campus-overlay">
+                        <span class="badge badge-emerald mb-2">📍 Campus Life</span>
+                        <h4>World-Class Facilities</h4>
+                        <p>Modern labs, libraries & sports complexes</p>
+                    </div>
+                </div>
+
+                <!-- Notices -->
+                <div class="glass-card notice-card slide-up delay-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4><i class="ri-megaphone-line" style="color:var(--amber-400);"></i> Notices</h4>
+                        <span class="badge badge-amber">New</span>
+                    </div>
+                    <div id="noticeList">
+                        <div class="notice-item">
+                            <div class="notice-dot" style="background:var(--rose-400);"></div>
+                            <div>
+                                <div class="n-title">Mid-Semester Exams Schedule</div>
+                                <div class="n-time">Published 2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="notice-item">
+                            <div class="notice-dot" style="background:var(--indigo-400);"></div>
+                            <div>
+                                <div class="n-title">Hackathon 2026 Registration Open</div>
+                                <div class="n-time">Published yesterday</div>
+                            </div>
+                        </div>
+                        <div class="notice-item">
+                            <div class="notice-dot" style="background:var(--teal-400);"></div>
+                            <div>
+                                <div class="n-title">Library Hours Extended</div>
+                                <div class="n-time">Published 3 days ago</div>
+                            </div>
+                        </div>
+                        <div class="notice-item">
+                            <div class="notice-dot" style="background:var(--emerald-400);"></div>
+                            <div>
+                                <div class="n-title">Sports Day — March 15</div>
+                                <div class="n-time">Published last week</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══ User Management Section ═══ -->
+            <div class="glass-card slide-up delay-5" style="margin-top:28px;">
+                <div class="flex items-center justify-between mb-4">
+                    <h4><i class="ri-shield-user-line" style="color:var(--amber-400);"></i> User Management (Login
+                        Accounts)</h4>
+                    <span class="badge badge-indigo" id="userCount">0 users</span>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead>
+                            <tr style="border-bottom:1px solid var(--border-subtle);">
+                                <th
+                                    style="padding:10px 12px;text-align:left;font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;">
+                                    User</th>
+                                <th
+                                    style="padding:10px 12px;text-align:left;font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;">
+                                    Email</th>
+                                <th
+                                    style="padding:10px 12px;text-align:left;font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;">
+                                    Role</th>
+                                <th
+                                    style="padding:10px 12px;text-align:right;font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:600;">
+                                    Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="4" style="padding:20px;text-align:center;color:var(--text-muted);">Loading
+                                    users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Change Password Modal -->
+            <div class="modal-overlay" id="changePwdModal"
+                style="display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.6);backdrop-filter:blur(6px);align-items:center;justify-content:center;">
+                <div
+                    style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-xl);width:90%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+                    <div
+                        style="padding:20px;border-bottom:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center;">
+                        <h3 style="font-size:1rem;">🔑 Change Password</h3>
+                        <button class="btn-icon btn-ghost sm"
+                            onclick="document.getElementById('changePwdModal').style.display='none'"><i
+                                class="ri-close-line"></i></button>
+                    </div>
+                    <div style="padding:20px;">
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label class="form-label">User Email</label>
+                            <input class="form-input" id="pwdEmail" readonly style="opacity:0.7;">
+                        </div>
+                        <div class="form-group" style="margin-bottom:14px;">
+                            <label class="form-label">New Password *</label>
+                            <input class="form-input" type="password" id="newPwd" placeholder="Enter new password"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password *</label>
+                            <input class="form-input" type="password" id="confirmPwd" placeholder="Confirm new password"
+                                required>
+                        </div>
+                    </div>
+                    <div
+                        style="padding:16px 20px;display:flex;justify-content:flex-end;gap:10px;border-top:1px solid var(--border-subtle);">
+                        <button class="btn btn-ghost"
+                            onclick="document.getElementById('changePwdModal').style.display='none'">Cancel</button>
+                        <button class="btn btn-primary" onclick="submitPasswordChange()"><i class="ri-key-2-line"></i>
+                            Save Password</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="height: 60px;"></div>
+        </div>
+    </main>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'Not authenticated';
+
+        // Set user name
+        const user = Auth.getUser();
+        document.getElementById('userName').textContent = user?.displayName || 'Admin';
+
+        // Set date
+        document.getElementById('currentDate').textContent =
+            new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Animated chart bars — will be filled dynamically in #47
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const chart = document.getElementById('chartArea');
+
+        // Load stats
+        async function loadDashboard() {
+            try {
+                const [students, courses, teachers, enrollments, fees] = await Promise.allSettled([
+                    API.getStudents(),
+                    API.getCourses(),
+                    API.getTeachers(),
+                    API.getEnrollments(),
+                    API.getFees()
+                ]);
+
+                const sVal = students.value;
+                const sList = Array.isArray(sVal) ? sVal : (sVal?.students || []);
+                const sCount = sList.length;
+                const cVal = courses.value;
+                const cList = Array.isArray(cVal) ? cVal : [];
+                const cCount = cList.length;
+                const tVal = teachers.value;
+                const tList = Array.isArray(tVal) ? tVal : [];
+                const tCount = tList.length;
+                const eVal = enrollments.value;
+                const eList = Array.isArray(eVal) ? eVal : [];
+                const fVal = fees.value;
+                const fList = Array.isArray(fVal) ? fVal : [];
+
+                Utils.animateCounter(document.getElementById('statStudents'), sCount);
+                Utils.animateCounter(document.getElementById('statTeachers'), tCount);
+                Utils.animateCounter(document.getElementById('statCourses'), cCount);
+
+                // #47: Dynamic fee collection
+                const totalFees = fList.reduce((sum, f) => sum + (f.paidAmount || f.amount || 0), 0);
+                const revEl = document.getElementById('statRevenue');
+                let start = 0;
+                const step = (ts) => {
+                    if (!start) start = ts;
+                    const p = Math.min((ts - start) / 1200, 1);
+                    const ease = 1 - Math.pow(1 - p, 3);
+                    revEl.textContent = '₹' + Math.floor(ease * totalFees).toLocaleString('en-IN');
+                    if (p < 1) requestAnimationFrame(step);
+                };
+                requestAnimationFrame(step);
+
+                // #47: Dynamic chart from enrollment data
+                const monthCounts = new Array(12).fill(0);
+                eList.forEach(e => {
+                    const d = new Date(e.enrollmentDate || e.createdAt);
+                    if (d.getFullYear() === new Date().getFullYear()) {
+                        monthCounts[d.getMonth()]++;
+                    }
+                });
+                const maxCount = Math.max(...monthCounts, 1);
+                chart.innerHTML = '';
+                months.forEach((m, i) => {
+                    const bar = document.createElement('div');
+                    bar.className = 'chart-bar';
+                    bar.dataset.label = m;
+                    bar.style.height = '0%';
+                    bar.title = `${m}: ${monthCounts[i]} enrollments`;
+                    if (i % 2 === 0) bar.style.background = 'var(--grad-teal)';
+                    chart.appendChild(bar);
+                    const pct = (monthCounts[i] / maxCount * 100) || 4;
+                    setTimeout(() => { bar.style.height = pct + '%'; }, 200 + i * 80);
+                });
+
+                // #48: Dynamic activity feed
+                const activities = [];
+                // Recent students
+                sList.slice(-3).reverse().forEach(s => {
+                    activities.push({
+                        icon: 'ri-user-add-fill',
+                        bg: 'rgba(99,102,241,0.15)', color: 'var(--indigo-400)',
+                        title: `${s.firstName || ''} ${s.lastName || ''} registered`,
+                        meta: `Student • ${s.department || ''}`
+                    });
+                });
+                // Recent enrollments
+                eList.slice(-2).reverse().forEach(e => {
+                    const st = sList.find(s => (s.studentId || s.id) === e.studentId);
+                    const co = cList.find(c => (c.courseId || c.id) === e.courseId);
+                    activities.push({
+                        icon: 'ri-file-list-3-fill',
+                        bg: 'rgba(20,184,166,0.15)', color: 'var(--teal-400)',
+                        title: `${st ? st.firstName + ' ' + st.lastName : 'Student'} enrolled`,
+                        meta: `${co ? (co.courseName || co.name) : 'Course'} • ${e.enrollmentDate ? new Date(e.enrollmentDate).toLocaleDateString() : ''}`
+                    });
+                });
+                // Recent fees
+                fList.slice(-2).reverse().forEach(f => {
+                    const st = sList.find(s => (s.studentId || s.id) === f.studentId);
+                    activities.push({
+                        icon: 'ri-wallet-3-fill',
+                        bg: 'rgba(245,158,11,0.15)', color: 'var(--amber-400)',
+                        title: `Fee payment: ₹${(f.paidAmount || f.amount || 0).toLocaleString('en-IN')}`,
+                        meta: `${st ? st.firstName + ' ' + st.lastName : 'Student #' + f.studentId} • ${f.status || 'Paid'}`
+                    });
+                });
+
+                document.getElementById('activityList').innerHTML = activities.slice(0, 5).map(a => `
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background:${a.bg}; color:${a.color};"><i class="${a.icon}"></i></div>
+                        <div class="activity-text">
+                            <div class="title">${a.title}</div>
+                            <div class="meta">${a.meta}</div>
+                        </div>
+                    </div>
+                `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No recent activity</p>';
+
+                // #49: Dynamic notices from courses/exams date-based
+                const notices = [];
+                const noticeColors = ['var(--rose-400)', 'var(--indigo-400)', 'var(--teal-400)', 'var(--emerald-400)', 'var(--amber-400)'];
+                cList.slice(-2).reverse().forEach((c, i) => {
+                    notices.push({ title: `New Course: ${c.courseName || c.name}`, time: `${c.credits || 0} credits • ${c.courseCode || ''}`, color: noticeColors[i] });
+                });
+                if (sCount > 0) notices.push({ title: `${sCount} students enrolled across ${cCount} courses`, time: 'Current semester', color: noticeColors[2] });
+                if (tCount > 0) notices.push({ title: `${tCount} faculty members active`, time: 'Faculty Summary', color: noticeColors[3] });
+                if (fList.length) {
+                    const pending = fList.filter(f => f.status === 'Pending' || f.status === 'Overdue').length;
+                    if (pending) notices.push({ title: `${pending} fee payments pending/overdue`, time: 'Action required', color: noticeColors[0] });
+                }
+
+                document.getElementById('noticeList').innerHTML = notices.slice(0, 4).map(n => `
+                    <div class="notice-item">
+                        <div class="notice-dot" style="background:${n.color};"></div>
+                        <div>
+                            <div class="n-title">${n.title}</div>
+                            <div class="n-time">${n.time}</div>
+                        </div>
+                    </div>
+                `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No notices</p>';
+
+            } catch (e) {
+                console.error('Dashboard load error:', e);
+            }
+        }
+
+        // ─── User Management ───
+        const roleBadgeColors = { Admin: 'badge-rose', Teacher: 'badge-indigo', Student: 'badge-emerald' };
+
+        async function loadAuthUsers() {
+            try {
+                const users = await API.getAllAuthUsers();
+                const list = Array.isArray(users) ? users : [];
+                document.getElementById('userCount').textContent = list.length + ' users';
+                const tbody = document.getElementById('usersTableBody');
+                if (!list.length) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--text-muted);">No users found</td></tr>';
+                    return;
+                }
+                tbody.innerHTML = list.map(u => `
+                    <tr style="border-bottom:1px solid var(--border-subtle);transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background=''">
+                        <td style="padding:10px 12px;font-size:0.88rem;">${u.firstName || ''} ${u.lastName || ''}</td>
+                        <td style="padding:10px 12px;font-size:0.85rem;color:var(--text-secondary);">${u.email}</td>
+                        <td style="padding:10px 12px;"><span class="badge ${roleBadgeColors[u.role] || 'badge-indigo'}">${u.role}</span></td>
+                        <td style="padding:10px 12px;text-align:right;">
+                            <button class="btn btn-ghost btn-sm" onclick="openChangePwd('${u.email}')" title="Change Password"><i class="ri-key-2-line"></i> Reset Pwd</button>
+                            ${u.role !== 'Admin' ? `<button class="btn btn-ghost btn-sm" style="color:var(--rose-400);" onclick="deleteAuthUser(${u.userId}, '${u.email}')" title="Delete"><i class="ri-delete-bin-line"></i></button>` : ''}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load auth users:', e);
+                document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--rose-400);">Failed to load users</td></tr>';
+            }
+        }
+
+        function openChangePwd(email) {
+            document.getElementById('pwdEmail').value = email;
+            document.getElementById('newPwd').value = '';
+            document.getElementById('confirmPwd').value = '';
+            document.getElementById('changePwdModal').style.display = 'flex';
+        }
+
+        async function submitPasswordChange() {
+            const email = document.getElementById('pwdEmail').value;
+            const pwd = document.getElementById('newPwd').value;
+            const confirm = document.getElementById('confirmPwd').value;
+            if (!pwd || pwd.length < 6) { Toast.error('Password must be at least 6 characters'); return; }
+            if (pwd !== confirm) { Toast.error('Passwords do not match'); return; }
+            try {
+                await API.changePassword(email, pwd);
+                Toast.success('Password changed for ' + email);
+                document.getElementById('changePwdModal').style.display = 'none';
+            } catch (e) { Toast.error('Error: ' + e.message); }
+        }
+
+        async function deleteAuthUser(id, email) {
+            if (!confirm(`Delete login account for ${email}? This cannot be undone.`)) return;
+            try {
+                await API.deleteAuthUser(id);
+                Toast.success('User account deleted: ' + email);
+                loadAuthUsers();
+            } catch (e) { Toast.error('Error: ' + e.message); }
+        }
+
+        loadDashboard();
+        loadAuthUsers();
+    </script>
+</body>
+
+</html>

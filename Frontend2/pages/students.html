@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Students</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .page-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: var(--space-6);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .filter-chip {
+            padding: 8px 18px;
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.3);
+            color: var(--indigo-300);
+        }
+
+        /* Student card view */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .student-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-5);
+            transition: all 0.25s var(--ease-out);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .student-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1), transparent 70%);
+            pointer-events: none;
+        }
+
+        .student-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-default);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .student-card-header {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            font-size: 1rem;
+            color: #fff;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .student-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .student-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .student-email {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .student-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .detail-item {}
+
+        .detail-item .label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            font-weight: 700;
+        }
+
+        .detail-item .value {
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .student-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .student-actions button {
+            flex: 1;
+            padding: 8px;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        /* View toggle */
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+        }
+
+        .view-toggle button {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .view-toggle button.active {
+            background: var(--grad-primary);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .view-table {
+            display: none;
+        }
+
+        .view-cards {
+            display: grid;
+        }
+
+        .show-table .view-table {
+            display: block;
+        }
+
+        .show-table .view-cards {
+            display: none;
+        }
+
+        /* Loading overlay */
+        .loading-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--indigo-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Bulk actions bar */
+        .bulk-bar {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-4);
+            animation: slideDown 0.3s ease;
+        }
+
+        .bulk-bar.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: var(--space-6);
+        }
+
+        .pagination button {
+            width: 36px;
+            height: 36px;
+            display: grid;
+            place-items: center;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button.active {
+            background: var(--grad-primary);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .pagination .page-info {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0 8px;
+        }
+
+        /* Photo upload */
+        .photo-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding: 16px;
+            border: 2px dashed var(--border-subtle);
+            border-radius: var(--radius-xl);
+            transition: border-color 0.2s;
+        }
+
+        .photo-upload-area:hover {
+            border-color: var(--indigo-400);
+        }
+
+        .photo-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            background: var(--bg-glass);
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            font-size: 2rem;
+            color: var(--text-tertiary);
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Student Profile Panel */
+        .profile-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+        }
+
+        .profile-overlay.open {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .profile-panel {
+            width: 500px;
+            max-width: 95vw;
+            height: 100%;
+            background: var(--bg-card);
+            border-left: 1px solid var(--border-subtle);
+            overflow-y: auto;
+            animation: slideInRight 0.3s ease;
+            padding: var(--space-6);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: var(--space-6);
+        }
+
+        .profile-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 24px;
+            display: inline-grid;
+            place-items: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-section {
+            margin-bottom: var(--space-5);
+        }
+
+        .profile-section h4 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .profile-info-item {
+            background: var(--bg-glass);
+            padding: 10px 14px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .profile-info-item .lbl {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            font-weight: 700;
+        }
+
+        .profile-info-item .val {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        .profile-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            margin-bottom: 8px;
+        }
+
+        /* Status badges */
+        .badge-active {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald-400);
+        }
+
+        .badge-inactive {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--rose-400);
+        }
+
+        .badge-graduated {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--indigo-400);
+        }
+
+        .badge-suspended {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--amber-400);
+        }
+
+        /* Checkbox styling */
+        .student-card .select-cb,
+        .neo-table .select-cb {
+            accent-color: var(--indigo-400);
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        /* Stats cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: var(--space-6);
+        }
+
+        .stat-card-mini {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-2xl);
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.3s var(--ease-out);
+        }
+
+        .stat-card-mini:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--border-default);
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .stat-val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stat-lbl {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            margin-top: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div>
+            <span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" class="active" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"> <i
+                    class="ri-logout-box-r-line"></i></button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')"><i
+                class="ri-menu-3-line"></i></button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <div class="page-top-bar slide-up">
+                <div>
+                    <h1><i class="ri-group-fill" style="color:var(--indigo-400);"></i> Students</h1>
+                    <p class="text-sm text-muted mt-2">Manage all student records and academic profiles</p>
+                </div>
+                <div class="flex gap-3">
+                    <button class="btn btn-ghost" onclick="syncAuthAccounts()"
+                        title="Create login accounts for students without one"><i class="ri-shield-user-line"></i> Sync
+                        Auth</button>
+                    <button class="btn btn-ghost" onclick="exportCSV()" title="Export CSV"><i
+                            class="ri-download-2-line"></i> Export</button>
+                    <div class="view-toggle">
+                        <button class="active" id="btnCards" onclick="setView('cards')"><i
+                                class="ri-layout-grid-fill"></i></button>
+                        <button id="btnTable" onclick="setView('table')"><i class="ri-list-check-2"></i></button>
+                    </div>
+                    <button class="btn btn-primary" onclick="openAddModal()">
+                        <i class="ri-user-add-fill"></i> Add Student
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bulk Actions Bar -->
+            <div class="bulk-bar" id="bulkBar">
+                <input type="checkbox" class="select-cb" id="selectAllCb" onchange="toggleSelectAll(this.checked)">
+                <span class="text-sm" style="color:var(--indigo-300);font-weight:600;" id="selectedCount">0
+                    selected</span>
+                <button class="btn btn-ghost btn-sm" style="color:var(--rose-400);margin-left:auto;"
+                    onclick="bulkDelete()"><i class="ri-delete-bin-line"></i> Delete Selected</button>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-row slide-up delay-1" id="studentStats"></div>
+
+            <!-- Filters -->
+            <div class="filter-row slide-up delay-1" id="filterRow">
+                <div class="search-bar" style="max-width:320px;">
+                    <i class="ri-search-2-line"></i>
+                    <input type="text" placeholder="Search students..." id="searchInput" oninput="filterStudents()">
+                </div>
+                <!-- Dynamic filter chips loaded from departments -->
+            </div>
+
+            <!-- Loading -->
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loader"></div>
+            </div>
+
+            <!-- Card View -->
+            <div class="student-grid view-cards slide-up delay-2" id="studentCards"></div>
+
+            <!-- Table View -->
+            <div class="view-table neo-table-wrap slide-up delay-2" id="studentTableWrap">
+                <table class="neo-table">
+                    <thead>
+                        <tr>
+                            <th style="width:30px;"><input type="checkbox" class="select-cb"
+                                    onchange="toggleSelectAll(this.checked)"></th>
+                            <th>Student</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Enrollment</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination slide-up delay-3" id="paginationBar"></div>
+
+            <!-- Empty State -->
+            <div class="empty-state hidden" id="emptyState">
+                <i class="ri-user-search-line"></i>
+                <h4>No students found</h4>
+                <p class="text-muted">Try adjusting your search or add a new student.</p>
+            </div>
+
+            <div style="height: 60px;"></div>
+        </div>
+    </main>
+
+    <!-- Student Profile Panel -->
+    <div class="profile-overlay" id="profileOverlay" onclick="if(event.target===this)closeProfile()">
+        <div class="profile-panel" id="profilePanel"></div>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="studentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Student</h3>
+                <button class="btn-icon btn-ghost sm" onclick="Modal.close('studentModal')"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="studentForm">
+                    <input type="hidden" id="editId">
+                    <div class="photo-upload-area" id="photoArea">
+                        <div class="photo-preview" id="photoPreview"><i class="ri-camera-line"></i></div>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                            <input type="file" id="fPhoto" accept="image/jpeg,image/png,image/webp"
+                                style="display:none;" onchange="previewPhoto(this)">
+                            <button type="button" class="btn btn-ghost btn-sm"
+                                onclick="document.getElementById('fPhoto').click()"><i class="ri-upload-2-line"></i>
+                                Upload File</button>
+                            <span style="color:var(--text-tertiary);font-size:0.78rem;">or</span>
+                        </div>
+                        <div style="margin-top:6px;">
+                            <input class="form-input" id="fPhotoUrl" placeholder="Paste image URL (https://...)"
+                                style="font-size:0.82rem;">
+                        </div>
+                    </div>
+                    <div class="bento-grid cols-2" style="gap:14px;">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input class="form-input" id="fFirstName" placeholder="John" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input class="form-input" id="fLastName" placeholder="Doe" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input class="form-input" type="email" id="fEmail" placeholder="john@example.com" required>
+                    </div>
+                    <div class="bento-grid cols-2" style="gap:14px;">
+                        <div class="form-group">
+                            <label class="form-label">Roll Number *</label>
+                            <input class="form-input" id="fRollNumber" placeholder="CS2024001" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone</label>
+                            <input class="form-input" id="fPhone" placeholder="+91 98765 43210">
+                        </div>
+                    </div>
+                    <div class="bento-grid cols-2" style="gap:14px;">
+                        <div class="form-group">
+                            <label class="form-label">Date of Birth *</label>
+                            <input class="form-input" type="date" id="fDOB" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender *</label>
+                            <select class="form-select" id="fGender" required>
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bento-grid cols-2" style="gap:14px;">
+                        <div class="form-group">
+                            <label class="form-label">Department *</label>
+                            <select class="form-select" id="fDeptId" required>
+                                <option value="">Loading departments...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Admission Year *</label>
+                            <input class="form-input" type="number" id="fAdmissionYear" placeholder="2024" min="2000"
+                                max="2030" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Address</label>
+                        <input class="form-input" id="fAddress" placeholder="Full address">
+                    </div>
+                    <div class="form-group" id="passwordGroup">
+                        <label class="form-label">Login Password *</label>
+                        <input class="form-input" type="password" id="fPassword"
+                            placeholder="Password for student login" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="Modal.close('studentModal')">Cancel</button>
+                <button class="btn btn-primary" id="saveBtn" onclick="saveStudent()">
+                    <i class="ri-save-line"></i> Save Student
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'Not authenticated';
+
+        let allStudents = [];
+        let departments = [];
+        let currentFilter = 'all';
+        let selectedIds = new Set();
+        let currentPage = 1;
+        const pageSize = 12;
+        const avatarColors = ['#6366f1', '#8b5cf6', '#14b8a6', '#f43f5e', '#f59e0b', '#0ea5e9', '#10b981', '#d946ef'];
+
+        function getColor(i) { return avatarColors[i % avatarColors.length]; }
+
+        // Department name resolver — handles object, string, or departmentId
+        function getDeptName(s) {
+            // If s.department is an object like {departmentId: 1, name: 'CS', departmentName: 'Computer Science'}
+            if (s.department && typeof s.department === 'object') {
+                return s.department.departmentName || s.department.name || s.department.departmentId || '—';
+            }
+            // If s.department is already a string
+            if (s.department && typeof s.department === 'string') return s.department;
+            // Fallback: try to resolve from departmentId + departments list
+            if (s.departmentId && departments.length) {
+                const d = departments.find(x => (x.departmentId || x.id) == s.departmentId);
+                if (d) return d.departmentName || d.name || '—';
+            }
+            return '—';
+        }
+
+        // Status badge helper (#3 fix)
+        function statusBadge(status) {
+            const s = (status || 'Active').toLowerCase();
+            const map = {
+                active: { cls: 'badge-active', label: 'Active' },
+                inactive: { cls: 'badge-inactive', label: 'Inactive' },
+                graduated: { cls: 'badge-graduated', label: 'Graduated' },
+                suspended: { cls: 'badge-suspended', label: 'Suspended' }
+            };
+            const m = map[s] || map.active;
+            return `<span class="badge ${m.cls}">${m.label}</span>`;
+        }
+
+        async function loadStudents() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const data = await API.getStudents();
+                allStudents = Array.isArray(data) ? data : (data?.students || data?.data || []);
+                currentPage = 1;
+                selectedIds.clear();
+                updateBulkBar();
+                filterStudents();
+            } catch (e) {
+                Toast.error('Failed to load students: ' + e.message);
+            } finally {
+                document.getElementById('loadingOverlay').style.display = 'none';
+            }
+        }
+
+        function getFilteredStudents() {
+            let filtered = allStudents;
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(s => getDeptName(s).toUpperCase().startsWith(currentFilter.toUpperCase()));
+            }
+            if (q) {
+                filtered = filtered.filter(s =>
+                    `${s.firstName} ${s.lastName} ${s.email} ${getDeptName(s)} ${s.rollNumber}`.toLowerCase().includes(q)
+                );
+            }
+            return filtered;
+        }
+
+        function filterStudents() {
+            const filtered = getFilteredStudents();
+            currentPage = 1;
+            renderPage(filtered);
+        }
+
+        function renderPage(students) {
+            // Pagination
+            const totalPages = Math.ceil(students.length / pageSize) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            const start = (currentPage - 1) * pageSize;
+            const pageStudents = students.slice(start, start + pageSize);
+
+            renderStudents(pageStudents);
+            renderPagination(students.length, totalPages);
+        }
+
+        function renderStudents(students) {
+            const cards = document.getElementById('studentCards');
+            const tbody = document.getElementById('studentTableBody');
+            const empty = document.getElementById('emptyState');
+
+            if (!students.length && getFilteredStudents().length === 0) {
+                cards.innerHTML = ''; tbody.innerHTML = '';
+                empty.classList.remove('hidden'); return;
+            }
+            empty.classList.add('hidden');
+
+            // Cards
+            cards.innerHTML = students.map((s, i) => {
+                const sid = s.studentId || s.id;
+                const checked = selectedIds.has(sid) ? 'checked' : '';
+                const avatarContent = s.photoUrl
+                    ? `<img src="${s.photoUrl}" alt="${s.firstName}">`
+                    : Utils.initials(s.firstName + ' ' + s.lastName);
+                return `
+                <div class="student-card" style="animation-delay:${i * 0.05}s">
+                    <div class="student-card-header">
+                        <input type="checkbox" class="select-cb" ${checked} onchange="toggleSelect(${sid}, this.checked)" onclick="event.stopPropagation()">
+                        <div class="student-avatar" style="background:${getColor(i)}" onclick="viewProfile(${sid})">${avatarContent}</div>
+                        <div onclick="viewProfile(${sid})" style="cursor:pointer;">
+                            <div class="student-name">${s.firstName} ${s.lastName}</div>
+                            <div class="student-email">${s.email || '—'}</div>
+                        </div>
+                    </div>
+                    <div class="student-details">
+                        <div class="detail-item">
+                            <div class="label">Department</div>
+                            <div class="value">${getDeptName(s)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Enrolled</div>
+                            <div class="value">${Utils.formatDate(s.enrollmentDate || s.createdAt)}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Roll No</div>
+                            <div class="value">${s.rollNumber || '—'}</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="label">Status</div>
+                            <div class="value">${statusBadge(s.status)}</div>
+                        </div>
+                    </div>
+                    <div class="student-actions">
+                        <button class="btn btn-ghost btn-sm" onclick="viewProfile(${sid})"><i class="ri-eye-line"></i> View</button>
+                        <button class="btn btn-ghost btn-sm" onclick="editStudent(${sid})"><i class="ri-edit-line"></i> Edit</button>
+                        <button class="btn btn-ghost btn-sm" style="color:var(--rose-400);" onclick="deleteStudent(${sid})"><i class="ri-delete-bin-line"></i> Delete</button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            // Table
+            tbody.innerHTML = students.map((s, i) => {
+                const sid = s.studentId || s.id;
+                const checked = selectedIds.has(sid) ? 'checked' : '';
+                const avatarContent = s.photoUrl
+                    ? `<img src="${s.photoUrl}" alt="${s.firstName}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`
+                    : Utils.initials(s.firstName + ' ' + s.lastName);
+                return `
+                <tr>
+                    <td><input type="checkbox" class="select-cb" ${checked} onchange="toggleSelect(${sid}, this.checked)"></td>
+                    <td>
+                        <div class="flex items-center gap-3" style="cursor:pointer;" onclick="viewProfile(${sid})">
+                            <div class="avatar" style="background:${getColor(i)}; width:34px; height:34px; font-size:0.7rem; border-radius:8px; overflow:hidden;">${avatarContent}</div>
+                            <span>${s.firstName} ${s.lastName}</span>
+                        </div>
+                    </td>
+                    <td>${s.email || '—'}</td>
+                    <td><span class="badge badge-indigo">${getDeptName(s)}</span></td>
+                    <td>${Utils.formatDate(s.enrollmentDate || s.createdAt)}</td>
+                    <td>${statusBadge(s.status)}</td>
+                    <td>
+                        <div class="flex gap-2">
+                            <button class="btn-icon btn-ghost sm" onclick="viewProfile(${sid})" title="View"><i class="ri-eye-line"></i></button>
+                            <button class="btn-icon btn-ghost sm" onclick="editStudent(${sid})" title="Edit"><i class="ri-edit-line"></i></button>
+                            <button class="btn-icon btn-ghost sm" style="color:var(--rose-400);" onclick="deleteStudent(${sid})" title="Delete"><i class="ri-delete-bin-line"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // #7 — Pagination
+        function renderPagination(total, totalPages) {
+            const bar = document.getElementById('paginationBar');
+            if (totalPages <= 1) { bar.innerHTML = `<span class="page-info">Showing all ${total} students</span>`; return; }
+
+            let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})"><i class="ri-arrow-left-s-line"></i></button>`;
+
+            for (let p = 1; p <= totalPages; p++) {
+                if (totalPages > 7 && p > 2 && p < totalPages - 1 && Math.abs(p - currentPage) > 1) {
+                    if (p === 3 || p === totalPages - 2) html += `<span class="page-info">…</span>`;
+                    continue;
+                }
+                html += `<button class="${p === currentPage ? 'active' : ''}" onclick="goPage(${p})">${p}</button>`;
+            }
+
+            html += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goPage(${currentPage + 1})"><i class="ri-arrow-right-s-line"></i></button>`;
+            html += `<span class="page-info">Showing ${(currentPage - 1) * pageSize + 1}–${Math.min(currentPage * pageSize, total)} of ${total}</span>`;
+            bar.innerHTML = html;
+        }
+
+        function goPage(p) {
+            currentPage = p;
+            renderPage(getFilteredStudents());
+            window.scrollTo({ top: 200, behavior: 'smooth' });
+        }
+
+        // #6 — Dynamic filter chips with counts
+        function buildFilterChips() {
+            const row = document.getElementById('filterRow');
+            // Keep search bar, clear rest
+            const searchBar = row.querySelector('.search-bar');
+            row.innerHTML = '';
+            row.appendChild(searchBar);
+
+            const deptCounts = {};
+            allStudents.forEach(s => {
+                const d = (getDeptName(s) || 'Unknown').toUpperCase();
+                deptCounts[d] = (deptCounts[d] || 0) + 1;
+            });
+
+            const allBtn = document.createElement('button');
+            allBtn.className = `filter-chip ${currentFilter === 'all' ? 'active' : ''}`;
+            allBtn.textContent = `All (${allStudents.length})`;
+            allBtn.onclick = () => { currentFilter = 'all'; buildFilterChips(); filterStudents(); };
+            row.appendChild(allBtn);
+
+            Object.entries(deptCounts).sort((a, b) => b[1] - a[1]).forEach(([dept, count]) => {
+                const btn = document.createElement('button');
+                btn.className = `filter-chip ${currentFilter.toUpperCase() === dept ? 'active' : ''}`;
+                btn.textContent = `${dept} (${count})`;
+                btn.onclick = () => { currentFilter = dept; buildFilterChips(); filterStudents(); };
+                row.appendChild(btn);
+            });
+        }
+
+        function setView(v) {
+            if (v === 'table') {
+                document.querySelector('.view-cards')?.style && (document.querySelector('.view-cards').style.display = 'none');
+                document.querySelector('.view-table').style.display = 'block';
+                document.getElementById('btnTable').classList.add('active');
+                document.getElementById('btnCards').classList.remove('active');
+            } else {
+                document.querySelector('.view-cards').style.display = 'grid';
+                document.querySelector('.view-table').style.display = 'none';
+                document.getElementById('btnCards').classList.add('active');
+                document.getElementById('btnTable').classList.remove('active');
+            }
+        }
+
+        // #1 — Photo preview
+        function previewPhoto(input) {
+            const preview = document.getElementById('photoPreview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function openAddModal() {
+            document.getElementById('modalTitle').textContent = 'Add New Student';
+            document.getElementById('studentForm').reset();
+            document.getElementById('editId').value = '';
+            document.getElementById('passwordGroup').style.display = '';
+            document.getElementById('photoPreview').innerHTML = '<i class="ri-camera-line"></i>';
+            document.getElementById('fPhotoUrl').value = '';
+            Modal.open('studentModal');
+        }
+
+        function editStudent(id) {
+            const s = allStudents.find(x => (x.studentId || x.id) === id);
+            if (!s) return;
+            document.getElementById('modalTitle').textContent = 'Edit Student';
+            document.getElementById('editId').value = id;
+            document.getElementById('fFirstName').value = s.firstName || '';
+            document.getElementById('fLastName').value = s.lastName || '';
+            document.getElementById('fEmail').value = s.email || '';
+            document.getElementById('fPhone').value = s.phone || '';
+            document.getElementById('fRollNumber').value = s.rollNumber || '';
+            document.getElementById('fDOB').value = s.dateOfBirth ? s.dateOfBirth.split('T')[0] : '';
+            document.getElementById('fGender').value = s.gender || '';
+            document.getElementById('fDeptId').value = s.departmentId || '';
+            document.getElementById('fAdmissionYear').value = s.admissionYear || new Date().getFullYear();
+            document.getElementById('fAddress').value = s.address || '';
+            document.getElementById('passwordGroup').style.display = 'none';
+            // Show existing photo
+            const preview = document.getElementById('photoPreview');
+            preview.innerHTML = s.photoUrl
+                ? `<img src="${s.photoUrl}" alt="Photo">`
+                : `<i class="ri-camera-line"></i>`;
+            document.getElementById('fPhotoUrl').value = s.photoUrl || '';
+            Modal.open('studentModal');
+        }
+
+        async function saveStudent() {
+            const id = document.getElementById('editId').value;
+            const photoUrlInput = document.getElementById('fPhotoUrl').value.trim();
+            const photoFile = document.getElementById('fPhoto').files[0];
+            const data = {
+                firstName: document.getElementById('fFirstName').value,
+                lastName: document.getElementById('fLastName').value,
+                email: document.getElementById('fEmail').value,
+                phone: document.getElementById('fPhone').value,
+                rollNumber: document.getElementById('fRollNumber').value,
+                dateOfBirth: document.getElementById('fDOB').value,
+                gender: document.getElementById('fGender').value,
+                address: document.getElementById('fAddress').value,
+                departmentId: parseInt(document.getElementById('fDeptId').value),
+                admissionYear: parseInt(document.getElementById('fAdmissionYear').value),
+                status: 'Active'
+            };
+            // Add photo URL if provided
+            if (photoUrlInput) data.photoUrl = photoUrlInput;
+
+            const password = document.getElementById('fPassword').value;
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="ri-loader-4-line" style="animation:spin 0.8s linear infinite;"></i> Saving...';
+            try {
+                if (id) {
+                    // Update existing student
+                    await API.updateStudent(id, { ...data, studentId: parseInt(id) });
+
+                    // Handle photo upload if file selected
+                    if (photoFile) {
+                        try {
+                            const photoResult = await API.uploadPhoto(photoFile);
+                            if (photoResult?.photoUrl) {
+                                await API.updateStudent(id, { ...data, studentId: parseInt(id), photoUrl: photoResult.photoUrl });
+                            }
+                        } catch (photoErr) { console.warn('Photo upload failed:', photoErr.message); }
+                    }
+                    Toast.success('Student updated successfully!');
+                } else {
+                    // New student: require password
+                    if (!password) { Toast.error('Password is required for new students'); saveBtn.disabled = false; saveBtn.innerHTML = '<i class="ri-save-line"></i> Save Student'; return; }
+
+                    // Step 1: Create student record
+                    const studentResult = await API.createStudent(data);
+
+                    // Step 2: Create auth account (so student can login)
+                    try {
+                        await API.register({
+                            email: data.email,
+                            password: password,
+                            firstName: data.firstName,
+                            lastName: data.lastName,
+                            role: 'Student'
+                        });
+                        Toast.success('Student added! They can login with email: ' + data.email);
+                    } catch (authErr) {
+                        // Auth failed — student exists but can't login
+                        console.error('Auth registration failed:', authErr);
+                        Toast.error('Student created but login account failed: ' + (authErr.message || 'Unknown error') + '. Use Sync Auth button to fix.');
+                    }
+
+                    // Step 3: Upload photo if file provided
+                    if (photoFile) {
+                        try {
+                            await API.uploadPhoto(photoFile);
+                        } catch (photoErr) { console.warn('Photo upload failed:', photoErr.message); }
+                    }
+                }
+                Modal.close('studentModal');
+                loadStudents();
+            } catch (e) {
+                Toast.error('Error: ' + e.message);
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="ri-save-line"></i> Save Student';
+            }
+        }
+
+        // ─── Sync Auth Accounts ───
+        async function syncAuthAccounts() {
+            if (!confirm('This will create login accounts for ALL students who don\'t have one yet.\nDefault password: Student@123\n\nContinue?')) return;
+
+            let created = 0, skipped = 0, failed = 0;
+            Toast.info('Syncing auth accounts... This may take a moment.');
+
+            for (const s of allStudents) {
+                if (!s.email) { skipped++; continue; }
+                try {
+                    await API.register({
+                        email: s.email,
+                        password: 'Student@123',
+                        firstName: s.firstName || 'Student',
+                        lastName: s.lastName || '',
+                        role: 'Student'
+                    });
+                    created++;
+                } catch (e) {
+                    // "Email already exists" means they already have an account — skip
+                    if (e.message && e.message.toLowerCase().includes('already exist')) {
+                        skipped++;
+                    } else {
+                        failed++;
+                        console.warn(`Auth sync failed for ${s.email}:`, e.message);
+                    }
+                }
+            }
+            Toast.success(`Auth sync done! Created: ${created}, Already existed: ${skipped}, Failed: ${failed}`);
+        }
+
+        async function deleteStudent(id) {
+            if (!confirm('Are you sure you want to delete this student?')) return;
+            try {
+                await API.deleteStudent(id);
+                Toast.success('Student deleted');
+                loadStudents();
+            } catch (e) {
+                Toast.error('Error: ' + e.message);
+            }
+        }
+
+        // #5 — Bulk select & delete
+        function toggleSelect(id, checked) {
+            if (checked) selectedIds.add(id); else selectedIds.delete(id);
+            updateBulkBar();
+        }
+
+        function toggleSelectAll(checked) {
+            const filtered = getFilteredStudents();
+            const start = (currentPage - 1) * pageSize;
+            const pageStudents = filtered.slice(start, start + pageSize);
+            pageStudents.forEach(s => {
+                const sid = s.studentId || s.id;
+                if (checked) selectedIds.add(sid); else selectedIds.delete(sid);
+            });
+            updateBulkBar();
+            renderPage(getFilteredStudents());
+        }
+
+        function updateBulkBar() {
+            const bar = document.getElementById('bulkBar');
+            const count = document.getElementById('selectedCount');
+            if (selectedIds.size > 0) {
+                bar.classList.add('show');
+                count.textContent = `${selectedIds.size} selected`;
+            } else {
+                bar.classList.remove('show');
+            }
+        }
+
+        async function bulkDelete() {
+            if (!selectedIds.size) return;
+            if (!confirm(`Delete ${selectedIds.size} selected students? This cannot be undone.`)) return;
+            let success = 0, fail = 0;
+            for (const id of selectedIds) {
+                try { await API.deleteStudent(id); success++; } catch { fail++; }
+            }
+            Toast.success(`Deleted ${success} students${fail ? `, ${fail} failed` : ''}`);
+            selectedIds.clear();
+            loadStudents();
+        }
+
+        // #4 — Export CSV
+        function exportCSV() {
+            const filtered = getFilteredStudents();
+            if (!filtered.length) { Toast.error('No students to export'); return; }
+            const headers = ['First Name', 'Last Name', 'Email', 'Roll Number', 'Phone', 'Department', 'Gender', 'Status', 'Admission Year'];
+            const rows = filtered.map(s => [
+                s.firstName, s.lastName, s.email || '', s.rollNumber || '', s.phone || '',
+                getDeptName(s), s.gender || '', s.status || 'Active', s.admissionYear || ''
+            ]);
+            const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `students_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click(); URL.revokeObjectURL(url);
+            Toast.success('CSV exported!');
+        }
+
+        // #2 — View student profile panel
+        async function viewProfile(id) {
+            const s = allStudents.find(x => (x.studentId || x.id) === id);
+            if (!s) return;
+            const sid = s.studentId || s.id;
+
+            const avatarContent = s.photoUrl
+                ? `<img src="${s.photoUrl}" alt="${s.firstName}">`
+                : Utils.initials(s.firstName + ' ' + s.lastName);
+
+            let html = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                    <h3 style="font-size:1rem;">Student Profile</h3>
+                    <button class="btn-icon btn-ghost sm" onclick="closeProfile()"><i class="ri-close-line"></i></button>
+                </div>
+                <div class="profile-header">
+                    <div class="profile-avatar" style="background:${getColor(sid % 8)}">${avatarContent}</div>
+                    <h2 style="font-size:1.2rem;">${s.firstName} ${s.lastName}</h2>
+                    <p class="text-sm text-muted">${s.email || ''}</p>
+                    <div style="margin-top:8px;">${statusBadge(s.status)}</div>
+                </div>
+                <div class="profile-section">
+                    <h4><i class="ri-user-3-line" style="color:var(--indigo-400);"></i> Personal Info</h4>
+                    <div class="profile-info-grid">
+                        <div class="profile-info-item"><div class="lbl">Roll No</div><div class="val">${s.rollNumber || '—'}</div></div>
+                        <div class="profile-info-item"><div class="lbl">Phone</div><div class="val">${s.phone || '—'}</div></div>
+                        <div class="profile-info-item"><div class="lbl">Gender</div><div class="val">${s.gender || '—'}</div></div>
+                        <div class="profile-info-item"><div class="lbl">DOB</div><div class="val">${s.dateOfBirth ? Utils.formatDate(s.dateOfBirth) : '—'}</div></div>
+                        <div class="profile-info-item"><div class="lbl">Department</div><div class="val">${getDeptName(s)}</div></div>
+                        <div class="profile-info-item"><div class="lbl">Admission</div><div class="val">${s.admissionYear || '—'}</div></div>
+                    </div>
+                </div>`;
+
+            // Load related data
+            html += `<div id="profileCourses"><div class="profile-section"><h4><i class="ri-book-open-line" style="color:var(--teal-400);"></i> Enrolled Courses</h4><p class="text-muted text-sm">Loading...</p></div></div>`;
+            html += `<div id="profileFees"><div class="profile-section"><h4><i class="ri-money-dollar-circle-line" style="color:var(--amber-400);"></i> Fees</h4><p class="text-muted text-sm">Loading...</p></div></div>`;
+            html += `<div id="profileAttendance"><div class="profile-section"><h4><i class="ri-calendar-check-line" style="color:var(--emerald-400);"></i> Attendance</h4><p class="text-muted text-sm">Loading...</p></div></div>`;
+
+            document.getElementById('profilePanel').innerHTML = html;
+            document.getElementById('profileOverlay').classList.add('open');
+
+            // Load courses
+            try {
+                const enrollments = await API.getEnrollmentsByStudent(sid);
+                const courses = await API.getCourses();
+                const courseList = Array.isArray(courses) ? courses : [];
+                const enrolled = (Array.isArray(enrollments) ? enrollments : []).map(e => {
+                    const c = courseList.find(x => (x.courseId || x.id) === e.courseId);
+                    return c ? (c.courseName || c.name) + ` (${c.courseCode || c.code})` : `Course #${e.courseId}`;
+                });
+                document.getElementById('profileCourses').innerHTML = `<div class="profile-section"><h4><i class="ri-book-open-line" style="color:var(--teal-400);"></i> Enrolled Courses (${enrolled.length})</h4>${enrolled.length ? enrolled.map(c => `<div class="profile-list-item"><span class="text-sm">${c}</span></div>`).join('') : '<p class="text-muted text-sm">Not enrolled in any courses</p>'}</div>`;
+            } catch { document.getElementById('profileCourses').innerHTML = ''; }
+
+            // Load fees
+            try {
+                const fees = await API.getFeesByStudent(sid);
+                const feeList = Array.isArray(fees) ? fees : [];
+                const paid = feeList.filter(f => f.isPaid || f.status === 'Paid');
+                const total = feeList.reduce((s, f) => s + (f.amount || 0), 0);
+                const paidAmt = paid.reduce((s, f) => s + (f.amount || 0), 0);
+                document.getElementById('profileFees').innerHTML = `<div class="profile-section"><h4><i class="ri-money-dollar-circle-line" style="color:var(--amber-400);"></i> Fees</h4><div class="profile-info-grid"><div class="profile-info-item"><div class="lbl">Total</div><div class="val">${Utils.formatCurrency ? Utils.formatCurrency(total) : '₹' + total.toLocaleString()}</div></div><div class="profile-info-item"><div class="lbl">Paid</div><div class="val" style="color:var(--emerald-400);">${Utils.formatCurrency ? Utils.formatCurrency(paidAmt) : '₹' + paidAmt.toLocaleString()}</div></div></div></div>`;
+            } catch { document.getElementById('profileFees').innerHTML = ''; }
+
+            // Load attendance
+            try {
+                const att = await API.getAttendanceByStudent(sid);
+                const attList = Array.isArray(att) ? att : [];
+                const present = attList.filter(a => a.isPresent || a.status === 'Present').length;
+                const pct = attList.length ? Math.round((present / attList.length) * 100) : 0;
+                document.getElementById('profileAttendance').innerHTML = `<div class="profile-section"><h4><i class="ri-calendar-check-line" style="color:var(--emerald-400);"></i> Attendance</h4><div class="profile-info-grid"><div class="profile-info-item"><div class="lbl">Total Classes</div><div class="val">${attList.length}</div></div><div class="profile-info-item"><div class="lbl">Present</div><div class="val" style="color:${pct >= 75 ? 'var(--emerald-400)' : 'var(--rose-400)'};">${present} (${pct}%)</div></div></div></div>`;
+            } catch { document.getElementById('profileAttendance').innerHTML = ''; }
+        }
+
+        function closeProfile() {
+            document.getElementById('profileOverlay').classList.remove('open');
+        }
+
+        // Load departments for dropdown + filter chips
+        async function loadDepartments() {
+            try {
+                departments = await API.request('/department');
+                departments = Array.isArray(departments) ? departments : [];
+                const select = document.getElementById('fDeptId');
+                select.innerHTML = '<option value="">Select Department</option>' +
+                    departments.map(d => `<option value="${d.departmentId || d.id}">${d.departmentName || d.name}</option>`).join('');
+            } catch (e) {
+                console.error('Failed to load departments:', e);
+            }
+        }
+
+        // Student stats cards
+        function renderStudentStats() {
+            const total = allStudents.length;
+            const active = allStudents.filter(s => (s.status || 'Active').toLowerCase() === 'active').length;
+            const deptSet = new Set(allStudents.map(s => getDeptName(s)).filter(d => d !== '—'));
+            const male = allStudents.filter(s => (s.gender || '').toLowerCase() === 'male').length;
+            const female = total - male;
+            document.getElementById('studentStats').innerHTML = `
+                <div class="stat-card-mini">
+                    <div class="stat-icon" style="background:rgba(99,102,241,0.15);color:var(--indigo-400);"><i class="ri-group-fill"></i></div>
+                    <div><div class="stat-val" style="color:var(--indigo-400);">${total}</div><div class="stat-lbl">Total Students</div></div>
+                </div>
+                <div class="stat-card-mini">
+                    <div class="stat-icon" style="background:rgba(52,211,153,0.15);color:var(--emerald-400);"><i class="ri-checkbox-circle-fill"></i></div>
+                    <div><div class="stat-val" style="color:var(--emerald-400);">${active}</div><div class="stat-lbl">Active</div></div>
+                </div>
+                <div class="stat-card-mini">
+                    <div class="stat-icon" style="background:rgba(245,158,11,0.15);color:var(--amber-400);"><i class="ri-building-2-fill"></i></div>
+                    <div><div class="stat-val" style="color:var(--amber-400);">${deptSet.size}</div><div class="stat-lbl">Departments</div></div>
+                </div>
+                <div class="stat-card-mini">
+                    <div class="stat-icon" style="background:rgba(14,165,233,0.15);color:var(--sky-400);"><i class="ri-men-fill"></i></div>
+                    <div><div class="stat-val" style="color:var(--sky-400);">${male}<span style="font-size:0.85rem;font-weight:600;color:var(--text-tertiary);">/${female}</span></div><div class="stat-lbl">Male / Female</div></div>
+                </div>`;
+        }
+
+        // Initialize
+        loadDepartments();
+        loadStudents().then(() => { buildFilterChips(); renderStudentStats(); });
+    </script>
+</body>
+
+</html>

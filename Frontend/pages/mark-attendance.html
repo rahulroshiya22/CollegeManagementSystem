@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance - College Management System</title>
+    <meta name="description" content="Teacher attendance marking panel">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .step-indicator {
+            display: flex;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-full);
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: var(--bg-light);
+            color: var(--text-muted);
+        }
+
+        [data-theme="dark"] .step {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .step.active {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .step.done {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .step.active .step-num {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .course-select-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .course-select-card {
+            background: var(--bg-secondary);
+            border: 2px solid transparent;
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .course-select-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .course-select-card.selected {
+            border-color: var(--primary);
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .cs-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: var(--space-1);
+        }
+
+        .cs-code {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .student-list {
+            display: grid;
+            gap: var(--space-2);
+        }
+
+        .student-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-fast);
+        }
+
+        .student-row:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .student-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .student-id {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--error-light);
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-switch input:checked+.toggle-slider {
+            background: var(--success);
+        }
+
+        .toggle-switch input:checked+.toggle-slider::before {
+            transform: translateX(24px);
+        }
+
+        .toggle-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 55px;
+            text-align: center;
+        }
+
+        .summary-bar {
+            display: flex;
+            gap: var(--space-6);
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-4);
+        }
+
+        .summary-item span {
+            display: block;
+        }
+
+        .summary-item .s-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .summary-item .s-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <div id="sidebarContainer"></div>
+        <div class="main-content">
+            <div id="headerContainer"></div>
+            <div class="page-body">
+                <!-- Steps -->
+                <div class="step-indicator">
+                    <div class="step active" id="step1"><span class="step-num">1</span> Select Course</div>
+                    <div class="step" id="step2"><span class="step-num">2</span> Mark Attendance</div>
+                    <div class="step" id="step3"><span class="step-num">3</span> Submit</div>
+                </div>
+
+                <!-- Step 1: Course Selection -->
+                <div id="stepCourseSelect">
+                    <h5 style="font-weight:700;margin-bottom:var(--space-4)">Select a course to mark attendance</h5>
+                    <div class="course-select-grid" id="courseGrid">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Attendance Marking -->
+                <div id="stepAttendance" style="display:none">
+                    <div class="action-bar">
+                        <div>
+                            <h5 style="font-weight:700;margin:0" id="selectedCourseName">Course</h5>
+                            <p style="font-size:0.8rem;color:var(--text-muted);margin:0" id="attendanceDate"></p>
+                        </div>
+                        <div style="display:flex;gap:var(--space-3)">
+                            <button class="btn btn-outline btn-sm" onclick="markAll(true)"><i
+                                    class="ri-check-double-fill"></i> Mark All Present</button>
+                            <button class="btn btn-ghost btn-sm" onclick="goBack()"><i class="ri-arrow-left-line"></i>
+                                Back</button>
+                        </div>
+                    </div>
+
+                    <div class="summary-bar" id="summaryBar">
+                        <div class="summary-item"><span class="s-label">Total</span><span class="s-value"
+                                id="sumTotal">0</span></div>
+                        <div class="summary-item"><span class="s-label">Present</span><span class="s-value"
+                                style="color:var(--success)" id="sumPresent">0</span></div>
+                        <div class="summary-item"><span class="s-label">Absent</span><span class="s-value"
+                                style="color:var(--error)" id="sumAbsent">0</span></div>
+                    </div>
+
+                    <div class="student-list" id="studentList">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:center;margin-top:var(--space-6)">
+                        <button class="btn btn-primary btn-lg" onclick="submitAttendance()" id="submitBtn">
+                            <i class="ri-check-fill"></i> Submit Attendance
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Done -->
+                <div id="stepDone" style="display:none; text-align:center; padding:var(--space-16)">
+                    <i class="ri-checkbox-circle-fill"
+                        style="font-size:4rem;color:var(--success);display:block;margin-bottom:var(--space-4)"></i>
+                    <h3>Attendance Submitted!</h3>
+                    <p class="text-muted">Attendance has been recorded successfully.</p>
+                    <button class="btn btn-primary" onclick="resetFlow()" style="margin-top:var(--space-4)">
+                        <i class="ri-refresh-line"></i> Mark Another
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        if (!initPage('Mark Attendance', 'mark-attendance', 'Teacher')) { /* redirect */ }
+        else { loadCourses(); }
+
+        let selectedCourse = null;
+        let attendanceData = [];
+
+        async function loadCourses() {
+            const user = AuthManager.getUser();
+            try {
+                const courses = await AuthManager.apiGet(`/course/teacher/${user?.userId}`);
+                const list = Array.isArray(courses) ? courses : [];
+                const grid = document.getElementById('courseGrid');
+
+                if (!list.length) {
+                    grid.innerHTML = '<div class="empty-state"><i class="ri-book-line"></i><p>No courses assigned to you</p></div>';
+                    return;
+                }
+
+                grid.innerHTML = list.map(c => `
+                    <div class="course-select-card" onclick="selectCourse(${c.courseId}, '${c.courseName}', '${c.courseCode}')">
+                        <div class="cs-name">${c.courseName}</div>
+                        <div class="cs-code">${c.courseCode} · Sem ${c.semester}</div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                document.getElementById('courseGrid').innerHTML = '<div class="empty-state"><p>Could not load courses</p></div>';
+            }
+        }
+
+        async function selectCourse(courseId, courseName, courseCode) {
+            selectedCourse = { courseId, courseName, courseCode };
+            document.getElementById('selectedCourseName').textContent = `${courseName} (${courseCode})`;
+            document.getElementById('attendanceDate').textContent = `Date: ${new Date().toLocaleDateString()}`;
+
+            // Show step 2
+            document.getElementById('stepCourseSelect').style.display = 'none';
+            document.getElementById('stepAttendance').style.display = 'block';
+            document.getElementById('step1').classList.replace('active', 'done');
+            document.getElementById('step2').classList.add('active');
+
+            // Load enrolled students for this course
+            try {
+                const enrollments = await AuthManager.apiGet(`/enrollment/course/${courseId}`);
+                const students = Array.isArray(enrollments) ? enrollments : [];
+
+                attendanceData = students.map(s => ({
+                    studentId: s.studentId,
+                    studentName: s.studentName || `Student #${s.studentId}`,
+                    isPresent: true
+                }));
+
+                renderStudents();
+            } catch {
+                document.getElementById('studentList').innerHTML = '<div class="empty-state"><p>No enrolled students</p></div>';
+            }
+        }
+
+        function renderStudents() {
+            const list = document.getElementById('studentList');
+            if (!attendanceData.length) {
+                list.innerHTML = '<div class="empty-state"><i class="ri-user-line"></i><p>No students enrolled</p></div>';
+                updateSummary();
+                return;
+            }
+            list.innerHTML = attendanceData.map((s, i) => `
+                <div class="student-row">
+                    <div class="student-avatar">${(s.studentName[0] || 'S').toUpperCase()}</div>
+                    <div class="student-info">
+                        <div class="student-name">${s.studentName}</div>
+                        <div class="student-id">ID: ${s.studentId}</div>
+                    </div>
+                    <span class="toggle-label" id="label${i}" style="color:${s.isPresent ? 'var(--success)' : 'var(--error)'}">${s.isPresent ? 'Present' : 'Absent'}</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${s.isPresent ? 'checked' : ''} onchange="togglePresence(${i}, this.checked)">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            `).join('');
+            updateSummary();
+        }
+
+        function togglePresence(index, isPresent) {
+            attendanceData[index].isPresent = isPresent;
+            const label = document.getElementById(`label${index}`);
+            label.textContent = isPresent ? 'Present' : 'Absent';
+            label.style.color = isPresent ? 'var(--success)' : 'var(--error)';
+            updateSummary();
+        }
+
+        function markAll(value) {
+            attendanceData.forEach((s, i) => { s.isPresent = value; });
+            renderStudents();
+        }
+
+        function updateSummary() {
+            const total = attendanceData.length;
+            const present = attendanceData.filter(s => s.isPresent).length;
+            document.getElementById('sumTotal').textContent = total;
+            document.getElementById('sumPresent').textContent = present;
+            document.getElementById('sumAbsent').textContent = total - present;
+        }
+
+        async function submitAttendance() {
+            if (!selectedCourse || !attendanceData.length) return;
+
+            const user = AuthManager.getUser();
+            const body = {
+                courseId: selectedCourse.courseId,
+                date: new Date().toISOString().split('T')[0],
+                markedByUserId: user?.userId || 0,
+                records: attendanceData.map(s => ({
+                    studentId: s.studentId,
+                    isPresent: s.isPresent
+                }))
+            };
+
+            try {
+                await AuthManager.apiPost('/attendance/bulk', body);
+                // Show step 3
+                document.getElementById('stepAttendance').style.display = 'none';
+                document.getElementById('stepDone').style.display = 'block';
+                document.getElementById('step2').classList.replace('active', 'done');
+                document.getElementById('step3').classList.add('active');
+            } catch (err) {
+                showToast(err.message || 'Error submitting attendance', 'error');
+            }
+        }
+
+        function goBack() {
+            document.getElementById('stepCourseSelect').style.display = 'block';
+            document.getElementById('stepAttendance').style.display = 'none';
+            document.getElementById('step1').classList.replace('done', 'active');
+            document.getElementById('step2').classList.remove('active');
+        }
+
+        function resetFlow() {
+            document.getElementById('stepCourseSelect').style.display = 'block';
+            document.getElementById('stepAttendance').style.display = 'none';
+            document.getElementById('stepDone').style.display = 'none';
+            document.getElementById('step1').className = 'step active';
+            document.getElementById('step2').className = 'step';
+            document.getElementById('step3').className = 'step';
+            selectedCourse = null;
+            attendanceData = [];
+        }
+    </script>
+</body>
+
+</html>

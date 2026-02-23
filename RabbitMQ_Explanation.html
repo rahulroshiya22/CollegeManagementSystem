@@ -1,0 +1,129 @@
+only    <span class="comment">// Start consuming messages</span>
+    <span class="keyword">var</span> consumer = <span class="keyword">new</span> <span class="class-name">AsyncEventingBasicConsumer</span>(_channel);
+    consumer.ReceivedAsync += OnMessageReceived;
+    
+    <span class="keyword">await</span> _channel.<span class="class-name">BasicConsumeAsync</span>(
+        queue.QueueName, 
+        autoAck: <span class="keyword">true</span>, 
+        consumer
+    );
+}</pre>
+            </div>
+        </div>
+
+        <!-- Benefits -->
+        <div class="section">
+            <h2>🎯 Why Use RabbitMQ?</h2>
+
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="flow-icon">⚡</div>
+                    <h4>Asynchronous Processing</h4>
+                    <p>Don't wait for other services to respond</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">🔓</div>
+                    <h4>Loose Coupling</h4>
+                    <p>Services work independently</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">📈</div>
+                    <h4>Scalability</h4>
+                    <p>Easily add more subscribers</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="flow-step">
+                    <div class="flow-icon">🛡️</div>
+                    <h4>Reliability</h4>
+                    <p>Messages not lost even if service is down</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Testing Guide -->
+        <div class="section">
+            <h2>🧪 How to Test</h2>
+
+            <div class="info-cards">
+                <div class="info-card">
+                    <h4>1. Start Services</h4>
+                    <p>Start FeeService first, then EnrollmentService, then API Gateway</p>
+                </div>
+                <div class="info-card">
+                    <h4>2. Open Swagger</h4>
+                    <p>Navigate to https://localhost:7000/swagger</p>
+                </div>
+                <div class="info-card">
+                    <h4>3. Create Enrollment</h4>
+                    <p>POST /api/Enrollment with student and course IDs</p>
+                </div>
+                <div class="info-card">
+                    <h4>4. Check Console</h4>
+                    <p>Watch FeeService console for "Fee auto-generated" message</p>
+                </div>
+                <div class="info-card">
+                    <h4>5. Verify Database</h4>
+                    <p>Check Fees table to see the auto-created fee record</p>
+                </div>
+                <div class="info-card">
+                    <h4>6. Check CloudAMQP</h4>
+                    <p>Login to CloudAMQP dashboard to see message statistics</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="section" style="text-align: center;">
+            <h2>🚀 Ready to Test?</h2>
+            <p style="font-size: 1.2em; margin: 20px 0;">
+                Follow the test guide to see RabbitMQ in action in your College Management System!
+            </p>
+            <div>
+                <a href="https://localhost:7000/swagger" class="btn">Open Swagger UI</a>
+                <a href="https://customer.cloudamqp.com/" class="btn">CloudAMQP Dashboard</a>
+            </div>
+            <div style="margin-top: 50px; opacity: 0.7;">
+                <p>College Management System - RabbitMQ Integration Guide</p>
+                <p>© 2026 - Event-Driven Architecture with CloudAMQP</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.section, .timeline-item').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(50px)';
+            el.style.transition = 'all 0.8s ease';
+            observer.observe(el);
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

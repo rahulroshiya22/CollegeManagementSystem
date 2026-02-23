@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Sign In</title>
+    <meta name="description" content="College Management System - Secure login portal">
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        body {
+            background: #06060f;
+            overflow: hidden;
+        }
+
+        .login-scene {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+        }
+
+        /* ─── Left — Visual Panel ─── */
+        .login-visual {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(135deg, #0a0a2e 0%, #12122a 100%);
+        }
+
+        .visual-bg {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 30% 30%, rgba(99, 102, 241, 0.25) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 70%, rgba(139, 92, 246, 0.2) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 50%, rgba(20, 184, 166, 0.1) 0%, transparent 60%);
+            animation: meshFloat 15s ease-in-out infinite;
+        }
+
+        /* Floating Orbs */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 300px;
+            height: 300px;
+            background: rgba(99, 102, 241, 0.3);
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 250px;
+            height: 250px;
+            background: rgba(217, 70, 239, 0.2);
+            bottom: 15%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .orb-3 {
+            width: 200px;
+            height: 200px;
+            background: rgba(20, 184, 166, 0.2);
+            top: 50%;
+            left: 50%;
+            animation-delay: 4s;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -20px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-20px, 15px) scale(0.95);
+            }
+        }
+
+        .visual-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .visual-logo {
+            width: 80px;
+            height: 80px;
+            background: var(--grad-primary);
+            border-radius: 24px;
+            display: grid;
+            place-items: center;
+            font-size: 2.5rem;
+            color: #fff;
+            margin: 0 auto 2rem;
+            box-shadow: 0 20px 60px rgba(99, 102, 241, 0.4);
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-10px) rotate(2deg);
+            }
+        }
+
+        .visual-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        .visual-title span {
+            background: linear-gradient(135deg, #a78bfa, #38bdf8, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .visual-desc {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 380px;
+            margin: 0 auto;
+            line-height: 1.7;
+        }
+
+        /* Stats floating cards */
+        .floating-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+            justify-content: center;
+        }
+
+        .fstat {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1rem 1.5rem;
+            animation: cardFloat 4s ease-in-out infinite;
+        }
+
+        .fstat:nth-child(2) {
+            animation-delay: 1s;
+        }
+
+        .fstat:nth-child(3) {
+            animation-delay: 2s;
+        }
+
+        @keyframes cardFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .fstat-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .fstat-label {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ─── Right — Form Panel ─── */
+        .login-form-panel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            position: relative;
+        }
+
+        .login-form-panel::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            bottom: 10%;
+            width: 1px;
+            background: linear-gradient(transparent, var(--border-default), transparent);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .login-card h2 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-card .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        /* Input Styles */
+        .login-input-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .login-input-group label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .login-input-wrap {
+            position: relative;
+        }
+
+        .login-input-wrap i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-tertiary);
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 14px 16px 14px 48px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .login-input:focus {
+            border-color: var(--indigo-500);
+            background: rgba(99, 102, 241, 0.06);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .login-input:focus+i,
+        .login-input:focus~i {
+            color: var(--indigo-400);
+        }
+
+        .login-input::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .pw-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .login-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            font-size: 0.82rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--indigo-500);
+        }
+
+        .forgot-link {
+            color: var(--indigo-400);
+            font-weight: 600;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Login Button */
+        .login-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--grad-primary);
+            border: none;
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .login-btn:hover {
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn .btn-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin: 0 auto;
+        }
+
+        .login-btn.loading .btn-text {
+            display: none;
+        }
+
+        .login-btn.loading .btn-spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .login-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.75rem 0;
+            color: var(--text-tertiary);
+            font-size: 0.78rem;
+        }
+
+        .login-divider::before,
+        .login-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-subtle);
+        }
+
+        /* Quick Access Cards */
+        .quick-access {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .qa-card {
+            text-align: center;
+            padding: 14px 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .qa-card:hover {
+            background: rgba(99, 102, 241, 0.08);
+            border-color: rgba(99, 102, 241, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .qa-card i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .qa-card.admin i {
+            color: var(--indigo-400);
+        }
+
+        .qa-card.teacher i {
+            color: var(--teal-400);
+        }
+
+        .qa-card.student i {
+            color: var(--amber-400);
+        }
+
+        .qa-card span {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .error-msg {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: var(--rose-400);
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-msg.show {
+            display: flex;
+        }
+
+        @media (max-width: 900px) {
+            .login-scene {
+                grid-template-columns: 1fr;
+            }
+
+            .login-visual {
+                display: none;
+            }
+
+            .login-form-panel::before {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-scene">
+        <!-- Left Visual -->
+        <div class="login-visual">
+            <div class="visual-bg"></div>
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
+            <div class="visual-content">
+                <div class="visual-logo">
+                    <i class="ri-graduation-cap-fill"></i>
+                </div>
+                <h1 class="visual-title">
+                    Welcome to<br><span>NeoVerse CMS</span>
+                </h1>
+                <p class="visual-desc">
+                    Next-generation college management platform with real-time analytics, smart scheduling, and seamless
+                    administration.
+                </p>
+                <div class="floating-stats">
+                    <div class="fstat">
+                        <div class="fstat-value" style="color: var(--indigo-400)">2,500+</div>
+                        <div class="fstat-label">Students</div>
+                    </div>
+                    <div class="fstat">
+                        <div class="fstat-value" style="color: var(--teal-400)">150+</div>
+                        <div class="fstat-label">Faculty</div>
+                    </div>
+                    <div class="fstat">
+                        <div class="fstat-value" style="color: var(--amber-400)">50+</div>
+                        <div class="fstat-label">Courses</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Form -->
+        <div class="login-form-panel">
+            <div class="login-card">
+                <h2>Sign In ✨</h2>
+                <p class="subtitle">Enter your credentials to access your dashboard</p>
+
+                <div class="error-msg" id="errorMsg">
+                    <i class="ri-error-warning-fill"></i>
+                    <span id="errorText">Invalid credentials</span>
+                </div>
+
+                <form id="loginForm" autocomplete="off">
+                    <div class="login-input-group">
+                        <label>Email Address</label>
+                        <div class="login-input-wrap">
+                            <input type="email" class="login-input" id="email" placeholder="your@email.com" required>
+                            <i class="ri-mail-line"></i>
+                        </div>
+                    </div>
+                    <div class="login-input-group">
+                        <label>Password</label>
+                        <div class="login-input-wrap">
+                            <input type="password" class="login-input" id="password" placeholder="••••••••" required>
+                            <i class="ri-lock-2-line"></i>
+                            <button type="button" class="pw-toggle" id="pwToggle">
+                                <i class="ri-eye-off-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="login-options">
+                        <label class="remember-me">
+                            <input type="checkbox" checked> Remember me
+                        </label>
+                        <a href="#" class="forgot-link">Forgot password?</a>
+                    </div>
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <span class="btn-text">Sign In</span>
+                        <div class="btn-spinner"></div>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        const form = document.getElementById('loginForm');
+        const btn = document.getElementById('loginBtn');
+        const errEl = document.getElementById('errorMsg');
+        const errText = document.getElementById('errorText');
+
+        // Password toggle
+        document.getElementById('pwToggle').addEventListener('click', () => {
+            const pw = document.getElementById('password');
+            const icon = document.querySelector('#pwToggle i');
+            if (pw.type === 'password') {
+                pw.type = 'text'; icon.className = 'ri-eye-line';
+            } else {
+                pw.type = 'password'; icon.className = 'ri-eye-off-line';
+            }
+        });
+
+        function showError(msg) {
+            errText.textContent = msg;
+            errEl.classList.add('show');
+        }
+        function hideError() { errEl.classList.remove('show'); }
+
+        async function doLogin(email, password) {
+            hideError();
+            btn.classList.add('loading');
+            try {
+                const data = await API.login(email, password);
+                if (data && (data.accessToken || data.token)) {
+                    const token = data.accessToken || data.token;
+                    const parsed = Auth.parseJwt(token);
+                    const role = parsed?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+                        || parsed?.role || 'User';
+                    Auth.save(token, {
+                        email: parsed?.email || email,
+                        displayName: parsed?.name || parsed?.given_name || email.split('@')[0],
+                        role: role,
+                        userId: parsed?.nameid || parsed?.sub
+                    });
+                    // Also save for old frontend compat
+                    localStorage.setItem('accessToken', token);
+
+                    // Redirect based on role
+                    if (role === 'Admin') location.href = 'dashboard.html';
+                    else if (role === 'Teacher') location.href = 'teacher-dashboard.html';
+                    else location.href = 'student-dashboard.html';
+                } else {
+                    showError('Invalid response from server');
+                }
+            } catch (e) {
+                showError(e.message || 'Login failed. Check your credentials.');
+            } finally {
+                btn.classList.remove('loading');
+            }
+        }
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            doLogin(document.getElementById('email').value, document.getElementById('password').value);
+        });
+
+
+
+        // If already logged in, redirect
+        if (Auth.isLoggedIn()) {
+            const role = Auth.getRole();
+            if (role === 'Admin') location.href = 'dashboard.html';
+            else if (role === 'Teacher') location.href = 'teacher-dashboard.html';
+            else location.href = 'student-dashboard.html';
+        }
+    </script>
+</body>
+
+</html>

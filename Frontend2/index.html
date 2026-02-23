@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — College Management System</title>
+    <meta name="description"
+        content="NeoVerse - Next-gen College Management System with real-time analytics, smart scheduling.">
+    <link rel="stylesheet" href="assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        body {
+            overflow-x: hidden;
+        }
+
+        .landing-hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 3rem;
+            position: relative;
+        }
+
+        /* Animated Gradient Orbs */
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        .hero-orb.o1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(99, 102, 241, 0.2);
+            top: -10%;
+            left: -5%;
+            animation: orbFloat 10s ease-in-out infinite;
+        }
+
+        .hero-orb.o2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(217, 70, 239, 0.15);
+            bottom: -10%;
+            right: -5%;
+            animation: orbFloat 12s ease-in-out infinite reverse;
+        }
+
+        .hero-orb.o3 {
+            width: 300px;
+            height: 300px;
+            background: rgba(20, 184, 166, 0.12);
+            top: 50%;
+            left: 60%;
+            animation: orbFloat 8s ease-in-out infinite 2s;
+        }
+
+        @keyframes orbFloat {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(40px, -30px) scale(1.05);
+            }
+
+            66% {
+                transform: translate(-30px, 20px) scale(0.95);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 100px;
+            padding: 8px 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--indigo-300);
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s var(--ease-out) forwards;
+        }
+
+        .hero-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--emerald-400);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        .hero-title {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            animation: slideUp 0.8s var(--ease-out) 0.1s forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-title .gradient-text {
+            background: linear-gradient(135deg, #818cf8, #c084fc, #38bdf8, #2dd4bf);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease infinite;
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .hero-desc {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 540px;
+            margin: 0 auto 2.5rem;
+            animation: slideUp 0.8s var(--ease-out) 0.3s forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: slideUp 0.8s var(--ease-out) 0.5s forwards;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .hero-btn-primary {
+            padding: 16px 36px;
+            background: var(--grad-primary);
+            border: none;
+            border-radius: 16px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.35);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-btn-primary:hover {
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.5);
+            transform: translateY(-3px);
+        }
+
+        .hero-btn-secondary {
+            padding: 16px 36px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Feature Cards */
+        .features {
+            padding: 80px 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .features-title {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .features-title h2 {
+            margin-bottom: 12px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-2xl);
+            padding: 28px;
+            transition: all 0.3s var(--ease-out);
+        }
+
+        .feature-card:hover {
+            background: var(--bg-glass-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            font-size: 1.5rem;
+            color: #fff;
+            margin-bottom: 18px;
+        }
+
+        .feature-card h4 {
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .landing-footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid var(--border-subtle);
+            color: var(--text-tertiary);
+            font-size: 0.8rem;
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Orbs -->
+    <div class="hero-orb o1"></div>
+    <div class="hero-orb o2"></div>
+    <div class="hero-orb o3"></div>
+
+    <!-- Hero -->
+    <section class="landing-hero">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <div class="dot"></div>
+                Next-Gen Platform • 2026
+            </div>
+            <h1 class="hero-title">
+                <span class="gradient-text">Reimagine</span><br>
+                College Management
+            </h1>
+            <p class="hero-desc">
+                A beautifully crafted platform for modern educational institutions.
+                Real-time analytics. Smart scheduling. Effortless administration.
+            </p>
+            <div class="hero-buttons">
+                <a href="pages/login.html" class="hero-btn-primary">
+                    <i class="ri-login-box-line"></i> Get Started
+                </a>
+                <a href="#features" class="hero-btn-secondary">
+                    <i class="ri-eye-line"></i> Explore Features
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-title">
+                <h2>Everything You Need</h2>
+                <p class="text-muted">Powerful modules designed for seamless campus management.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:var(--grad-primary);"><i class="ri-group-fill"></i>
+                    </div>
+                    <h4>Student Management</h4>
+                    <p>Complete student lifecycle from admission to graduation, with detailed profiles and tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:var(--grad-teal);"><i class="ri-book-open-fill"></i>
+                    </div>
+                    <h4>Course Catalog</h4>
+                    <p>Organize departments, courses, and curriculum with an intuitive visual interface.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:var(--grad-rose);"><i class="ri-user-star-fill"></i>
+                    </div>
+                    <h4>Faculty Portal</h4>
+                    <p>Dedicated dashboards for teachers with schedule management and attendance tools.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:var(--grad-amber);"><i
+                            class="ri-money-dollar-circle-fill"></i></div>
+                    <h4>Fee Management</h4>
+                    <p>Track fee collection, pending payments, and generate financial reports effortlessly.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:var(--grad-emerald);"><i
+                            class="ri-calendar-check-fill"></i></div>
+                    <h4>Smart Attendance</h4>
+                    <p>Digital attendance marking with visual analytics, calendars, and rate tracking.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background:var(--grad-fuchsia);"><i
+                            class="ri-file-list-3-fill"></i></div>
+                    <h4>Enrollment Engine</h4>
+                    <p>Seamlessly enroll students in courses with smart recommendations and conflict detection.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="landing-footer">
+        <div class="container">
+            <p>© 2026 NeoVerse CMS — Built with ❤️ for Modern Education</p>
+        </div>
+    </footer>
+
+    <script>
+        // Auto-redirect if logged in
+        const token = localStorage.getItem('cms_token');
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const role = payload?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || payload?.role;
+                if (role === 'Admin') location.href = 'pages/dashboard.html';
+                else if (role === 'Teacher') location.href = 'pages/teacher-dashboard.html';
+                else location.href = 'pages/student-dashboard.html';
+            } catch { }
+        }
+    </script>
+</body>
+
+</html>

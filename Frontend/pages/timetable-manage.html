@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timetable Management - College Management System</title>
+    <meta name="description" content="Admin timetable management - Create and manage class schedules">
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: 80px repeat(6, 1fr);
+            gap: 2px;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            margin-top: var(--space-4);
+        }
+
+        .tt-header {
+            background: linear-gradient(135deg, #1a1f36, #2d3748);
+            color: white;
+            padding: var(--space-3);
+            text-align: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tt-time-label {
+            background: var(--bg-light);
+            padding: var(--space-2);
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] .tt-time-label {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .tt-cell {
+            background: var(--bg-secondary);
+            padding: var(--space-2);
+            min-height: 60px;
+            position: relative;
+            transition: all var(--transition-fast);
+            cursor: pointer;
+        }
+
+        .tt-cell:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .tt-slot {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.08));
+            border-left: 3px solid var(--primary);
+            border-radius: var(--radius-md);
+            padding: var(--space-2);
+            font-size: 0.7rem;
+            margin-bottom: 2px;
+        }
+
+        .tt-slot-name {
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .tt-slot-info {
+            color: var(--text-muted);
+            font-size: 0.65rem;
+        }
+
+        .action-btn {
+            padding: var(--space-1) var(--space-2);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all var(--transition-fast);
+        }
+
+        .btn-edit {
+            background: var(--info-light);
+            color: var(--info);
+        }
+
+        .btn-delete {
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+        .slots-list {
+            margin-top: var(--space-4);
+        }
+
+        .slot-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: var(--bg-light);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-2);
+            flex-wrap: wrap;
+        }
+
+        [data-theme="dark"] .slot-row {
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .slot-day {
+            background: var(--gradient-primary);
+            color: white;
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: 0.7rem;
+            font-weight: 700;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .slot-course {
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .slot-details {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .slot-actions {
+            margin-left: auto;
+            display: flex;
+            gap: var(--space-2);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <div id="sidebarContainer"></div>
+        <div class="main-content">
+            <div id="headerContainer"></div>
+            <div class="page-body">
+                <div class="action-bar">
+                    <h5 style="margin:0;font-weight:700">Weekly Timetable</h5>
+                    <button class="btn btn-primary" onclick="openCreateModal()">
+                        <i class="ri-add-fill"></i> Add Time Slot
+                    </button>
+                </div>
+
+                <!-- Visual Timetable Grid -->
+                <div class="timetable-grid" id="timetableGrid">
+                    <div class="tt-header"></div>
+                    <div class="tt-header">Mon</div>
+                    <div class="tt-header">Tue</div>
+                    <div class="tt-header">Wed</div>
+                    <div class="tt-header">Thu</div>
+                    <div class="tt-header">Fri</div>
+                    <div class="tt-header">Sat</div>
+                </div>
+
+                <!-- All Slots List -->
+                <div style="margin-top:var(--space-8)">
+                    <h5 style="font-weight:700;margin-bottom:var(--space-4)"><i class="ri-list-check"
+                            style="color:var(--primary)"></i> All Time Slots</h5>
+                    <div id="slotsList">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div class="modal-overlay" id="slotModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add Time Slot</h5>
+                <button class="modal-close" onclick="closeModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="slotForm">
+                    <input type="hidden" id="editSlotId">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)">
+                        <div class="form-group">
+                            <label class="form-label">Course ID</label>
+                            <input type="number" class="form-input" id="courseId" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Course Name</label>
+                            <input type="text" class="form-input" id="courseName" required>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)">
+                        <div class="form-group">
+                            <label class="form-label">Teacher ID</label>
+                            <input type="number" class="form-input" id="teacherId" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teacher Name</label>
+                            <input type="text" class="form-input" id="teacherName" required>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4)">
+                        <div class="form-group">
+                            <label class="form-label">Day</label>
+                            <select class="form-input" id="dayOfWeek">
+                                <option>Monday</option>
+                                <option>Tuesday</option>
+                                <option>Wednesday</option>
+                                <option>Thursday</option>
+                                <option>Friday</option>
+                                <option>Saturday</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Start Time</label>
+                            <input type="time" class="form-input" id="startTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">End Time</label>
+                            <input type="time" class="form-input" id="endTime" required>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--space-4)">
+                        <div class="form-group">
+                            <label class="form-label">Room</label>
+                            <input type="text" class="form-input" id="roomNumber" required placeholder="A-101">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Dept ID</label>
+                            <input type="number" class="form-input" id="departmentId" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Semester</label>
+                            <input type="number" class="form-input" id="semester" required min="1" max="8">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Academic Year</label>
+                        <input type="text" class="form-input" id="academicYear" placeholder="2025-2026">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveSlot()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        if (!initPage('Timetable Management', 'timetable', 'Admin')) { /* redirect */ }
+        else { loadTimetable(); }
+
+        const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const HOURS = Array.from({ length: 10 }, (_, i) => i + 8); // 8AM to 5PM
+
+        async function loadTimetable() {
+            try {
+                const slots = await AuthManager.apiGet('/timeslot');
+                const allSlots = Array.isArray(slots) ? slots : [];
+
+                renderGrid(allSlots);
+                renderList(allSlots);
+            } catch (err) {
+                console.error('Load timetable error:', err);
+                document.getElementById('slotsList').innerHTML = '<div class="empty-state"><p>Could not load timetable</p></div>';
+            }
+        }
+
+        function renderGrid(slots) {
+            const grid = document.getElementById('timetableGrid');
+            // Keep headers
+            let html = `
+                <div class="tt-header"></div>
+                <div class="tt-header">Mon</div><div class="tt-header">Tue</div>
+                <div class="tt-header">Wed</div><div class="tt-header">Thu</div>
+                <div class="tt-header">Fri</div><div class="tt-header">Sat</div>
+            `;
+
+            for (const hour of HOURS) {
+                html += `<div class="tt-time-label">${hour}:00</div>`;
+                for (const day of DAYS) {
+                    const daySlots = slots.filter(s => {
+                        const h = parseInt(s.startTime?.split(':')[0]);
+                        return s.dayOfWeek === day && h === hour;
+                    });
+                    html += `<div class="tt-cell">`;
+                    daySlots.forEach(s => {
+                        html += `<div class="tt-slot"><div class="tt-slot-name">${s.courseName}</div><div class="tt-slot-info">${s.roomNumber} · ${s.teacherName}</div></div>`;
+                    });
+                    html += `</div>`;
+                }
+            }
+            grid.innerHTML = html;
+        }
+
+        function renderList(slots) {
+            const container = document.getElementById('slotsList');
+            if (!slots.length) {
+                container.innerHTML = '<div class="empty-state"><i class="ri-calendar-line"></i><p>No time slots created yet</p></div>';
+                return;
+            }
+            container.innerHTML = slots.map(s => `
+                <div class="slot-row">
+                    <span class="slot-day">${(s.dayOfWeek || '').slice(0, 3)}</span>
+                    <div>
+                        <div class="slot-course">${s.courseName}</div>
+                        <div class="slot-details">${formatTime(s.startTime)} - ${formatTime(s.endTime)} · Room ${s.roomNumber} · ${s.teacherName}</div>
+                    </div>
+                    <div class="slot-actions">
+                        <button class="action-btn btn-edit" onclick='editSlot(${JSON.stringify(s)})'><i class="ri-pencil-fill"></i></button>
+                        <button class="action-btn btn-delete" onclick="deleteSlot(${s.timeSlotId})"><i class="ri-delete-bin-fill"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatTime(t) {
+            if (!t) return '';
+            const p = t.split(':');
+            let h = parseInt(p[0]); const m = p[1];
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            return `${h}:${m} ${ampm}`;
+        }
+
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Add Time Slot';
+            document.getElementById('slotForm').reset();
+            document.getElementById('editSlotId').value = '';
+            document.getElementById('slotModal').classList.add('show');
+        }
+
+        function editSlot(slot) {
+            document.getElementById('modalTitle').textContent = 'Edit Time Slot';
+            document.getElementById('editSlotId').value = slot.timeSlotId;
+            document.getElementById('courseId').value = slot.courseId;
+            document.getElementById('courseName').value = slot.courseName;
+            document.getElementById('teacherId').value = slot.teacherId;
+            document.getElementById('teacherName').value = slot.teacherName;
+            document.getElementById('dayOfWeek').value = slot.dayOfWeek;
+            document.getElementById('startTime').value = (slot.startTime || '').substring(0, 5);
+            document.getElementById('endTime').value = (slot.endTime || '').substring(0, 5);
+            document.getElementById('roomNumber').value = slot.roomNumber;
+            document.getElementById('departmentId').value = slot.departmentId;
+            document.getElementById('semester').value = slot.semester;
+            document.getElementById('academicYear').value = slot.academicYear || '';
+            document.getElementById('slotModal').classList.add('show');
+        }
+
+        function closeModal() { document.getElementById('slotModal').classList.remove('show'); }
+
+        async function saveSlot() {
+            const id = document.getElementById('editSlotId').value;
+            const body = {
+                courseId: parseInt(document.getElementById('courseId').value),
+                courseName: document.getElementById('courseName').value,
+                teacherId: parseInt(document.getElementById('teacherId').value),
+                teacherName: document.getElementById('teacherName').value,
+                dayOfWeek: document.getElementById('dayOfWeek').value,
+                startTime: document.getElementById('startTime').value + ':00',
+                endTime: document.getElementById('endTime').value + ':00',
+                roomNumber: document.getElementById('roomNumber').value,
+                departmentId: parseInt(document.getElementById('departmentId').value),
+                semester: parseInt(document.getElementById('semester').value),
+                academicYear: document.getElementById('academicYear').value || null,
+            };
+
+            try {
+                if (id) {
+                    body.isActive = true;
+                    await AuthManager.apiPut(`/timeslot/${id}`, body);
+                    showToast('Time slot updated', 'success');
+                } else {
+                    await AuthManager.apiPost('/timeslot', body);
+                    showToast('Time slot created', 'success');
+                }
+                closeModal();
+                loadTimetable();
+            } catch (err) {
+                showToast(err.message || 'Error saving slot', 'error');
+            }
+        }
+
+        async function deleteSlot(id) {
+            if (!confirm('Delete this time slot?')) return;
+            try {
+                await AuthManager.apiDelete(`/timeslot/${id}`);
+                showToast('Time slot deleted', 'success');
+                loadTimetable();
+            } catch (err) {
+                showToast(err.message || 'Error deleting slot', 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>

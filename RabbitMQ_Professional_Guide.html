@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RabbitMQ Integration Guide - College Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
+            line-height: 1.7;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2em !important;
+            }
+
+            h2 {
+                font-size: 1.6em !important;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .code-block {
+                font-size: 0.8em;
+                padding: 15px;
+            }
+
+            table {
+                font-size: 0.85em;
+            }
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+        }
+
+        /* Section */
+        .section {
+            background: white;
+            padding: 35px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        h2 {
+            font-size: 2em;
+            color: #2d3748;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        h3 {
+            font-size: 1.5em;
+            color: #4a5568;
+            margin: 25px 0 15px;
+        }
+
+        h4 {
+            font-size: 1.2em;
+            color: #667eea;
+            margin: 20px 0 10px;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+
+        /* Comparison Grid */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin: 30px 0;
+        }
+
+        .option-card {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .option-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
+            transform: translateY(-3px);
+        }
+
+        .option-card h3 {
+            color: #667eea;
+            margin-top: 0;
+            font-size: 1.8em;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #667eea;
+            color: white;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 5px 5px 15px 0;
+        }
+
+        .badge.recommended {
+            background: #48bb78;
+        }
+
+        .pros-cons {
+            margin: 20px 0;
+        }
+
+        .pros-cons h5 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+
+        .pros-cons ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .pros-cons li {
+            padding: 8px 0;
+            padding-left: 28px;
+            position: relative;
+        }
+
+        .pros-cons li::before {
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .pros li::before {
+            content: "✓";
+            color: #48bb78;
+        }
+
+        .cons li::before {
+            content: "✗";
+            color: #f56565;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        /* Code Block */
+        .code-block {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 0.9em;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .code-label {
+            position: absolute;
+            top: -12px;
+            right: 15px;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .keyword {
+            color: #81e6d9;
+        }
+
+        .string {
+            color: #f6ad55;
+        }
+
+        .comment {
+            color: #718096;
+        }
+
+        .number {
+            color: #90cdf4;
+        }
+
+        /* Steps */
+        .step {
+            background: #f7fafc;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 35px;
+            height: 35px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 18px 22px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #ebf8ff;
+            border-color: #4299e1;
+            color: #2c5282;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-color: #48bb78;
+            color: #276749;
+        }
+
+        .alert-warning {
+            background: #fffaf0;
+            border-color: #ed8936;
+            color: #7c2d12;
+        }
+
+        /* Architecture Diagram */
+        .arch-diagram {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 40px;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .arch-box {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            min-width: 180px;
+            border: 2px solid #e2e8f0;
+            margin: 10px;
+        }
+
+        .arch-box.publisher {
+            border-color: #f687b3;
+            background: #fff5f7;
+        }
+
+        .arch-box.broker {
+            border-color: #667eea;
+            background: #eef2ff;
+        }
+
+        .arch-box.subscriber {
+            border-color: #63b3ed;
+            background: #ebf8ff;
+        }
+
+        .arrow {
+            font-size: 2em;
+            color: #a0aec0;
+            margin: 0 20px;
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            padding: 12px 28px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px 10px 10px 0;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #718096;
+            margin-top: 40px;
+        }
+
+        /* Highlight Box */
+        .highlight-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .highlight-box h4 {
+            color: white;
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1>🐰 RabbitMQ Integration Guide</h1>
+            <p class="subtitle">Complete Student-Level Explanation<br>College Management System</p>
+        </header>
+
+        <!-- What is RabbitMQ -->
+        <div class="section">
+            <h2>📚 What is RabbitMQ?</h2>
+            <p style="font-size: 1.15em;">
+                <strong>RabbitMQ</strong> is a <strong>message broker</strong> - software that helps different
+                applications or services communicate with each other by passing messages. Think of it like a
+                <strong>post office</strong>: one service (sender) gives a message to RabbitMQ, and RabbitMQ delivers it
+                to another service (receiver).
+            </p>
+
+            <h3>🎯 Why Do We Need It?</h3>
+            <p>Without RabbitMQ, if your EnrollmentService wants to tell your FeeService that a student enrolled, it
+                would need to:</p>
+            <ul style="margin-left: 40px; color: #4a5568;">
+                <li>Know the FeeService's exact location (URL)</li>
+                <li>Wait for FeeService to respond</li>
+                <li>Handle errors if FeeService is down</li>
+            </ul>
+
+            <p style="margin-top: 15px;"><strong>With RabbitMQ:</strong> EnrollmentService just sends a message to
+                RabbitMQ and continues working. RabbitMQ handles delivery to FeeService automatically!</p>
+
+            <div class="arch-diagram">
+                <div class="arch-box publisher">
+                    <h4>📝 EnrollmentService</h4>
+                    <p style="margin: 0;">Publisher</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="arch-box broker">
+                    <h4>🐰 RabbitMQ</h4>
+                    <p style="margin: 0;">Message Broker</p>
+                </div>
+                <div class="arrow">→</div>
+                <div class="arch-box subscriber">
+                    <h4>💰 FeeService</h4>
+                    <p style="margin: 0;">Subscriber</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hosting Options -->
+        <div class="section">
+            <h2>☁️ RabbitMQ Hosting: Docker vs CloudAMQP</h2>
+            <p>You have two main options for running RabbitMQ. Let's compare them:</p>
+
+            <div class="comparison-grid">
+                <!-- Docker -->
+                <div class="option-card">
+                    <h3>🐳 Docker RabbitMQ</h3>
+                    <span class="badge">Local</span>
+                    <span class="badge">Free</span>
+                    <p><strong>What is it?</strong> Run RabbitMQ in a container on your computer.</p>
+
+                    <div class="pros-cons">
+                        <h5 style="color: #48bb78;">✓ Advantages:</h5>
+                        <ul class="pros">
+                            <li>100% Free</li>
+                            <li>Full control over setup</li>
+                            <li>Works offline (no internet needed)</li>
+                            <li>Great for learning & development</li>
+                            <li>Easy to start/stop</li>
+                            <li>Same environment for all team members</li>
+                        </ul>
+                    </div>
+
+                    <div class="pros-cons">
+                        <h5 style="color: #f56565;">✗ Disadvantages:</h5>
+                        <ul class="cons">
+                            <li>Need Docker installed</li>
+                            <li>Uses your computer's resources (RAM/CPU)</li>
+                            <li>You manage everything yourself</li>
+                            <li>Not suitable for production</li>
+                            <li>Manual monitoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>👨‍💻 Best For:</strong> Local development, testing, learning RabbitMQ
+                    </div>
+
+                    <h4>Quick Start:</h4>
+                    <div class="code-block">
+                        <div class="code-label">Terminal</div>
+                        <pre>docker run -d --name rabbitmq \
+  -p 5672:5672 -p 15672:15672 \
+  rabbitmq:management</pre>
+                    </div>
+                </div>
+
+                <!-- CloudAMQP -->
+                <div class="option-card" style="border-color: #48bb78;">
+                    <h3>☁️ CloudAMQP</h3>
+                    <span class="badge recommended">✨ RECOMMENDED</span>
+                    <span class="badge">Hosted</span>
+                    <p><strong>What is it?</strong> RabbitMQ as a cloud service (someone else runs it for you).</p>
+
+                    <div class="pros-cons">
+                        <h5 style="color: #48bb78;">✓ Advantages:</h5>
+                        <ul class="pros">
+                            <li>Setup in 5 minutes</li>
+                            <li>Free tier available (perfect for students)</li>
+                            <li>Zero maintenance</li>
+                            <li>Automatic backups & monitoring</li>
+                            <li>Scales automatically</li>
+                            <li>99.9% uptime guarantee</li>
+                            <li>Production-ready immediately</li>
+                            <li>Same code works for dev & production</li>
+                        </ul>
+                    </div>
+
+                    <div class="pros-cons">
+                        <h5 style="color: #f56565;">✗ Disadvantages:</h5>
+                        <ul class="cons">
+                            <li>Requires internet connection</li>
+                            <li>Costs money after free tier</li>
+                            <li>Less control over advanced config</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-success">
+                        <strong>🎓 Best For:</strong> Students, portfolios, production apps, quick deployment
+                    </div>
+
+                    <h4>Pricing:</h4>
+                    <ul style="margin-left: 20px; color: #4a5568;">
+                        <li><strong>Free:</strong> Perfect for learning (1M messages/month)</li>
+                        <li><strong>$19/month:</strong> Small projects</li>
+                        <li><strong>$79+/month:</strong> Production apps</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Comparison Table -->
+            <h3>📊 Quick Comparison</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Docker</th>
+                        <th>CloudAMQP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Setup Time</strong></td>
+                        <td>10-15 minutes</td>
+                        <td style="color: #48bb78;"><strong>5 minutes</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cost</strong></td>
+                        <td style="color: #48bb78;"><strong>Free</strong></td>
+                        <td>Free tier, then $19/mo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Maintenance</strong></td>
+                        <td>You handle it</td>
+                        <td style="color: #48bb78;"><strong>Automatic</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Internet Required</strong></td>
+                        <td style="color: #48bb78;"><strong>No</strong></td>
+                        <td>Yes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Production Ready</strong></td>
+                        <td>No</td>
+                        <td style="color: #48bb78;"><strong>Yes</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monitoring</strong></td>
+                        <td>Manual</td>
+                        <td style="color: #48bb78;"><strong>Built-in</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Limited to your PC</td>
+                        <td style="color: #48bb78;"><strong>Auto-scales</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="highlight-box">
+                <h4>💡 Our Choice: CloudAMQP</h4>
+                <p style="margin: 0;">This project uses <strong>CloudAMQP</strong> because it's perfect for student
+                    projects: free tier for learning, easy setup, and production-ready when you need it. Same code works
+                    everywhere - no changes needed when deploying!</p>
+            </div>
+        </div>
+
+        <!-- Your Project Setup -->
+        <div class="section">
+            <h2>🏗️ Your Project's RabbitMQ Setup</h2>
+
+            <h3>Current Configuration:</h3>
+            <ul style="margin-left: 40px; color: #4a5568;">
+                <li><strong>Provider:</strong> CloudAMQP (hosted RabbitMQ)</li>
+                <li><strong>Server:</strong> duck.lmq.cloudamqp.com</li>
+                <li><strong>Exchange Name:</strong> student-enrolled</li>
+                <li><strong>Exchange Type:</strong> Fanout (broadcasts to all subscribers)</li>
+                <li><strong>Durable:</strong> Yes (messages survive server restart)</li>
+            </ul>
+
+            <h3>📍 Where It's Used:</h3>
+            <div class="step">
+                <span class="step-number">1</span>
+                <strong>EnrollmentService (Publisher)</strong> - Sends enrollment events
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <strong>FeeService (Subscriber)</strong> - Listens for enrollments and creates fees automatically
+            </div>
+        </div>
+
+        <!-- Complete Integration Guide -->
+        <div class="section">
+            <h2>🔧 Complete Integration Guide</h2>
+            <p>Let's understand exactly how RabbitMQ ismintegrated into your project, step by step.</p>
+
+            <!-- Step 1: Package Installation -->
+            <div class="step">
+                <h3><span class="step-number">1</span> Install RabbitMQ Client Package</h3>
+                <p>Both services need the RabbitMQ client library to communicate with CloudAMQP.</p>
+
+                <div class="code-block">
+                    <div class="code-label">Terminal</div>
+                    <pre>dotnet add package RabbitMQ.Client --version 7.2.0</pre>
+                </div>
+
+                <p><strong>Why?</strong> This package provides the code to connect to RabbitMQ and send/receive
+                    messages.</p>
+            </div>
+
+            <!-- Step 2: Connection String -->
+            <div class="step">
+                <h3><span class="step-number">2</span> Add Connection String</h3>
+                <p>Each service needs to know how to connect to CloudAMQP.</p>
+
+                <div class="code-block">
+                    <div class="code-label">appsettings.json</div>
+                    <pre>{
+  <span class="string">"CloudAMQP"</span>: {
+    <span class="string">"ConnectionString"</span>: <span class="string">"amqps://username:password@duck.lmq.cloudamqp.com/vhost"</span>
+  }
+}</pre>
+                </div>
+
+                <p><strong>Connection String Format:</strong></p>
+                <ul style="margin-left: 40px; color: #4a5568;">
+                    <li><code>amqps://</code> - Secure protocol</li>
+                    <li><code>username:password</code> - Your CloudAMQP credentials</li>
+                    <li><code>@duck.lmq.cloudamqp.com</code> - CloudAMQP server</li>
+                    <li><code>/vhost</code> - Virtual host (like a namespace)</li>
+                </ul>
+            </div>
+
+            <!-- Step 3: Message Bus -->
+            <div class="step">
+                <h3><span class="step-number">3</span> Create Message Bus (Publisher)</h3>
+                <p>This is the code that sends messages to RabbitMQ.</p>
+
+                <div class="code-block">
+                    <div class="code-label">CMS.Common.Messaging/CloudAMQPBus.cs</div>
+                    <pre><span class="keyword">public class</span> <span class="keyword">CloudAMQPBus</span> : IMessageBus
+{
+    <span class="keyword">private readonly string</span> _connectionString;
+
+    <span class="keyword">public</span> CloudAMQPBus(<span class="keyword">string</span> connectionString)
+    {
+        _connectionString = connectionString;
+    }
+
+    <span class="keyword">public async Task</span> PublishAsync(<span class="keyword">string</span> exchange, <span class="keyword">object</span> message)
+    {
+        <span class="comment">// 1. Create connection factory</span>
+        <span class="keyword">var</span> factory = <span class="keyword">new</span> ConnectionFactory 
+        { 
+            Uri = <span class="keyword">new</span> Uri(_connectionString),
+            AutomaticRecoveryEnabled = <span class="keyword">true</span>  <span class="comment">// Auto-reconnect if connection drops</span>
+        };
+        
+        <span class="comment">// 2. Open connection and channel</span>
+        <span class="keyword">using var</span> connection = <span class="keyword">await</span> factory.CreateConnectionAsync();
+        <span class="keyword">using var</span> channel = <span class="keyword">await</span> connection.CreateChannelAsync();
+        
+        <span class="comment">// 3. Declare exchange (create if doesn't exist)</span>
+        <span class="keyword">await</span> channel.ExchangeDeclareAsync(
+            exchange,                    <span class="comment">// Name: "student-enrolled"</span>
+            ExchangeType.Fanout,        <span class="comment">// Type: broadcast to all</span>
+            durable: <span class="keyword">true</span>                <span class="comment">// Survive server restart</span>
+        );
+        
+        <span class="comment">// 4. Convert message to bytes</span>
+        <span class="keyword">var</span> json = JsonSerializer.Serialize(message);
+        <span class="keyword">var</span> body = Encoding.UTF8.GetBytes(json);
+        
+        <span class="comment">// 5. Publish message</span>
+        <span class="keyword">await</span> channel.BasicPublishAsync(
+            exchange,               <span class="comment">// Where to send</span>
+            <span class="string">""</span>,                       <span class="comment">// Routing key (not used with Fanout)</span>
+            body                    <span class="comment">// Message data</span>
+        );
+    }
+}</pre>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>💡 Key Points:</strong>
+                    <ul style="margin: 10px 0 0 20px;">
+                        <li><strong>Exchange:</strong> Like a mailbox where messages go</li>
+                        <li><strong>Fanout:</strong> Sends message to ALL subscribers</li>
+                        <li><strong>Durable:</strong> Message won't be lost if RabbitMQ restarts</li>
+                        <li><strong>AutomaticRecoveryEnabled:</strong> Reconnects automatically if connection drops</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Step 4: Register in DI -->
+            <div class="step">
+                <h3><span class="step-number">4</span> Register in EnrollmentService</h3>
+                <p>Make the message bus available throughout the service.</p>
+
+                <div class="code-block">
+                    <div class="code-label">EnrollmentService/Program.cs</div>
+                    <pre><span class="comment">// Register CloudAMQP Message Bus</span>
+builder.Services.AddSingleton&lt;IMessageBus&gt;(sp =&gt; 
+    <span class="keyword">new</span> CloudAMQPBus(
+        builder.Configuration[<span class="string">"CloudAMQP:ConnectionString"</span>]!
+    )
+);</pre>
+                </div>
+
+                <p><strong>Why Singleton?</strong> We want ONE shared connection to RabbitMQ, not a new one for every
+                    request.</p>
+            </div>
+
+            <!-- Step 5: Publish Message -->
+            <div class="step">
+                <h3><span class="step-number">5</span> Publish Enrollment Event</h3>
+                <p>When a student enrolls, send a message to RabbitMQ.</p>
+
+                <div class="code-block">
+                    <div class="code-label">EnrollmentService/Services/EnrollmentService.cs</div>
+                    <pre><span class="keyword">public async Task</span> CreateEnrollment(Enrollment enrollment)
+{
+    <span class="comment">// 1. Save enrollment to database</span>
+    _context.Enrollments.Add(enrollment);
+    <span class="keyword">await</span> _context.SaveChangesAsync();
+
+    <span class="comment">// 2. Create event message</span>
+    <span class="keyword">var</span> enrollmentEvent = <span class="keyword">new</span>
+    {
+        EnrollmentId = enrollment.EnrollmentId,
+        StudentId = enrollment.StudentId,
+        CourseId = enrollment.CourseId,
+        Semester = enrollment.Semester,
+        Year = enrollment.Year,
+        EnrollmentDate = enrollment.EnrollmentDate
+    };
+
+    <span class="comment">// 3. Publish to RabbitMQ</span>
+    <span class="keyword">await</span> _messageBus.PublishAsync(
+        <span class="string">"student-enrolled"</span>,    <span class="comment">// Exchange name</span>
+        enrollmentEvent           <span class="comment">// Message data</span>
+    );
+
+    Console.WriteLine(<span class="string">"✓ Enrollment saved and event published"</span>);
+}</pre>
+                </div>
+
+                <div class="alert alert-success">
+                    <strong>✓ What happens:</strong> Enrollment saved to database → Message sent to RabbitMQ →
+                    EnrollmentService continues (doesn't wait for FeeService)
+                </div>
+            </div>
+
+            <!-- Step 6: Background Subscriber -->
+            <div class="step">
+                <h3><span class="step-number">6</span> Create Background Subscriber (FeeService)</h3>
+                <p>FeeService runs a background task that continuously listens for messages.</p>
+
+                <div class="code-block">
+                    <div class="code-label">FeeService/Messaging/StudentEnrolledSubscriber.cs</div>
+                    <pre><span class="keyword">public class</span> StudentEnrolledSubscriber : BackgroundService
+{
+    <span class="keyword">private</span> IConnection? _connection;
+    <span class="keyword">private</span> IChannel? _channel;
+    <span class="keyword">private readonly string</span> _connectionString;
+    <span class="keyword">private readonly</span> IServiceProvider _serviceProvider;
+
+    <span class="keyword">protected override async Task</span> ExecuteAsync(CancellationToken stoppingToken)
+    {
+        <span class="comment">// 1. Connect to CloudAMQP</span>
+        <span class="keyword">var</span> factory = <span class="keyword">new</span> ConnectionFactory 
+        { 
+            Uri = <span class="keyword">new</span> Uri(_connectionString),
+            AutomaticRecoveryEnabled = <span class="keyword">true</span>
+        };
+        
+        _connection = <span class="keyword">await</span> factory.CreateConnectionAsync();
+        _channel = <span class="keyword">await</span> _connection.CreateChannelAsync();
+        
+        <span class="comment">// 2. Declare exchange (must match publisher)</span>
+        <span class="keyword">await</span> _channel.ExchangeDeclareAsync(
+            <span class="string">"student-enrolled"</span>,
+            ExchangeType.Fanout,
+            durable: <span class="keyword">true</span>
+        );
+        
+        <span class="comment">// 3. Create a queue and bind to exchange</span>
+        <span class="keyword">var</span> queueDeclare = <span class="keyword">await</span> _channel.QueueDeclareAsync();
+        <span class="keyword">await</span> _channel.QueueBindAsync(
+            queueDeclare.QueueName,   <span class="comment">// Our queue</span>
+            <span class="string">"student-enrolled"</span>,        <span class="comment">// Exchange to listen to</span>
+            <span class="string">""</span>                        <span class="comment">// Routing key (not used)</span>
+        );
+        
+        <span class="comment">// 4. Start listening for messages</span>
+        <span class="keyword">var</span> consumer = <span class="keyword">new</span> AsyncEventingBasicConsumer(_channel);
+        consumer.ReceivedAsync += OnMessageReceived;
+        
+        <span class="keyword">await</span> _channel.BasicConsumeAsync(
+            queueDeclare.QueueName,
+            autoAck: <span class="keyword">true</span>,         <span class="comment">// Auto-acknowledge receipt</span>
+            consumer
+        );
+
+        Console.WriteLine(<span class="string">"✓ FeeService listening for enrollment events..."</span>);
+    }
+
+    <span class="keyword">private async Task</span> OnMessageReceived(<span class="keyword">object</span> sender, BasicDeliverEventArgs args)
+    {
+        <span class="comment">// 1. Convert bytes back to text</span>
+        <span class="keyword">var</span> body = args.Body.ToArray();
+        <span class="keyword">var</span> json = Encoding.UTF8.GetString(body);
+        
+        Console.WriteLine(<span class="string">$"→ Received from student-enrolled: {json}"</span>);
+        
+        <span class="comment">// 2. Deserialize to object</span>
+        <span class="keyword">var</span> enrollmentEvent = JsonSerializer.Deserialize&lt;EnrollmentEvent&gt;(json);
+        
+        <span class="comment">// 3. Process the event (create fee)</span>
+        <span class="keyword">using var</span> scope = _serviceProvider.CreateScope();
+        <span class="keyword">var</span> context = scope.ServiceProvider.GetRequiredService&lt;FeeDbContext&gt;();
+        
+        <span class="keyword">var</span> fee = <span class="keyword">new</span> Fee
+        {
+            StudentId = enrollmentEvent.StudentId,
+            Amount = <span class="number">5000</span>,  <span class="comment">// Default fee</span>
+            Description = <span class="string">$"Course Fee for Semester {enrollmentEvent.Semester}"</span>,
+            Status = <span class="string">"Pending"</span>,
+            DueDate = DateTime.UtcNow.AddDays(<span class="number">30</span>),
+            CreatedAt = DateTime.UtcNow
+        };
+        
+        context.Fees.Add(fee);
+        <span class="keyword">await</span> context.SaveChangesAsync();
+        
+        Console.WriteLine(<span class="string">$"✓ Fee auto-generated for Student {fee.StudentId}: ${fee.Amount}"</span>);
+    }
+}</pre>
+                </div>
+
+                <div class="alert alert-info">
+                    <strong>💡 Background Service:</strong> This runs automatically when FeeService starts and keeps
+                    running, waiting for messages. It never stops until the service stops.
+                </div>
+            </div>
+
+            <!-- Step 7: Register Subscriber -->
+            <div class="step">
+                <h3><span class="step-number">7</span> Register Subscriber in FeeService</h3>
+
+                <div class="code-block">
+                    <div class="code-label">FeeService/Program.cs</div>
+                    <pre><span class="comment">// Register background service that listens for enrollments</span>
+builder.Services.AddHostedService&lt;StudentEnrolledSubscriber&gt;();</pre>
+                </div>
+
+                <p><strong>What is AddHostedService?</strong> It tells ASP.NET Core to run this service in the
+                    background automatically when the app starts.</p>
+            </div>
+        </div>
+
+        <!-- Message Flow -->
+        <div class="section">
+            <h2>🔄 Complete Message Flow</h2>
+            <p>Let's trace what happens when a student enrolls, step by step:</p>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h4>Student Enrolls via API</h4>
+                <p>User sends POST request to: <code>POST https://localhost:7000/api/Enrollment</code></p>
+                <div class="code-block">
+                    <pre>{
+  <span class="string">"studentId"</span>: <span class="number">7</span>,
+  <span class="string">"courseId"</span>: <span class="number">2</span>,
+  <span class="string">"semester"</span>: <span class="number">1</span>,
+  <span class="string">"year"</span>: <span class="number">2024</span>,
+  <span class="string">"enrollmentDate"</span>: <span class="string">"2024-08-15"</span>
+}</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h4>EnrollmentService Processes</h4>
+                <ul style="margin-left: 40px; color: #4a5568;">
+                    <li>Validates the request</li>
+                    <li>Saves enrollment to <code>clgmansys3</code> database</li>
+                    <li>Creates enrollment event object</li>
+                    <li>Publishes message to RabbitMQ exchange "student-enrolled"</li>
+                    <li>Returns success response to user</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h4>CloudAMQP Receives Message</h4>
+                <ul style="margin-left: 40px; color: #4a5568;">
+                    <li>Message arrives at CloudAMQP server</li>
+                    <li>Stored in "student-enrolled" exchange</li>
+                    <li>Exchange broadcasts to all bound queues</li>
+                    <li>FeeService's queue receives the message</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h4>FeeService Consumes Message</h4>
+                <ul style="margin-left: 40px; color: #4a5568;">
+                    <li>Background service detects new message</li>
+                    <li>Deserializes JSON to enrollmentEvent object</li>
+                    <li>Creates fee record for the student</li>
+                    <li>Saves fee to <code>clgmansys4</code> database</li>
+                    <li>Logs success message to console</li>
+                </ul>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h4>Result</h4>
+                <p><strong>✓ Enrollment saved</strong> in EnrollmentService database<br>
+                    <strong>✓ Fee automatically created</strong> in FeeService database<br>
+                    <strong>✓ Services don't know about each other</strong> - they only know RabbitMQ!
+                </p>
+            </div>
+
+            <div class="highlight-box">
+                <h4>🎯 This is Event-Driven Architecture!</h4>
+                <p style="margin: 0;">EnrollmentService doesn't call FeeService directly. It just announces "A student
+                    enrolled!" and any service interested in this event can listen and react. This makes the system
+                    flexible and easy to extend.</p>
+            </div>
+        </div>
+
+        <!-- Testing Guide -->
+        <div class="section">
+            <h2>🧪 How to Test</h2>
+
+            <div class="step">
+                <span class="step-number">1</span>
+                <h4>Start Services in Order</h4>
+                <ol style="margin-left: 40px; color: #4a5568;">
+                    <li>Start FeeService first (so it's listening)</li>
+                    <li>Start EnrollmentService</li>
+                    <li>Start API Gateway</li>
+                </ol>
+                <p>Or use: <code>StartAllServices.bat</code></p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">2</span>
+                <h4>Open Swagger</h4>
+                <p>Navigate to: <a href="https://localhost:7000/swagger" class="btn">https://localhost:7000/swagger</a>
+                </p>
+            </div>
+
+            <div class="step">
+                <span class="step-number">3</span>
+                <h4>Create Test Enrollment</h4>
+                <p>Use <code>POST /api/Enrollment</code> with this data:</p>
+                <div class="code-block">
+                    <pre>{
+  <span class="string">"studentId"</span>: <span class="number">7</span>,
+  <span class="string">"courseId"</span>: <span class="number">2</span>,
+  <span class="string">"semester"</span>: <span class="number">1</span>,
+  <span class="string">"year"</span>: <span class="number">2024</span>,
+  <span class="string">"enrollmentDate"</span>: <span class="string">"2024-08-15"</span>
+}</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">4</span>
+                <h4>Watch Console Output</h4>
+                <p><strong>EnrollmentService Console:</strong></p>
+                <div class="code-block">
+                    <pre>✓ Enrollment saved and event published</pre>
+                </div>
+
+                <p><strong>FeeService Console:</strong></p>
+                <div class="code-block">
+                    <pre>→ Received from student-enrolled: {"StudentId":7,"CourseId":2...}
+✓ Fee auto-generated for Student 7: $5000</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">5</span>
+                <h4>Verify in Database</h4>
+                <p>Check both databases:</p>
+                <div class="code-block">
+                    <div class="code-label">SQL</div>
+                    <pre><span class="comment">-- Check enrollment</span>
+<span class="keyword">SELECT TOP 1</span> * <span class="keyword">FROM</span> clgmansys3.dbo.Enrollments 
+<span class="keyword">ORDER BY</span> EnrollmentId <span class="keyword">DESC</span>;
+
+<span class="comment">-- Check auto-created fee</span>
+<span class="keyword">SELECT TOP 1</span> * <span class="keyword">FROM</span> clgmansys4.dbo.Fees 
+<span class="keyword">ORDER BY</span> FeeId <span class="keyword">DESC</span>;</pre>
+                </div>
+            </div>
+
+            <div class="step">
+                <span class="step-number">6</span>
+                <h4>Check CloudAMQP Dashboard (Optional)</h4>
+                <p>Login to CloudAMQP to see message statistics:</p>
+                <a href="https://customer.cloudamqp.com/" class="btn">CloudAMQP Dashboard</a>
+            </div>
+        </div>
+
+        <!-- Key Concepts -->
+        <div class="section">
+            <h2>🎓 Key Concepts Explained</h2>
+
+            <h3>Exchange Types</h3>
+            <table>
+                <tr>
+                    <th>Type</th>
+                    <th>How It Works</th>
+                    <th>Your Project</th>
+                </tr>
+                <tr>
+                    <td><strong>Fanout</strong></td>
+                    <td>Broadcasts to ALL queues (like a loudspeaker)</td>
+                    <td style="color: #48bb78;">✓ Used in your project</td>
+                </tr>
+                <tr>
+                    <td><strong>Direct</strong></td>
+                    <td>Sends to queues with matching routing key</td>
+                    <td>Not used</td>
+                </tr>
+                <tr>
+                    <td><strong>Topic</strong></td>
+                    <td>Pattern matching routing (e.g., "student.*")</td>
+                    <td>Not used</td>
+                </tr>
+            </table>
+
+            <h3>Important Terms</h3>
+            <ul style="margin-left: 40px; color: #4a5568;">
+                <li><strong>Publisher:</strong> Service that sends messages (EnrollmentService)</li>
+                <li><strong>Subscriber/Consumer:</strong> Service that receives messages (FeeService)</li>
+                <li><strong>Exchange:</strong> Mailbox where publishers send messages</li>
+                <li><strong>Queue:</strong> Line where messages wait to be consumed</li>
+                <li><strong>Binding:</strong> Connection between exchange and queue</li>
+                <li><strong>Durable:</strong> Survives server restart</li>
+                <li><strong>AutoAck:</strong> Automatically mark message as received</li>
+            </ul>
+        </div>
+
+        <!-- Troubleshooting -->
+        <div class="section">
+            <h2>🔧 Common Issues & Solutions</h2>
+
+            <div class="alert alert-warning">
+                <h4>❌ "Connection refused" or "BrokerUnreachableException"</h4>
+                <strong>Solution:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Check CloudAMQP connection string is correct</li>
+                    <li>Verify you have internet connection</li>
+                    <li>Ensure connection string uses <code>amqps://</code> (secure)</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-warning">
+                <h4>❌ Messages published but not received</h4>
+                <strong>Solution:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Start FeeService BEFORE creating enrollments</li>
+                    <li>Check FeeService console for "listening for enrollment events"</li>
+                    <li>Verify exchange names match in both services</li>
+                </ul>
+            </div>
+
+            <div class="alert alert-warning">
+                <h4>❌ "Invalid object name 'Fees'"</h4>
+                <strong>Solution:</strong>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>Run database migration for FeeService</li>
+                    <li><code>dotnet ef database update --project Backend/CMS.FeeService</code></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="section">
+            <h2>📝 Summary</h2>
+
+            <div class="highlight-box">
+                <h3 style="margin-top: 0; color: white;">What You Learned:</h3>
+                <ul style="color: white; margin-left: 20px;">
+                    <li>✓ RabbitMQ is a message broker that helps services communicate</li>
+                    <li>✓ CloudAMQP is the best choice for students (free, easy, production-ready)</li>
+                    <li>✓ Docker is great for local development</li>
+                    <li>✓ Your project uses a Fanout exchange to broadcast enrollment events</li>
+                    <li>✓ EnrollmentService publishes, FeeService subscribes</li>
+                    <li>✓ Fees are created automatically when students enroll</li>
+                    <li>✓ Services don't know about each other - they only know RabbitMQ</li>
+                </ul>
+            </div>
+
+            <h3>Your Project Stack:</h3>
+            <table>
+                <tr>
+                    <td><strong>Message Broker</strong></td>
+                    <td>CloudAMQP (RabbitMQ as a Service)</td>
+                </tr>
+                <tr>
+                    <td><strong>Exchange Name</strong></td>
+                    <td>student-enrolled</td>
+                </tr>
+                <tr>
+                    <td><strong>Exchange Type</strong></td>
+                    <td>Fanout (broadcast)</td>
+                </tr>
+                <tr>
+                    <td><strong>Publisher</strong></td>
+                    <td>Enrollment Service (Port 5003)</td>
+                </tr>
+                <tr>
+                    <td><strong>Subscriber</strong></td>
+                    <td>Fee Service (Port 5004)</td>
+                </tr>
+                <tr>
+                    <td><strong>Client Library</strong></td>
+                    <td>RabbitMQ.Client 7.2.0</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Footer -->
+        <footer>
+            <p><strong>College Management System - RabbitMQ Integration Guide</strong></p>
+            <p>Complete explanation from setup to testing</p>
+            <div style="margin-top: 20px;">
+                <a href="https://localhost:7000/swagger" class="btn">Test in Swagger</a>
+                <a href="https://customer.cloudamqp.com/" class="btn">CloudAMQP Dashboard</a>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

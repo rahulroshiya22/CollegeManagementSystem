@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Management - College Management System</title>
+    <link rel="stylesheet" href="../assets/css/global.css">
+    <link rel="stylesheet" href="../assets/css/layout.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .dept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--space-4);
+        }
+
+        .dept-card {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+            box-shadow: var(--shadow-md);
+            transition: all var(--transition-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .dept-card:nth-child(4n+1)::before {
+            background: var(--gradient-primary);
+        }
+
+        .dept-card:nth-child(4n+2)::before {
+            background: var(--gradient-green);
+        }
+
+        .dept-card:nth-child(4n+3)::before {
+            background: var(--gradient-blue);
+        }
+
+        .dept-card:nth-child(4n+4)::before {
+            background: var(--gradient-orange);
+        }
+
+        .dept-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .dept-name {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+        }
+
+        .dept-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: var(--space-3);
+            line-height: 1.5;
+        }
+
+        .dept-stats {
+            display: flex;
+            gap: var(--space-4);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .dept-actions {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+        }
+
+        .action-btn {
+            padding: var(--space-1) var(--space-2);
+            border: none;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-edit {
+            background: var(--info-light);
+            color: var(--info);
+        }
+
+        .btn-delete {
+            background: var(--error-light);
+            color: var(--error);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <div id="sidebarContainer"></div>
+        <div class="main-content">
+            <div id="headerContainer"></div>
+            <div class="page-body">
+                <div class="action-bar">
+                    <h5 style="margin:0;font-weight:700">All Departments</h5>
+                    <button class="btn btn-primary" onclick="openModal()"><i class="ri-add-fill"></i> Add
+                        Department</button>
+                </div>
+                <div class="dept-grid" id="deptGrid">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="deptModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Add Department</h5>
+                <button class="modal-close" onclick="closeModal()"><i class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="editId">
+                <div class="form-group"><label class="form-label">Name</label><input type="text" class="form-input"
+                        id="deptName" required></div>
+                <div class="form-group"><label class="form-label">Description</label><textarea class="form-input"
+                        id="deptDesc" rows="3" style="resize:vertical"></textarea></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveDept()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/auth.js"></script>
+    <script>
+        if (!initPage('Departments', 'departments', 'Admin')) { } else { loadDepts(); }
+
+        async function loadDepts() {
+            try {
+                const depts = await AuthManager.apiGet('/department');
+                const list = Array.isArray(depts) ? depts : [];
+                const grid = document.getElementById('deptGrid');
+                if (!list.length) { grid.innerHTML = '<div class="empty-state"><i class="ri-building-2-line"></i><p>No departments</p></div>'; return; }
+                grid.innerHTML = list.map(d => `
+                    <div class="dept-card">
+                        <div class="dept-name">${d.name || d.departmentName}</div>
+                        <div class="dept-desc">${d.description || 'No description'}</div>
+                        <div class="dept-stats"><span><i class="ri-book-2-line"></i> ${d.courseCount || 0} courses</span></div>
+                        <div class="dept-actions">
+                            <button class="action-btn btn-edit" onclick='editDept(${JSON.stringify(d)})'><i class="ri-pencil-fill"></i> Edit</button>
+                            <button class="action-btn btn-delete" onclick="deleteDept(${d.departmentId})"><i class="ri-delete-bin-fill"></i> Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch { document.getElementById('deptGrid').innerHTML = '<div class="empty-state"><p>Could not load departments</p></div>'; }
+        }
+
+        function openModal() { document.getElementById('modalTitle').textContent = 'Add Department'; document.getElementById('editId').value = ''; document.getElementById('deptName').value = ''; document.getElementById('deptDesc').value = ''; document.getElementById('deptModal').classList.add('show'); }
+        function editDept(d) { document.getElementById('modalTitle').textContent = 'Edit Department'; document.getElementById('editId').value = d.departmentId; document.getElementById('deptName').value = d.name || d.departmentName || ''; document.getElementById('deptDesc').value = d.description || ''; document.getElementById('deptModal').classList.add('show'); }
+        function closeModal() { document.getElementById('deptModal').classList.remove('show'); }
+
+        async function saveDept() {
+            const id = document.getElementById('editId').value;
+            const body = { name: document.getElementById('deptName').value, description: document.getElementById('deptDesc').value };
+            try {
+                if (id) { await AuthManager.apiPut(`/department/${id}`, body); showToast('Updated', 'success'); }
+                else { await AuthManager.apiPost('/department', body); showToast('Created', 'success'); }
+                closeModal(); loadDepts();
+            } catch (err) { showToast(err.message || 'Error', 'error'); }
+        }
+
+        async function deleteDept(id) {
+            if (!confirm('Delete department?')) return;
+            try { await AuthManager.apiDelete(`/department/${id}`); showToast('Deleted', 'success'); loadDepts(); }
+            catch (err) { showToast(err.message || 'Cannot delete', 'error'); }
+        }
+    </script>
+</body>
+
+</html>

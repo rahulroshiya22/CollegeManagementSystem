@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Timetable</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .tt-filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .tt-filters select {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 10px 16px;
+            border-radius: var(--radius-lg);
+            font-size: 0.85rem;
+            min-width: 160px;
+        }
+
+        .tt-week {
+            display: grid;
+            grid-template-columns: 80px repeat(6, 1fr);
+            gap: 2px;
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .tt-header-cell {
+            padding: 14px 8px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+            background: var(--bg-glass);
+        }
+
+        .tt-time-cell {
+            padding: 10px 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            background: var(--bg-glass);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .tt-slot {
+            background: var(--bg-glass);
+            padding: 10px;
+            min-height: 80px;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .tt-slot:hover {
+            background: var(--bg-glass-hover);
+        }
+
+        .tt-class {
+            border-radius: var(--radius-lg);
+            padding: 10px 12px;
+            font-size: 0.78rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tt-class:hover {
+            transform: scale(1.03);
+            box-shadow: var(--shadow-md);
+        }
+
+        .tt-class .c-name {
+            font-weight: 700;
+            font-size: 0.82rem;
+            margin-bottom: 3px;
+        }
+
+        .tt-class .c-code {
+            font-size: 0.65rem;
+            opacity: 0.7;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tt-class .c-room {
+            font-size: 0.68rem;
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tt-class .c-teacher {
+            font-size: 0.65rem;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+
+        .tt-empty {
+            display: grid;
+            place-items: center;
+            height: 100%;
+            color: rgba(255, 255, 255, 0.06);
+            font-size: 0.7rem;
+        }
+
+        .tt-legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .tt-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .tt-legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+        }
+
+        .loading-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--indigo-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @media(max-width:900px) {
+            .tt-week {
+                grid-template-columns: 60px repeat(6, 1fr);
+            }
+
+            .tt-class {
+                padding: 6px 8px;
+            }
+
+            .tt-class .c-name {
+                font-size: 0.72rem;
+            }
+        }
+
+        /* #37: Conflict detection */
+        .tt-class.conflict {
+            border: 2px solid var(--rose-400) !important;
+            animation: conflict-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes conflict-pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 8px 3px rgba(244, 63, 94, 0.25);
+            }
+        }
+
+        .conflict-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.6rem;
+            color: var(--rose-400);
+            margin-top: 4px;
+            font-weight: 700;
+        }
+
+        .conflict-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 12px 18px;
+            margin-bottom: 16px;
+            font-size: 0.82rem;
+            color: var(--rose-400);
+            font-weight: 600;
+        }
+
+        .conflict-banner i {
+            font-size: 1.2rem;
+        }
+
+        .no-conflict-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            border-radius: var(--radius-xl);
+            padding: 12px 18px;
+            margin-bottom: 16px;
+            font-size: 0.82rem;
+            color: var(--emerald-400);
+            font-weight: 600;
+        }
+
+        .no-conflict-banner i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" class="active" data-tip="Timetable"><i class="ri-calendar-2-line"></i>
+                Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"><i
+                    class="ri-logout-box-r-line"></i></button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')"><i
+                class="ri-menu-3-line"></i></button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <div class="slide-up" style="margin-bottom:var(--space-6);">
+                <h1><i class="ri-calendar-2-fill" style="color:var(--sky-400);"></i> Weekly Timetable</h1>
+                <p class="text-sm text-muted mt-2">View class schedules by department and semester</p>
+            </div>
+
+            <div class="tt-filters slide-up delay-1">
+                <select id="filterDept" onchange="renderTimetable()">
+                    <option value="all">All Departments</option>
+                </select>
+                <select id="filterSem" onchange="renderTimetable()">
+                    <option value="all">All Semesters</option>
+                    <option value="1">Semester 1</option>
+                    <option value="2">Semester 2</option>
+                    <option value="3">Semester 3</option>
+                    <option value="4">Semester 4</option>
+                    <option value="5">Semester 5</option>
+                    <option value="6">Semester 6</option>
+                </select>
+                <select id="filterTeacher" onchange="renderTimetable()">
+                    <option value="all">All Teachers</option>
+                </select>
+            </div>
+
+            <div class="loading-overlay" id="loadingOverlay">
+                <div class="loader"></div>
+            </div>
+            <!-- #37: Conflict banner -->
+            <div id="conflictBanner" style="display:none;"></div>
+            <div class="glass-card slide-up delay-2" style="padding:0;overflow-x:auto;">
+                <div class="tt-week" id="ttGrid"></div>
+            </div>
+
+            <div class="tt-legend slide-up delay-3">
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#818cf8;"></div> CS
+                </div>
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#2dd4bf;"></div> IT
+                </div>
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#fb923c;"></div> ECE
+                </div>
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#f472b6;"></div> ME
+                </div>
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#a78bfa;"></div> CE
+                </div>
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#fbbf24;"></div> EE
+                </div>
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#34d399;"></div> MATH
+                </div>
+                <div class="tt-legend-item">
+                    <div class="tt-legend-dot" style="background:#38bdf8;"></div> PHY
+                </div>
+            </div>
+            <div style="height:60px;"></div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'auth';
+        let slots = [], courses = [], teachers = [], depts = [];
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const timeRows = [
+            { label: '9:00\nAM', start: '09:00', end: '10:00' },
+            { label: '10:15\nAM', start: '10:15', end: '11:15' },
+            { label: '11:30\nAM', start: '11:30', end: '12:30' },
+            { label: '2:00\nPM', start: '14:00', end: '15:00' },
+            { label: '3:15\nPM', start: '15:15', end: '16:15' },
+        ];
+        const deptColors = { 1: 'rgba(129,140,248,0.2)', 2: 'rgba(45,212,191,0.2)', 3: 'rgba(251,146,60,0.2)', 4: 'rgba(244,114,182,0.2)', 5: 'rgba(167,139,250,0.2)', 6: 'rgba(251,191,36,0.2)', 7: 'rgba(52,211,153,0.2)', 8: 'rgba(56,189,248,0.2)' };
+        const deptBorders = { 1: '#818cf8', 2: '#2dd4bf', 3: '#fb923c', 4: '#f472b6', 5: '#a78bfa', 6: '#fbbf24', 7: '#34d399', 8: '#38bdf8' };
+
+        async function loadData() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const [s, c, t, d] = await Promise.all([API.getTimeSlots(), API.getCourses(), API.getTeachers(), API.getDepartments()]);
+                slots = Array.isArray(s) ? s : [];
+                courses = Array.isArray(c) ? c : [];
+                teachers = Array.isArray(t) ? t : (t || []);
+                depts = Array.isArray(d) ? d : [];
+                // populate filters
+                const deptSel = document.getElementById('filterDept');
+                depts.forEach(dp => { const o = document.createElement('option'); o.value = dp.departmentId || dp.id; o.textContent = dp.name || dp.departmentName; deptSel.appendChild(o); });
+                const tSel = document.getElementById('filterTeacher');
+                teachers.forEach(tc => { const o = document.createElement('option'); o.value = tc.teacherId || tc.id; o.textContent = tc.user ? (tc.user.firstName + ' ' + tc.user.lastName) : (tc.displayName || tc.name || 'Teacher #' + (tc.teacherId || tc.id)); tSel.appendChild(o); });
+                renderTimetable();
+            } catch (e) { Toast.error(e.message); }
+            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
+        }
+
+        function getCourseName(id) { const c = courses.find(x => (x.courseId || x.id) === id); return c ? { name: c.courseName || c.name, code: c.courseCode || c.code, deptId: c.departmentId } : { name: '?', code: '?', deptId: 0 }; }
+        function getTeacherName(id) { if (!id) return '—'; const t = teachers.find(x => (x.teacherId || x.id) === id); return t ? (t.user ? t.user.firstName + ' ' + t.user.lastName : (t.displayName || t.name || 'T#' + id)) : 'T#' + id; }
+
+        // #37: Detect conflicts
+        function detectConflicts(slotList) {
+            const conflictIds = new Set();
+            for (let i = 0; i < slotList.length; i++) {
+                for (let j = i + 1; j < slotList.length; j++) {
+                    const a = slotList[i], b = slotList[j];
+                    if (a.dayOfWeek !== b.dayOfWeek) continue;
+                    const aStart = formatTimeSpan(a.startTime);
+                    const bStart = formatTimeSpan(b.startTime);
+                    const aEnd = formatTimeSpan(a.endTime);
+                    const bEnd = formatTimeSpan(b.endTime);
+                    // Time overlap check
+                    const overlaps = aStart < bEnd && bStart < aEnd;
+                    if (!overlaps) continue;
+                    // Teacher conflict
+                    if (a.teacherId && b.teacherId && a.teacherId === b.teacherId) {
+                        conflictIds.add(a.timeSlotId || a.id);
+                        conflictIds.add(b.timeSlotId || b.id);
+                    }
+                    // Room conflict
+                    if (a.room && b.room && a.room === b.room) {
+                        conflictIds.add(a.timeSlotId || a.id);
+                        conflictIds.add(b.timeSlotId || b.id);
+                    }
+                }
+            }
+            return conflictIds;
+        }
+
+        function renderTimetable() {
+            const fd = document.getElementById('filterDept').value;
+            const fs = document.getElementById('filterSem').value;
+            const ft = document.getElementById('filterTeacher').value;
+            let filtered = slots;
+            if (fd !== 'all') filtered = filtered.filter(s => { const c = getCourseName(s.courseId); return c.deptId == fd; });
+            if (fs !== 'all') filtered = filtered.filter(s => s.semester == fs);
+            if (ft !== 'all') filtered = filtered.filter(s => s.teacherId == ft);
+
+            // #37: Detect conflicts
+            const conflictIds = detectConflicts(filtered);
+            const banner = document.getElementById('conflictBanner');
+            if (conflictIds.size > 0) {
+                banner.style.display = '';
+                banner.innerHTML = `<div class="conflict-banner"><i class="ri-error-warning-fill"></i> ${conflictIds.size} scheduling conflict${conflictIds.size > 1 ? 's' : ''} detected — teacher or room double-booked!</div>`;
+            } else {
+                banner.style.display = '';
+                banner.innerHTML = `<div class="no-conflict-banner"><i class="ri-check-double-fill"></i> No scheduling conflicts detected — all clear!</div>`;
+            }
+
+            let html = '<div class="tt-header-cell"></div>';
+            days.forEach(d => html += `<div class="tt-header-cell">${d.slice(0, 3)}</div>`);
+
+            timeRows.forEach(tr => {
+                html += `<div class="tt-time-cell">${tr.label.split('\n').map(l => `<span>${l}</span>`).join('')}</div>`;
+                days.forEach(day => {
+                    const matching = filtered.filter(s => {
+                        const st = formatTimeSpan(s.startTime);
+                        return s.dayOfWeek === day && st >= tr.start && st < tr.end;
+                    });
+                    html += `<div class="tt-slot">`;
+                    if (matching.length) {
+                        matching.forEach(m => {
+                            const ci = getCourseName(m.courseId);
+                            const bg = deptColors[ci.deptId] || 'rgba(255,255,255,0.05)';
+                            const bc = deptBorders[ci.deptId] || '#555';
+                            const isConflict = conflictIds.has(m.timeSlotId || m.id);
+                            html += `<div class="tt-class${isConflict ? ' conflict' : ''}" style="background:${bg};border-left:3px solid ${bc};">
+                                <div class="c-name">${ci.name}</div>
+                                <div class="c-code">${ci.code}</div>
+                                <div class="c-room"><i class="ri-map-pin-2-fill"></i> ${m.room || 'TBA'}</div>
+                                <div class="c-teacher"><i class="ri-user-line"></i> ${getTeacherName(m.teacherId)}</div>
+                                ${isConflict ? '<div class="conflict-badge"><i class="ri-error-warning-fill"></i> Conflict</div>' : ''}
+                            </div>`;
+                        });
+                    } else html += `<div class="tt-empty">—</div>`;
+                    html += `</div>`;
+                });
+            });
+            document.getElementById('ttGrid').innerHTML = html;
+        }
+
+        function formatTimeSpan(ts) {
+            if (!ts) return '00:00';
+            if (typeof ts === 'string') {
+                const parts = ts.split(':');
+                return parts[0].padStart(2, '0') + ':' + parts[1].padStart(2, '0');
+            }
+            return '00:00';
+        }
+        loadData();
+    </script>
+</body>
+
+</html>

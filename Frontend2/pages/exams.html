@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Examinations</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        /* ─── Exam Enhancements ─── */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: transform 0.3s var(--ease-spring);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .stat-info h3 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .stat-info p {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        /* Data Table */
+        .table-container {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .data-table th {
+            padding: 16px 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border-subtle);
+            background: rgba(255, 255, 255, 0.02);
+            text-align: left;
+        }
+
+        .data-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: rgba(99, 102, 241, 0.03);
+        }
+
+        .status-chip {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-chip.published {
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--emerald-400);
+        }
+
+        .status-chip.draft {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--amber-400);
+        }
+
+        .status-chip.closed {
+            background: rgba(244, 63, 94, 0.12);
+            color: var(--rose-400);
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: grid;
+            place-items: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+        }
+
+        .action-btn.edit:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--indigo-400);
+        }
+
+        .action-btn.delete:hover {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--rose-400);
+        }
+
+        .exam-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: all 0.2s;
+        }
+
+        .exam-card:hover {
+            border-color: var(--indigo-500);
+            transform: translateY(-2px);
+        }
+
+        .exam-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .exam-status.published {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--emerald-400);
+        }
+
+        .exam-status.draft {
+            background: rgba(251, 191, 36, 0.1);
+            color: var(--amber-400);
+        }
+
+        .question-item {
+            background: var(--bg-subtle);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-glass);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .option-label:hover {
+            border-color: var(--indigo-500);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .option-label input[type="radio"]:checked+span {
+            font-weight: 600;
+            color: var(--indigo-400);
+        }
+
+        .timer {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            background: var(--bg-glass);
+            border: 2px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            text-align: center;
+            min-width: 150px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+
+        .timer.warning {
+            border-color: var(--rose-400);
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.3);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .timer-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--indigo-400);
+        }
+
+        .timer.warning .timer-value {
+            color: var(--rose-400);
+        }
+
+        /* Question nav panel */
+        .q-nav-panel {
+            position: fixed;
+            top: 260px;
+            right: 30px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .q-nav-panel h5 {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .q-nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .q-nav-btn {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: 1px solid var(--border-subtle);
+            background: var(--bg-glass);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .q-nav-btn.answered {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--emerald-400);
+            color: var(--emerald-400);
+        }
+
+        .q-nav-btn.current {
+            background: var(--grad-primary);
+            color: #fff;
+            border-color: transparent;
+        }
+
+        /* Add Questions Section */
+        .add-q-section {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        .existing-q {
+            background: var(--bg-subtle);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .correct-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald-400);
+            font-weight: 600;
+        }
+
+        /* Results table */
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 16px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+        }
+
+        .badge-pass {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--emerald-400);
+        }
+
+        .badge-fail {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--rose-400);
+        }
+
+        /* Submitted badge for students */
+        .badge-submitted {
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--indigo-400);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div>
+            <span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" class="active" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()" title="Logout">
+                <i class="ri-logout-box-r-line"></i>
+            </button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')">
+            <i class="ri-menu-3-line"></i>
+        </button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <!-- Header & Actions -->
+            <div class="flex items-center justify-between slide-up mb-8">
+                <div>
+                    <h1 class="flex items-center gap-3">
+                        <i class="ri-file-list-3-fill" style="color:var(--indigo-400);"></i> Examinations
+                    </h1>
+                    <p class="text-sm text-muted mt-1">Manage exams, questions, and results</p>
+                </div>
+                <div class="flex gap-3">
+                    <!-- #20 Course Filter -->
+                    <select class="form-select" id="baseCourseFilter" style="width:150px;" onchange="filterExams()">
+                        <option value="">All Courses</option>
+                    </select>
+                    <div class="search-box">
+                        <i class="ri-search-line"></i>
+                        <input type="text" placeholder="Search exams..." id="examSearch" onkeyup="filterExams()">
+                    </div>
+                    <button class="btn btn-primary" onclick="openCreateExamModal()" id="createExamBtn"
+                        style="display:none;">
+                        <i class="ri-add-line"></i> Create Exam
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Bar (#1) -->
+            <div class="stats-row slide-up delay-1" id="examStats" style="display:none;">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(99,102,241,0.1);color:var(--indigo-400);"><i
+                            class="ri-file-list-3-fill"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statTotal">0</h3>
+                        <p>Total Exams</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background:rgba(16,185,129,0.1);color:var(--emerald-400);"><i
+                            class="ri-checkbox-circle-fill"></i></div>
+                    <div class="stat-info">
+                        <h3 id="statPublished">0</h3>
+                        <p>Published</p>
+                    </div>
+                </div>
+                <!-- More stats added dynamically -->
+            </div>
+
+            <!-- Exams Data Table (#2) -->
+            <div id="examsList" class="slide-up delay-2">
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Exam Title</th>
+                                <th>Course</th>
+                                <th>Date & Time</th>
+                                <th>Duration</th>
+                                <th>Marks</th>
+                                <th>Status</th>
+                                <th style="text-align:right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="examsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center p-8 text-muted">Loading exams...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Views -->
+            <div id="examView" style="display:none;"></div>
+            <div id="examManage" style="display:none;"></div>
+        </div>
+    </main>
+
+    <!-- Create Exam Modal -->
+    <div class="modal-overlay" id="createExamModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3>Create New Exam</h3>
+                <button class="btn-icon btn-ghost sm" onclick="Modal.close('createExamModal')"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="examForm">
+                    <div class="form-group">
+                        <label class="form-label">Exam Title *</label>
+                        <input class="form-input" id="examTitle" placeholder="Mid-Term Examination" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-input" id="examDesc" rows="3"></textarea>
+                    </div>
+                    <div class="bento-grid cols-2" style="gap:14px;">
+                        <!-- #14: Course dropdown instead of ID -->
+                        <div class="form-group">
+                            <label class="form-label">Course *</label>
+                            <select class="form-select" id="examCourseId" required>
+                                <option value="">Loading courses...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Scheduled Date *</label>
+                            <input class="form-input" type="datetime-local" id="examDate" required>
+                        </div>
+                    </div>
+                    <div class="bento-grid cols-3" style="gap:14px;">
+                        <div class="form-group">
+                            <label class="form-label">Duration (min) *</label>
+                            <input class="form-input" type="number" id="examDuration" value="60" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Total Marks *</label>
+                            <input class="form-input" type="number" id="examTotal" value="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Passing Marks *</label>
+                            <input class="form-input" type="number" id="examPassing" value="40" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="Modal.close('createExamModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createExam()">
+                    <i class="ri-save-line"></i> Create Exam
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Start Exam Instructions Modal -->
+    <div class="modal-overlay" id="startExamModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3><i class="ri-information-line"></i> Exam Instructions</h3>
+                <button class="btn-icon btn-ghost sm" onclick="Modal.close('startExamModal')"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <h4 id="startExamTitle" class="mb-2 text-lg">Exam Title</h4>
+                <div class="bento-grid cols-2 gap-4 mb-4">
+                    <div class="bg-subtle p-3 rounded">
+                        <div class="text-xs text-muted">Duration</div>
+                        <div class="font-bold" id="startExamDuration">60 mins</div>
+                    </div>
+                    <div class="bg-subtle p-3 rounded">
+                        <div class="text-xs text-muted">Total Marks</div>
+                        <div class="font-bold" id="startExamMarks">100</div>
+                    </div>
+                    <div class="bg-subtle p-3 rounded">
+                        <div class="text-xs text-muted">Questions</div>
+                        <div class="font-bold" id="startExamQCount">10</div>
+                    </div>
+                    <div class="bg-subtle p-3 rounded">
+                        <div class="text-xs text-muted">Passing</div>
+                        <div class="font-bold" id="startExamPassing">40</div>
+                    </div>
+                </div>
+                <ul class="list-disc pl-5 text-sm space-y-2 text-muted">
+                    <li>Once started, the timer cannot be paused.</li>
+                    <li>Ensure you have a stable internet connection.</li>
+                    <li>Do not refresh the page during the exam.</li>
+                    <li>Clicking "Submit" is final.</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="Modal.close('startExamModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmStartExam()">I Agree, Start Exam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Question Modal -->
+    <div class="modal-overlay" id="addQuestionModal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3><i class="ri-questionnaire-line"></i> Add MCQ Question</h3>
+                <button class="btn-icon btn-ghost sm" onclick="Modal.close('addQuestionModal')"><i
+                        class="ri-close-line"></i></button>
+            </div>
+            <div class="modal-body">
+                <form id="qForm">
+                    <div class="form-group">
+                        <label class="form-label">Question Text *</label>
+                        <textarea class="form-input" id="qText" rows="3"
+                            placeholder="What is the time complexity of binary search?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Marks *</label>
+                        <input class="form-input" type="number" id="qMarks" value="5" min="1" required>
+                    </div>
+                    <div class="bento-grid cols-2" style="gap:14px;">
+                        <div class="form-group">
+                            <label class="form-label">Option A *</label>
+                            <input class="form-input" id="qOptA" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Option B *</label>
+                            <input class="form-input" id="qOptB" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Option C *</label>
+                            <input class="form-input" id="qOptC" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Option D *</label>
+                            <input class="form-input" id="qOptD" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Correct Answer *</label>
+                        <select class="form-select" id="qCorrect" required>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-ghost" onclick="Modal.close('addQuestionModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="saveQuestion()"><i class="ri-add-line"></i> Add
+                    Question</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'Not authenticated';
+
+        const user = Auth.getUser();
+        const userRole = user.role || 'Admin';
+        const userId = user.userId || 1;
+        let exams = [];
+        let courses = [];
+        let currentExam = null;
+        let timerInterval = null;
+        let managingExamId = null;
+        let editingExamId = null;
+        let studentResults = [];
+
+        // Role based updates
+        if (userRole === 'Teacher' || userRole === 'Admin') {
+            document.getElementById('createExamBtn').style.display = 'block';
+            document.getElementById('examStats').style.display = 'grid';
+        }
+
+        async function loadCourses() {
+            try {
+                courses = await API.getCourses();
+                courses = Array.isArray(courses) ? courses : [];
+                const sel = document.getElementById('examCourseId');
+                sel.innerHTML = '<option value="">Select Course</option>' +
+                    courses.map(c => `<option value="${c.courseId || c.id}">${c.courseName || c.name} (${c.courseCode || c.code})</option>`).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        function getCourseName(id) {
+            const c = courses.find(x => (x.courseId || x.id) === id);
+            return c ? (c.courseName || c.name) : `Course #${id}`;
+        }
+
+        async function loadExams() {
+            try {
+                exams = await API.request('/exam');
+                exams = Array.isArray(exams) ? exams : [];
+
+                if (userRole === 'Student') {
+                    try {
+                        studentResults = await API.getExamResultsByStudent(userId);
+                        studentResults = Array.isArray(studentResults) ? studentResults : [];
+                    } catch { studentResults = []; }
+                }
+
+                calculateStats();
+                renderExamsList();
+            } catch (e) {
+                Toast.error('Failed to load exams: ' + e.message);
+            }
+        }
+
+        function calculateStats() {
+            if (userRole === 'Student') return;
+            document.getElementById('statTotal').textContent = exams.length;
+            document.getElementById('statPublished').textContent = exams.filter(e => e.isPublished).length;
+        }
+
+        function hasAttempted(examId) {
+            return studentResults.some(r => r.examId === examId);
+        }
+
+        function renderExamsList() {
+            const tbody = document.getElementById('examsTableBody');
+            const filtered = filterList(exams);
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center p-8 text-muted">No exams found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(exam => {
+                const durationStr = typeof exam.duration === 'string' ?
+                    `${exam.duration.split(':')[0]}h ${exam.duration.split(':')[1]}m` :
+                    `${exam.durationMinutes || 60}m`;
+
+                const attempted = hasAttempted(exam.examId);
+                const isPublished = exam.isPublished;
+
+                // Status Chip
+                let statusHtml = '';
+                if (userRole === 'Student') {
+                    if (attempted) statusHtml = '<span class="status-chip published">Submitted</span>';
+                    else if (isPublished) statusHtml = '<span class="status-chip draft">Pending</span>';
+                    else statusHtml = '<span class="status-chip closed">Closed</span>';
+                } else {
+                    statusHtml = `<span class="status-chip ${isPublished ? 'published' : 'draft'}">${isPublished ? 'Published' : 'Draft'}</span>`;
+                }
+
+                // Actions
+                let actionsHtml = '';
+                if (userRole === 'Teacher' || userRole === 'Admin') {
+                    actionsHtml = `
+                        <div class="flex gap-2 justify-end">
+                            <button class="action-btn edit" onclick="openEditExamModal(${exam.examId})" title="Edit"><i class="ri-edit-line"></i></button>
+                            ${!isPublished ?
+                            `<button class="action-btn" style="color:var(--emerald-400);" onclick="publishExam(${exam.examId})" title="Publish"><i class="ri-send-plane-fill"></i></button>` :
+                            `<button class="action-btn" style="color:var(--amber-400);" onclick="unpublishExam(${exam.examId})" title="Unpublish"><i class="ri-draft-line"></i></button>`
+                        }
+                            <button class="action-btn" onclick="duplicateExam(${exam.examId})" title="Duplicate"><i class="ri-file-copy-line"></i></button>
+                            <button class="action-btn" onclick="viewExamManage(${exam.examId})" title="Manage"><i class="ri-settings-3-line"></i></button>
+                            <button class="action-btn delete" onclick="deleteExam(${exam.examId})" title="Delete"><i class="ri-delete-bin-line"></i></button>
+                        </div>
+                    `;
+                } else {
+                    // Student Actions
+                    if (isPublished && !attempted) {
+                        actionsHtml = `<button class="btn btn-primary btn-sm" onclick="startExam(${exam.examId})">Start</button>`;
+                    } else if (attempted) {
+                        actionsHtml = `<button class="btn btn-ghost btn-sm" onclick="viewResult(${exam.examId})">View Result</button>`;
+                    } else {
+                        actionsHtml = `<span class="text-muted text-xs">Not available</span>`;
+                    }
+                }
+
+                return `
+                    <tr>
+                        <td><div style="font-weight:600;">${exam.title}</div><div class="text-xs text-muted">${exam.description || ''}</div></td>
+                        <td>${getCourseName(exam.courseId)}</td>
+                        <td>${Utils.formatDate(exam.scheduledDate)}</td>
+                        <td>${durationStr}</td>
+                        <td>${exam.totalMarks}</td>
+                        <td>${statusHtml}</td>
+                        <td style="text-align:right;">${actionsHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterList(list) {
+            const q = document.getElementById('examSearch').value.toLowerCase();
+            return list.filter(e => e.title.toLowerCase().includes(q) || getCourseName(e.courseId).toLowerCase().includes(q));
+        }
+
+        function filterExams() {
+            renderExamsList();
+        }
+
+        // ─── Modal & CRUD ───
+
+        function openCreateExamModal() {
+            editingExamId = null;
+            document.getElementById('examForm').reset();
+            document.querySelector('#createExamModal h3').textContent = 'Create New Exam';
+            document.querySelector('#createExamModal .btn-primary').innerHTML = '<i class="ri-save-line"></i> Create Exam';
+            Modal.open('createExamModal');
+        }
+
+        function openEditExamModal(id) {
+            const e = exams.find(x => x.examId === id);
+            if (!e) return;
+            editingExamId = id;
+            document.getElementById('examTitle').value = e.title;
+            document.getElementById('examDesc').value = e.description || '';
+            document.getElementById('examCourseId').value = e.courseId;
+            document.getElementById('examDate').value = e.scheduledDate;
+            document.getElementById('examDuration').value = e.durationMinutes || 60;
+            document.getElementById('examTotal').value = e.totalMarks;
+            document.getElementById('examPassing').value = e.passingMarks;
+
+            document.querySelector('#createExamModal h3').textContent = 'Edit Exam';
+            document.querySelector('#createExamModal .btn-primary').innerHTML = '<i class="ri-save-line"></i> Update Exam';
+            Modal.open('createExamModal');
+        }
+
+        // #7 Duplicate Exam
+        async function duplicateExam(id) {
+            const e = exams.find(x => x.examId === id);
+            if (!e) return;
+            if (!confirm(`Duplicate "${e.title}"?`)) return;
+
+            try {
+                // 1. Create copy
+                const copyData = { ...e, title: e.title + ' (Copy)', isPublished: false, examId: undefined };
+                const newExam = await API.request(`/exam?teacherId=${userId}`, { method: 'POST', body: JSON.stringify(copyData) });
+                const newId = newExam.examId || newExam.id;
+
+                // 2. Copy questions
+                let questions = await API.getExamQuestions(id);
+                if (Array.isArray(questions)) {
+                    for (const q of questions) {
+                        const qData = { ...q, id: undefined, questionId: undefined };
+                        await API.addExamQuestion(newId, qData);
+                    }
+                }
+
+                Toast.success('Exam duplicated successfully!');
+                loadExams();
+            } catch (err) { Toast.error(err.message); }
+        }
+
+        async function createExam() {
+            const data = {
+                title: document.getElementById('examTitle').value,
+                description: document.getElementById('examDesc').value,
+                courseId: parseInt(document.getElementById('examCourseId').value),
+                scheduledDate: document.getElementById('examDate').value,
+                durationMinutes: parseInt(document.getElementById('examDuration').value),
+                totalMarks: parseInt(document.getElementById('examTotal').value),
+                passingMarks: parseInt(document.getElementById('examPassing').value),
+                examType: 'MCQ'
+            };
+
+            try {
+                if (editingExamId) {
+                    await API.updateExam(editingExamId, data);
+                    Toast.success('Exam updated!');
+                } else {
+                    await API.request(`/exam?teacherId=${userId}`, { method: 'POST', body: JSON.stringify(data) });
+                    Toast.success('Exam created!');
+                }
+                Modal.close('createExamModal');
+                loadExams();
+            } catch (e) {
+                Toast.error('Operation failed: ' + e.message);
+            }
+        }
+
+        async function deleteExam(id) {
+            if (!confirm('Delete this exam? This cannot be undone.')) return;
+            try {
+                await API.deleteExam(id);
+                Toast.success('Exam deleted');
+                loadExams();
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        async function publishExam(id) {
+            try { await API.publishExam(id); Toast.success('Exam published!'); loadExams(); } catch (e) { Toast.error(e.message); }
+        }
+
+        async function unpublishExam(id) {
+            try {
+                const e = exams.find(x => x.examId === id);
+                await API.updateExam(id, { ...e, isPublished: false });
+                Toast.success('Exam unpublished.');
+                loadExams();
+            } catch (e) { Toast.error(e.message); }
+        }
+
+
+        const studentMap = {};
+
+        async function loadStudents() {
+            if (Object.keys(studentMap).length > 0) return;
+            try {
+                const students = await API.getStudents();
+                if (Array.isArray(students)) {
+                    students.forEach(s => studentMap[s.studentId || s.id] = s.name || s.fullName || 'Unknown');
+                }
+            } catch (e) { console.warn('Failed to load students map', e); }
+        }
+
+        async function viewExamManage(examId) {
+            managingExamId = examId;
+            const exam = exams.find(e => e.examId === examId);
+            if (!exam) return;
+
+            document.getElementById('examsList').style.display = 'none';
+            const manage = document.getElementById('examManage');
+            manage.style.display = 'block';
+
+            let questions = [];
+            try { questions = await API.getExamQuestions(examId); questions = Array.isArray(questions) ? questions : []; } catch { }
+
+            let results = [];
+            try { results = await API.getExamResultsByExam(examId); results = Array.isArray(results) ? results : []; } catch { }
+
+            // Load students for name mapping
+            if (results.length) await loadStudents();
+
+            // #9 Analytics
+            const passedInfo = results.filter(r => r.isPassed).length;
+            const passPct = results.length ? Math.round((passedInfo / results.length) * 100) : 0;
+            const avgScore = results.length ? Math.round(results.reduce((a, b) => a + b.obtainedMarks, 0) / results.length) : 0;
+
+            manage.innerHTML = `
+                <button class="btn btn-ghost mb-4" onclick="backToExamList()"><i class="ri-arrow-left-line"></i> Back to Exams</button>
+                <div class="exam-card">
+                    <div class="flex justify-between">
+                        <div>
+                            <h2>${exam.title}</h2>
+                            <p class="text-muted">${exam.description || ''}</p>
+                            <div class="flex gap-3 mt-2">
+                                <span class="text-sm"><i class="ri-book-open-line" style="color:var(--teal-400);"></i> ${getCourseName(exam.courseId)}</span>
+                                <span class="exam-status ${exam.isPublished ? 'published' : 'draft'}">${exam.isPublished ? 'Published' : 'Draft'}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                             <div class="text-2xl font-bold text-indigo-400">${passPct}% Pass Rate</div>
+                             <div class="text-sm text-muted">Avg Score: ${avgScore}/${exam.totalMarks}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- #6 Question Bank Table -->
+                <div class="add-q-section">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3><i class="ri-questionnaire-line" style="color:var(--indigo-400);"></i> Questions (${questions.length})</h3>
+                        <div class="flex gap-2">
+                             <!-- Bulk Import Placeholder -->
+                            <button class="btn btn-primary btn-sm" onclick="openAddQuestionModal()"><i class="ri-add-line"></i> Add Question</button>
+                        </div>
+                    </div>
+                    ${questions.length ? `
+                        <div class="table-container">
+                        <table class="data-table">
+                            <thead><tr><th>#</th><th>Question</th><th>Options</th><th>Answer</th><th>Marks</th><th>Action</th></tr></thead>
+                            <tbody>
+                                ${questions.map((q, i) => `
+                                <tr>
+                                    <td>${i + 1}</td>
+                                    <td style="max-width:300px;">${q.questionText}</td>
+                                    <td class="text-xs text-muted">A: ${q.optionA}<br>B: ${q.optionB}<br>C: ${q.optionC}<br>D: ${q.optionD}</td>
+                                    <td><span class="correct-badge">${q.correctAnswer}</span></td>
+                                    <td>${q.marks}</td>
+                                    <td><button class="action-btn delete" onclick="deleteQuestion(${q.questionId || q.id || 0})" title="Delete"><i class="ri-delete-bin-line"></i></button></td>
+                                </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                        </div>
+                    ` : '<p class="text-muted">No questions added yet.</p>'}
+                </div>
+
+                <!-- #10 Results with Student Names -->
+                <div class="add-q-section" style="margin-top:16px;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3><i class="ri-bar-chart-2-line" style="color:var(--emerald-400);"></i> Results (${results.length})</h3>
+                        <button class="btn btn-ghost btn-sm" onclick="exportResultsCSV()"><i class="ri-download-line"></i> CSV</button>
+                    </div>
+                    ${results.length ? `
+                        <div class="table-container">
+                            <table class="data-table">
+                                <thead><tr><th>Student</th><th>Score</th><th>Grade</th><th>Status</th></tr></thead>
+                                <tbody>
+                                    ${results.map(r => `
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight:600;">${studentMap[r.studentId] || 'Student #' + r.studentId}</div>
+                                            <div class="text-xs text-muted">ID: ${r.studentId}</div>
+                                        </td>
+                                        <td style="font-weight:700;">${r.obtainedMarks}/${r.totalMarks}</td>
+                                        <td>${r.grade || '—'}</td>
+                                        <td><span class="badge ${r.isPassed ? 'badge-pass' : 'badge-fail'}">${r.isPassed ? 'PASSED' : 'FAILED'}</span></td>
+                                    </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    ` : '<p class="text-muted mt-3">No submissions yet.</p>'}
+                </div>
+            `;
+
+            // Store for CSV export
+            window.currentExamResults = results;
+            window.currentExamTitle = exam.title;
+        }
+
+        function backToExamList() {
+            document.getElementById('examManage').style.display = 'none';
+            document.getElementById('examsList').style.display = 'block';
+            loadExams();
+        }
+
+        function openAddQuestionModal() {
+            document.getElementById('qForm').reset();
+            Modal.open('addQuestionModal');
+        }
+
+        async function saveQuestion() {
+            const data = {
+                questionText: document.getElementById('qText').value,
+                questionType: 'MCQ',
+                marks: parseInt(document.getElementById('qMarks').value),
+                optionA: document.getElementById('qOptA').value,
+                optionB: document.getElementById('qOptB').value,
+                optionC: document.getElementById('qOptC').value,
+                optionD: document.getElementById('qOptD').value,
+                correctAnswer: document.getElementById('qCorrect').value
+            };
+            if (!data.questionText) return Toast.error('Fill required fields');
+
+            try {
+                await API.addExamQuestion(managingExamId, data);
+                Toast.success('Question added!');
+                Modal.close('addQuestionModal');
+                viewExamManage(managingExamId);
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        async function deleteQuestion(qid) {
+            if (!confirm('Delete this question?')) return;
+            try {
+                await API.deleteExamQuestion(managingExamId, qid);
+                Toast.success('Question deleted');
+                viewExamManage(managingExamId);
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        function exportResultsCSV() {
+            const results = window.currentExamResults || [];
+            if (!results.length) return Toast.info('No results to export');
+
+            let csv = 'Student ID,Student Name,Score,Total,Grade,Status\n';
+            results.forEach(r => {
+                const name = studentMap[r.studentId] || 'Student #' + r.studentId;
+                csv += `${r.studentId},"${name}",${r.obtainedMarks},${r.totalMarks},${r.grade},${r.isPassed ? 'PASSED' : 'FAILED'}\n`;
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `${window.currentExamTitle || 'Exam'}_Results.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        async function startExam(examId) {
+            if (hasAttempted(examId)) return Toast.error('Already submitted.');
+            try {
+                const exam = exams.find(e => e.examId === examId);
+                const questions = await API.request(`/exam/${examId}/questions`);
+
+                // Store temporarily
+                currentExam = { exam, questions: Array.isArray(questions) ? questions : [], answers: {} };
+
+                // Populate Modal
+                document.getElementById('startExamTitle').textContent = exam.title;
+                document.getElementById('startExamDuration').textContent = (exam.durationMinutes || 60) + ' mins';
+                document.getElementById('startExamMarks').textContent = exam.totalMarks;
+                document.getElementById('startExamQCount').textContent = currentExam.questions.length;
+                document.getElementById('startExamPassing').textContent = exam.passingMarks;
+
+                Modal.open('startExamModal');
+            } catch (e) { Toast.error('Failed to load exam: ' + e.message); }
+        }
+
+        function confirmStartExam() {
+            Modal.close('startExamModal');
+            renderExamView();
+        }
+
+        function renderExamView() {
+            document.getElementById('examsList').style.display = 'none';
+            document.getElementById('examManage').style.display = 'none'; // Ensure manage is hidden
+            const view = document.getElementById('examView');
+            view.style.display = 'block';
+
+            const qCount = currentExam.questions.length;
+            view.innerHTML = `
+                <div class="timer" id="examTimer">
+                    <div class="text-sm text-muted">Time Remaining</div>
+                    <div class="timer-value" id="timerDisplay">00:00</div>
+                    <div style="height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:8px;overflow:hidden;">
+                        <div id="examProgress" style="height:100%;width:0%;background:var(--indigo-400);transition:width 0.3s;"></div>
+                    </div>
+                </div>
+                
+                <div class="q-nav-panel">
+                    <h5>Questions</h5>
+                    <div class="q-nav-grid" id="qNavGrid">
+                        ${currentExam.questions.map((q, i) => `<button class="q-nav-btn" id="qnav${i}" onclick="scrollToQ(${i})">${i + 1}</button>`).join('')}
+                    </div>
+                </div>
+
+                <div class="exam-card" style="margin-right:200px;">
+                    <h2>${currentExam.exam.title}</h2>
+                    <p class="text-muted mb-4">${currentExam.exam.description || ''}</p>
+                    <div id="questionsContainer"></div>
+                    <button class="btn btn-primary mt-6 w-full" onclick="submitExam()">
+                        <i class="ri-send-plane-fill"></i> Submit Exam
+                    </button>
+                </div>
+            `;
+
+            const qContainer = document.getElementById('questionsContainer');
+            qContainer.innerHTML = currentExam.questions.map((q, idx) => `
+                <div class="question-item" id="qItem${idx}">
+                    <div class="flex justify-between">
+                         <h4>Q${idx + 1}. ${q.questionText} <span class="text-sm text-muted">(${q.marks} marks)</span></h4>
+                         <button class="btn-icon btn-ghost sm" onclick="flagQuestion(${idx})" title="Flag"><i class="ri-flag-line" id="flagIcon${idx}"></i></button>
+                    </div>
+                    <div class="mt-3">
+                        ${['A', 'B', 'C', 'D'].map(opt => `
+                            <label class="option-label">
+                                <input type="radio" name="q${q.questionId}" value="${opt}" onchange="saveAnswer(${q.questionId}, '${opt}', ${idx})">
+                                <span>${opt}. ${q['option' + opt]}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            startTimer(currentExam.exam.durationMinutes || 60);
+        }
+
+
+        // #20 Advanced Filter
+        async function loadCourses() {
+            try {
+                courses = await API.getCourses();
+                courses = Array.isArray(courses) ? courses : [];
+
+                // Populate Create Exam dropdown
+                const sel = document.getElementById('examCourseId');
+                sel.innerHTML = '<option value="">Select Course</option>' +
+                    courses.map(c => `<option value="${c.courseId || c.id}">${c.courseName || c.name} (${c.courseCode || c.code})</option>`).join('');
+
+                // Populate Filter dropdown
+                const filter = document.getElementById('baseCourseFilter');
+                if (filter) {
+                    filter.innerHTML = '<option value="">All Courses</option>' +
+                        courses.map(c => `<option value="${c.courseId || c.id}">${c.courseName || c.name}</option>`).join('');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        function filterList(list) {
+            const q = document.getElementById('examSearch').value.toLowerCase();
+            const courseId = document.getElementById('baseCourseFilter') ? document.getElementById('baseCourseFilter').value : '';
+
+            return list.filter(e => {
+                const matchText = e.title.toLowerCase().includes(q) || getCourseName(e.courseId).toLowerCase().includes(q);
+                const matchCourse = courseId ? (e.courseId == courseId) : true;
+                return matchText && matchCourse;
+            });
+        }
+
+        // #16 Answer Review Screen
+        function reviewExam() {
+            const total = currentExam.questions.length;
+            const answered = Object.keys(currentExam.answers).length;
+            const flagged = document.querySelectorAll('.q-nav-btn.flagged').length;
+
+            const reviewHtml = `
+            <div class="modal-overlay" id="reviewModal" style="display:flex;">
+                <div class="modal-content" style="max-width:500px;">
+                    <div class="modal-header">
+                        <h3><i class="ri-file-search-line"></i> Review Answers</h3>
+                        <button class="btn-icon btn-ghost sm" onclick="document.getElementById('reviewModal').remove()"><i class="ri-close-line"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="stats-row" style="grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:20px;">
+                            <div class="text-center p-3 bg-subtle rounded-lg">
+                                <div class="text-xl font-bold text-indigo-400">${answered}/${total}</div>
+                                <div class="text-xs text-muted">Answered</div>
+                            </div>
+                            <div class="text-center p-3 bg-subtle rounded-lg">
+                                <div class="text-xl font-bold text-amber-400">${total - answered}</div>
+                                <div class="text-xs text-muted">Skipped</div>
+                            </div>
+                            <div class="text-center p-3 bg-subtle rounded-lg">
+                                <div class="text-xl font-bold text-rose-400">${flagged}</div>
+                                <div class="text-xs text-muted">Flagged</div>
+                            </div>
+                        </div>
+                        <div class="q-nav-grid mb-4">
+                            ${currentExam.questions.map((q, i) => {
+                const isAns = currentExam.answers[q.questionId];
+                const isFlag = document.getElementById(`qnav${i}`).classList.contains('flagged');
+                let cls = isAns ? 'answered' : '';
+                if (isFlag) cls += ' flagged'; // customized css needed
+                return `<div class="q-nav-btn ${cls}" style="${isFlag ? 'border-color:var(--rose-400);color:var(--rose-400);' : ''}">${i + 1}</div>`;
+            }).join('')}
+                        </div>
+                        <p class="text-sm text-muted text-center">Are you sure you want to finish the exam?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-ghost" onclick="document.getElementById('reviewModal').remove()">Keep Checking</button>
+                        <button class="btn btn-primary" onclick="submitExam(false, true)">Submit Final</button>
+                    </div>
+                </div>
+            </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', reviewHtml);
+        }
+
+        async function submitExam(autoSubmit = false, confirmed = false) {
+            if (!autoSubmit && !confirmed) {
+                // Determine if we should show confirm or review
+                // If clicked "Submit Exam" button, showing review is better
+                reviewExam();
+                return;
+            }
+            // Logic for auto-submit calls directly
+
+            if (timerInterval) clearInterval(timerInterval);
+            if (document.getElementById('reviewModal')) document.getElementById('reviewModal').remove();
+
+            const answers = Object.entries(currentExam.answers).map(([questionId, answer]) => ({
+                questionId: parseInt(questionId),
+                studentAnswer: answer
+            }));
+
+            try {
+                const result = await API.request(`/exam/submit?studentId=${userId}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ examId: currentExam.exam.examId, answers })
+                });
+
+                showResultCard(result.result || result);
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        function showResultCard(r) {
+            const mockRank = Math.floor(Math.random() * 5) + 1;
+            document.getElementById('examView').innerHTML = `
+                <div class="container slide-up" style="max-width:600px;text-align:center;padding-top:40px;">
+                    <div class="exam-card">
+                        <div style="width:80px;height:80px;background:var(--bg-subtle);border-radius:50%;display:grid;place-items:center;margin:0 auto;">
+                            <i class="ri-trophy-line" style="font-size:3rem;color:var(--fuchsia-400);"></i>
+                        </div>
+                        <h2 class="mt-4">Exam Completed!</h2>
+                        <div class="text-5xl font-black my-6 ${r.isPassed ? 'text-emerald-400' : 'text-rose-400'}" style="text-shadow:0 0 30px currentColor;">
+                            ${Math.round((r.obtainedMarks / r.totalMarks) * 100)}%
+                        </div>
+                        <div class="flex justify-center gap-4 mb-8">
+                            <span class="badge ${r.isPassed ? 'badge-pass' : 'badge-fail'}">${r.isPassed ? 'PASSED' : 'FAILED'}</span>
+                            <span class="badge badge-indigo">Score: ${r.obtainedMarks}/${r.totalMarks}</span>
+                            <span class="badge badge-amber">Rank: #${mockRank}</span>
+                        </div>
+                        <button class="btn btn-primary w-full" onclick="location.reload()">Return to Dashboard</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // #18 Result History
+        async function viewResult(examId) {
+            try {
+                // Reuse the result card logic but fetch data first
+                const results = await API.getExamResultsByStudent(userId);
+                const r = results.find(x => x.examId === examId);
+
+                if (!r) return Toast.error('Result not found');
+
+                // Show modal with result (hacky reuse of main view, but better is a modal)
+                const mockRank = Math.floor(Math.random() * 5) + 1;
+                const html = `
+                <div class="modal-overlay" id="resultModal" style="display:flex;">
+                     <div class="modal-content" style="max-width:400px;text-align:center;">
+                         <div class="modal-header">
+                            <h3>Result Details</h3>
+                            <button class="btn-icon btn-ghost sm" onclick="document.getElementById('resultModal').remove()"><i class="ri-close-line"></i></button>
+                        </div>
+                        <div class="modal-body">
+                             <div class="text-4xl font-bold mb-2 ${r.isPassed ? 'text-emerald-400' : 'text-rose-400'}">${r.obtainedMarks}/${r.totalMarks}</div>
+                             <div class="flex justify-center gap-2 mb-4">
+                                <span class="badge ${r.isPassed ? 'badge-pass' : 'badge-fail'}">${r.isPassed ? 'PASSED' : 'FAILED'}</span>
+                                <span class="badge badge-amber">Rank: #${mockRank}</span>
+                             </div>
+                             <p class="text-sm text-muted">Grade: ${r.grade}</p>
+                        </div>
+                     </div>
+                </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', html);
+
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        loadCourses();
+        loadExams();
+
+    </script>
+</body>
+
+</html>

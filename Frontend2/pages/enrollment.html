@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeoVerse CMS — Enrollment</title>
+    <link rel="stylesheet" href="../assets/css/core.css">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .enroll-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 24px;
+        }
+
+        .enroll-form-card {
+            position: sticky;
+            top: 100px;
+            align-self: start;
+        }
+
+        .enroll-form-card h3 {
+            margin-bottom: var(--space-5);
+        }
+
+        .enroll-list-card h4 {
+            margin-bottom: var(--space-4);
+        }
+
+        .enroll-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .enroll-item:last-child {
+            border-bottom: none;
+        }
+
+        .enroll-left {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .enroll-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .enroll-info .e-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .enroll-info .e-meta {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+        }
+
+        .arrow-icon {
+            font-size: 1.2rem;
+            color: var(--text-tertiary);
+        }
+
+        .loading-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .loader {
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--indigo-500);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @media (max-width: 900px) {
+            .enroll-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .enroll-form-card {
+                position: static;
+            }
+        }
+
+        /* #39: Stats cards */
+        .enroll-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .enroll-stat-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 18px;
+            text-align: center;
+        }
+
+        .enroll-stat-card .esv {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--text-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .enroll-stat-card .esl {
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-active {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--emerald-400);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .badge-dropped {
+            background: rgba(248, 113, 113, 0.15);
+            color: var(--rose-400);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+    <header class="neo-header">
+        <a href="dashboard.html" class="header-logo">
+            <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
+        </a>
+        <nav class="header-nav" id="mainNav">
+            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" class="active" data-tip="Enrollment"><i class="ri-file-list-3-line"></i>
+                Enrollment</a>
+            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"><i
+                    class="ri-logout-box-r-line"></i></button>
+            <div class="header-avatar" id="headerAvatar">AD</div>
+        </div>
+        <button class="menu-toggle" onclick="document.getElementById('mainNav').classList.toggle('mobile-open')"><i
+                class="ri-menu-3-line"></i></button>
+    </header>
+
+    <main class="page-wrapper">
+        <div class="container">
+            <div class="slide-up" style="margin-bottom:var(--space-8);">
+                <h1><i class="ri-file-list-3-fill" style="color:var(--amber-400);"></i> Enrollment Management</h1>
+                <p class="text-sm text-muted mt-2">Enroll students in courses and manage registrations</p>
+            </div>
+
+            <!-- #39: Stats cards -->
+            <div class="enroll-stats slide-up delay-1" id="enrollStats"></div>
+
+            <div class="enroll-layout">
+                <!-- Enroll Form -->
+                <div class="glass-card enroll-form-card slide-up delay-1">
+                    <h3><i class="ri-add-circle-fill" style="color:var(--indigo-400);"></i> New Enrollment</h3>
+                    <div class="form-group">
+                        <label class="form-label">Student</label>
+                        <select class="form-select" id="enrollStudent"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Course</label>
+                        <select class="form-select" id="enrollCourse"></select>
+                    </div>
+                    <button class="btn btn-primary w-full" onclick="createEnrollment()">
+                        <i class="ri-check-line"></i> Enroll Student
+                    </button>
+                </div>
+
+                <!-- Enrollment List -->
+                <div class="glass-card enroll-list-card slide-up delay-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4>Recent Enrollments</h4>
+                        <span class="badge badge-indigo" id="enrollCount">0</span>
+                    </div>
+                    <div class="loading-overlay" id="loadingOverlay">
+                        <div class="loader"></div>
+                    </div>
+                    <div id="enrollList"></div>
+                    <div class="empty-state hidden" id="emptyState" style="padding:40px 20px;">
+                        <i class="ri-file-list-3-line"></i>
+                        <h4>No enrollments yet</h4>
+                    </div>
+                </div>
+            </div>
+            <div style="height:60px;"></div>
+        </div>
+    </main>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/app.js"></script>
+    <script>
+        if (!Auth.requireAuth()) throw 'auth';
+        let students = [], courses = [], enrollments = [];
+        const colors = ['rgba(99,102,241,0.15)', 'rgba(20,184,166,0.15)', 'rgba(244,63,94,0.15)', 'rgba(245,158,11,0.15)', 'rgba(16,185,129,0.15)', 'rgba(217,70,239,0.15)'];
+        const iconColors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--rose-400)', 'var(--amber-400)', 'var(--emerald-400)', 'var(--fuchsia-400)'];
+
+        async function loadData() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                const [s, c, e] = await Promise.all([API.getStudents(), API.getCourses(), API.getEnrollments()]);
+                students = Array.isArray(s) ? s : (s || []);
+                courses = Array.isArray(c) ? c : [];
+                enrollments = Array.isArray(e) ? e : [];
+
+                document.getElementById('enrollStudent').innerHTML = students.map(x =>
+                    `<option value="${x.studentId || x.id}">${x.firstName} ${x.lastName}</option>`
+                ).join('');
+                document.getElementById('enrollCourse').innerHTML = courses.map(x =>
+                    `<option value="${x.courseId || x.id}">${x.courseName || x.name} (${x.courseCode || x.code})</option>`
+                ).join('');
+
+                renderEnrollments();
+            } catch (e) { Toast.error(e.message); }
+            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
+        }
+
+        function renderEnrollments() {
+            const list = document.getElementById('enrollList');
+            const empty = document.getElementById('emptyState');
+            document.getElementById('enrollCount').textContent = enrollments.length;
+            if (!enrollments.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+            empty.classList.add('hidden');
+            list.innerHTML = enrollments.map((en, i) => {
+                const st = students.find(s => (s.studentId || s.id) === en.studentId);
+                const co = courses.find(c => (c.courseId || c.id) === en.courseId);
+                const status = en.status || 'Active';
+                return `
+                <div class="enroll-item">
+                    <div class="enroll-left">
+                        <div class="enroll-icon" style="background:${colors[i % colors.length]}; color:${iconColors[i % iconColors.length]};"><i class="ri-user-3-fill"></i></div>
+                        <div class="enroll-info">
+                            <div class="e-name">${st ? st.firstName + ' ' + st.lastName : 'Student #' + en.studentId}</div>
+                            <div class="e-meta">${co ? (co.courseName || co.name) : 'Course #' + en.courseId} • ${Utils.formatDate(en.enrollmentDate || en.createdAt)} • <span class="badge-${status.toLowerCase() === 'active' ? 'active' : 'dropped'}">${status}</span></div>
+                        </div>
+                    </div>
+                    <button class="btn-icon btn-ghost sm" style="color:var(--rose-400);" onclick="removeEnrollment(${en.enrollmentId || en.id})"><i class="ri-delete-bin-line"></i></button>
+                </div>`;
+            }).join('');
+
+            // #39: Render stats
+            renderEnrollStats();
+        }
+
+        // #39: Stats cards
+        function renderEnrollStats() {
+            const uniqueStudents = new Set(enrollments.map(e => e.studentId)).size;
+            const uniqueCourses = new Set(enrollments.map(e => e.courseId)).size;
+            const today = new Date().toISOString().split('T')[0];
+            const todayCount = enrollments.filter(e => (e.enrollmentDate || e.createdAt || '').startsWith(today)).length;
+            document.getElementById('enrollStats').innerHTML = `
+                <div class="enroll-stat-card"><div class="esv">${enrollments.length}</div><div class="esl">Total Enrollments</div></div>
+                <div class="enroll-stat-card"><div class="esv" style="background:linear-gradient(135deg,var(--emerald-400),var(--teal-400));-webkit-background-clip:text;">${uniqueStudents}</div><div class="esl">Unique Students</div></div>
+                <div class="enroll-stat-card"><div class="esv" style="background:linear-gradient(135deg,var(--indigo-400),var(--violet-400));-webkit-background-clip:text;">${uniqueCourses}</div><div class="esl">Courses With Enrollments</div></div>
+                <div class="enroll-stat-card"><div class="esv" style="background:linear-gradient(135deg,var(--amber-400),var(--orange-400));-webkit-background-clip:text;">${todayCount}</div><div class="esl">Today's Enrollments</div></div>`;
+        }
+
+        // #40: Duplicate prevention
+        async function createEnrollment() {
+            const sid = document.getElementById('enrollStudent').value;
+            const cid = document.getElementById('enrollCourse').value;
+            if (!sid || !cid) { Toast.error('Select student and course'); return; }
+            // Check for duplicate
+            const duplicate = enrollments.find(e => e.studentId == sid && e.courseId == cid && (e.status || 'Active') === 'Active');
+            if (duplicate) {
+                const st = students.find(s => (s.studentId || s.id) == sid);
+                const co = courses.find(c => (c.courseId || c.id) == cid);
+                Toast.error(`${st ? st.firstName + ' ' + st.lastName : 'Student'} is already enrolled in ${co ? (co.courseName || co.name) : 'this course'}!`);
+                return;
+            }
+            try {
+                await API.createEnrollment({ studentId: parseInt(sid), courseId: parseInt(cid), enrollmentDate: new Date().toISOString() });
+                Toast.success('Enrolled successfully!');
+                loadData();
+            } catch (e) { Toast.error(e.message); }
+        }
+
+        async function removeEnrollment(id) {
+            if (!confirm('Remove enrollment?')) return;
+            try { await API.deleteEnrollment(id); Toast.success('Removed!'); loadData(); }
+            catch (e) { Toast.error(e.message); }
+        }
+        loadData();
+    </script>
+</body>
+
+</html>
