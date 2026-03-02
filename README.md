@@ -587,7 +587,4 @@ For fourth-year software engineering students, observe the following advanced ar
 4.  **Error Bubbling Protocol:** If an error occurs in the HTTP layer (a 500 Server error), `ApiService.cs` swallows the hard crash stack trace, converts it to a user-readable error, and bubbles it back up so the UI Handler can decide whether to display *"Network Failure"* or *"Database Connection Lost"*. This secures backend implementation details from leaking to typical users via Telegram.
 
 ***
-*End of Protocol Document.*
 
-_Constructed for exhaustive educational analysis. The architectures employed represent standard industrial grade enterprise application structure designed for optimal loose coupling, robust testing, and extensive vertical scalability._
-'@
