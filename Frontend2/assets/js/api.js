@@ -6,7 +6,7 @@ const API = {
     BASE: 'https://collegemanagementsystem-2gp3.onrender.com/api',
     TIMEOUT: 30000,
 
-    async request(endpoint, opts = {}) {
+    async request(endpoint, opts = {}, retries = 3) {
         const token = localStorage.getItem('cms_token');
         const url = `${this.BASE}${endpoint.toLowerCase()}`;
         const isFormData = opts.body instanceof FormData;
@@ -15,29 +15,44 @@ const API = {
             ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
             ...opts.headers
         };
-        try {
-            const ctrl = new AbortController();
-            const tid = setTimeout(() => ctrl.abort(), this.TIMEOUT);
-            const res = await fetch(url, { ...opts, headers, signal: ctrl.signal });
-            clearTimeout(tid);
 
-            if (res.status === 401) {
-                localStorage.clear();
-                location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'login.html';
-                return null;
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            try {
+                const ctrl = new AbortController();
+                const tid = setTimeout(() => ctrl.abort(), this.TIMEOUT);
+                const res = await fetch(url, { ...opts, headers, signal: ctrl.signal });
+                clearTimeout(tid);
+
+                if (res.status === 401) {
+                    localStorage.clear();
+                    location.href = (location.pathname.includes('/pages/') ? '' : 'pages/') + 'login.html';
+                    return null;
+                }
+
+                // If temporary server error (Thundering Herd / Gateway), throw error to trigger retry
+                if (res.status === 500 || res.status === 502 || res.status === 504) {
+                    throw new Error(`Server Error ${res.status}`);
+                }
+
+                if (res.status === 204) return null;
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    // Don't retry client errors (400, 403, 404, etc.)
+                    throw Object.assign(new Error(err.message || `Error ${res.status}`), { isClientError: res.status >= 400 && res.status < 500 });
+                }
+                const text = await res.text();
+                if (!text) return null;
+                const data = JSON.parse(text);
+                return data?.data !== undefined ? data.data : data;
+            } catch (e) {
+                if (e.isClientError || attempt === retries) {
+                    if (e.name === 'AbortError') throw new Error('Request timed out');
+                    throw e;
+                }
+                // Exponential backoff wait (1.5s, 3s, ...) before retry
+                console.warn(`API: ${endpoint} failed (Attempt ${attempt}/${retries}). Retrying...`);
+                await new Promise(resolve => setTimeout(resolve, 1500 * attempt));
             }
-            if (res.status === 204) return null;
-            if (!res.ok) {
-                const err = await res.json().catch(() => ({}));
-                throw new Error(err.message || `Error ${res.status}`);
-            }
-            const text = await res.text();
-            if (!text) return null;
-            const data = JSON.parse(text);
-            return data?.data !== undefined ? data.data : data;
-        } catch (e) {
-            if (e.name === 'AbortError') throw new Error('Request timed out');
-            throw e;
         }
     },
 
@@ -166,27 +181,55 @@ const API = {
    DataStore — In-memory cache for multi-API pages
    ═══════════════════════════════════════════════════════════ */
 const DataStore = {
-    _cache: {},
     _ttl: 60000, // 60 seconds default TTL
 
+    _getCacheKey(key) { return `cms_ds_${key}`; },
+
     async load(key, fetchFn) {
-        const cached = this._cache[key];
-        if (cached && Date.now() - cached.ts < this._ttl) return cached.data;
+        const cacheKey = this._getCacheKey(key);
+        try {
+            const cachedStr = sessionStorage.getItem(cacheKey);
+            if (cachedStr) {
+                const cached = JSON.parse(cachedStr);
+                if (Date.now() - cached.ts < this._ttl) return cached.data;
+            }
+        } catch (e) { console.warn('DataStore: Cache read error', e); }
+
         try {
             const raw = await fetchFn();
             const data = Array.isArray(raw) ? raw : (raw?.students || raw?.data || (raw ? [raw] : []));
-            this._cache[key] = { data, ts: Date.now() };
+            sessionStorage.setItem(cacheKey, JSON.stringify({ data, ts: Date.now() }));
             return data;
         } catch (e) {
             console.warn(`DataStore: Failed to load "${key}":`, e.message);
-            return cached?.data || [];
+            try {
+                const cachedStr = sessionStorage.getItem(cacheKey);
+                if (cachedStr) return JSON.parse(cachedStr).data;
+            } catch { }
+            return [];
         }
     },
 
-    get(key) { return this._cache[key]?.data || []; },
-    clear(key) { if (key) delete this._cache[key]; else this._cache = {}; },
+    get(key) {
+        try {
+            const cachedStr = sessionStorage.getItem(this._getCacheKey(key));
+            if (cachedStr) return JSON.parse(cachedStr).data || [];
+        } catch { }
+        return [];
+    },
 
-    // Parallel fetch all major datasets at once
+    clear(key) {
+        if (key) {
+            sessionStorage.removeItem(this._getCacheKey(key));
+        } else {
+            // Only clear our specific cache keys, leave other sessionStorage data intact
+            Object.keys(sessionStorage).forEach(k => {
+                if (k.startsWith('cms_ds_')) sessionStorage.removeItem(k);
+            });
+        }
+    },
+
+    // Sequential/Batched fetch to prevent Thundering Herd (Supabase Connection Exhaustion)
     async fetchAll(keys) {
         const map = {
             students: () => API.getStudents(),
@@ -204,11 +247,24 @@ const DataStore = {
             authUsers: () => API.getAllAuthUsers(),
         };
         const toFetch = (keys || Object.keys(map)).filter(k => map[k]);
-        const results = await Promise.allSettled(toFetch.map(k => this.load(k, map[k])));
         const out = {};
-        toFetch.forEach((k, i) => {
-            out[k] = results[i].status === 'fulfilled' ? results[i].value : [];
-        });
+
+        // Chunk requests into batches of 3 to avoid overwhelming the database
+        const chunkSize = 3;
+        for (let i = 0; i < toFetch.length; i += chunkSize) {
+            const chunk = toFetch.slice(i, i + chunkSize);
+            await Promise.allSettled(chunk.map(async (k) => {
+                try {
+                    const data = await this.load(k, map[k]);
+                    out[k] = data;
+                    // Dispatch event for progressive UI rendering
+                    document.dispatchEvent(new CustomEvent('datastore:loaded', { detail: { key: k, data: data } }));
+                } catch (e) {
+                    out[k] = [];
+                }
+            }));
+        }
+
         return out;
     }
 };

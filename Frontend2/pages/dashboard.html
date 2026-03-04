@@ -591,209 +591,262 @@
         const todayDay = daysMap[new Date().getDay()];
         const chart = document.getElementById('chartArea');
 
-        // ─── Multi-API Dashboard Load ───
-        async function loadDashboard() {
+        // ─── Multi-API Dashboard Load (Progressive) ───
+        function renderDashboardUI(keysLoaded = new Set()) {
             try {
-                const D = await DataStore.fetchAll(['students', 'courses', 'teachers', 'enrollments', 'fees', 'departments', 'attendance', 'grades', 'exams', 'timeslots', 'notices']);
-
-                const sList = D.students, cList = D.courses, tList = D.teachers, eList = D.enrollments, fList = D.fees;
-                const deptList = D.departments, attList = D.attendance, grList = D.grades, exList = D.exams, tsList = D.timeslots, nList = D.notices;
+                // Get whatever is available so far (returns [] if not yet loaded)
+                const sList = DataStore.get('students'), cList = DataStore.get('courses'), tList = DataStore.get('teachers');
+                const eList = DataStore.get('enrollments'), fList = DataStore.get('fees'), deptList = DataStore.get('departments');
+                const attList = DataStore.get('attendance'), grList = DataStore.get('grades'), exList = DataStore.get('exams');
+                const tsList = DataStore.get('timeslots'), nList = DataStore.get('notices');
 
                 // ═══ 1. Stat Cards (with REAL trend data) ═══
-                Utils.animateCounter(document.getElementById('statStudents'), sList.length);
-                Utils.animateCounter(document.getElementById('statTeachers'), tList.length);
-                Utils.animateCounter(document.getElementById('statCourses'), cList.length);
+                if (keysLoaded.has('students')) {
+                    Utils.animateCounter(document.getElementById('statStudents'), sList.length);
+                    const thisYear = new Date().getFullYear();
+                    const newStudents = sList.filter(s => new Date(s.createdAt).getFullYear() === thisYear).length;
+                    document.querySelector('#statStudents').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                        `<i class="ri-arrow-up-s-fill"></i> ${newStudents} joined this year`;
+                }
 
-                // Dynamic stat trends
-                const thisYear = new Date().getFullYear();
-                const newStudents = sList.filter(s => new Date(s.createdAt).getFullYear() === thisYear).length;
-                document.querySelector('#statStudents').closest('.stat-card').querySelector('.stat-trend').innerHTML =
-                    `<i class="ri-arrow-up-s-fill"></i> ${newStudents} joined this year`;
-                document.querySelector('#statTeachers').closest('.stat-card').querySelector('.stat-trend').innerHTML =
-                    `<i class="ri-arrow-up-s-fill"></i> ${tList.filter(t => t.isActive !== false).length} active`;
-                document.querySelector('#statCourses').closest('.stat-card').querySelector('.stat-trend').innerHTML =
-                    `<i class="ri-arrow-up-s-fill"></i> ${cList.filter(c => c.isActive !== false).length} active`;
+                if (keysLoaded.has('teachers')) {
+                    Utils.animateCounter(document.getElementById('statTeachers'), tList.length);
+                    document.querySelector('#statTeachers').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                        `<i class="ri-arrow-up-s-fill"></i> ${tList.filter(t => t.isActive !== false).length} active`;
+                }
 
-                // Fee collection
-                const totalFees = fList.reduce((s, f) => s + (f.amount || 0), 0);
-                const paidFees = fList.filter(f => f.status === 'Paid').reduce((s, f) => s + (f.amount || 0), 0);
-                const collPct = totalFees ? Math.round(paidFees / totalFees * 100) : 0;
-                const revEl = document.getElementById('statRevenue');
-                let _s = 0;
-                const _step = (ts) => {
-                    if (!_s) _s = ts;
-                    const p = Math.min((ts - _s) / 1200, 1);
-                    const ease = 1 - Math.pow(1 - p, 3);
-                    revEl.textContent = '₹' + Math.floor(ease * paidFees).toLocaleString('en-IN');
-                    if (p < 1) requestAnimationFrame(_step);
-                };
-                requestAnimationFrame(_step);
-                document.querySelector('#statRevenue').closest('.stat-card').querySelector('.stat-trend').innerHTML =
-                    `<i class="ri-arrow-up-s-fill"></i> ${collPct}% collected`;
+                if (keysLoaded.has('courses')) {
+                    Utils.animateCounter(document.getElementById('statCourses'), cList.length);
+                    document.querySelector('#statCourses').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                        `<i class="ri-arrow-up-s-fill"></i> ${cList.filter(c => c.isActive !== false).length} active`;
+                }
+
+                if (keysLoaded.has('fees')) {
+                    const totalFees = fList.reduce((s, f) => s + (f.amount || 0), 0);
+                    const paidFees = fList.filter(f => f.status === 'Paid').reduce((s, f) => s + (f.amount || 0), 0);
+                    const collPct = totalFees ? Math.round(paidFees / totalFees * 100) : 0;
+                    document.getElementById('statRevenue').textContent = '₹' + paidFees.toLocaleString('en-IN');
+                    document.querySelector('#statRevenue').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                        `<i class="ri-arrow-up-s-fill"></i> ${collPct}% collected`;
+
+                    // 5. Fee Collection Progress widget
+                    const pendingCount = fList.filter(f => f.status === 'Pending' || f.status === 'Overdue').length;
+                    const overdueCount = fList.filter(f => f.status === 'Overdue').length;
+                    document.getElementById('feeProgress').innerHTML = fList.length
+                        ? `<div style="margin-top:6px;">${MiniChart.bar(paidFees, totalFees, '#10b981', 8)}
+                            <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.7rem;color:var(--text-secondary);">
+                                <span>Paid: ${Utils.formatCurrency(paidFees)}</span>
+                                <span>Total: ${Utils.formatCurrency(totalFees)}</span>
+                            </div>
+                            <div style="display:flex;gap:8px;margin-top:8px;">
+                                <span class="badge badge-amber" style="font-size:0.6rem;">${pendingCount} pending</span>
+                                ${overdueCount ? `<span class="badge badge-rose" style="font-size:0.6rem;">${overdueCount} overdue</span>` : ''}
+                            </div></div>`
+                        : '<p class="text-muted text-sm">No fee data</p>';
+                }
 
                 // ═══ 2. Enrollment Chart ═══
-                const monthCounts = new Array(12).fill(0);
-                eList.forEach(e => {
-                    const d = new Date(e.enrollmentDate || e.createdAt);
-                    if (d.getFullYear() === thisYear) monthCounts[d.getMonth()]++;
-                });
-                const maxCount = Math.max(...monthCounts, 1);
-                chart.innerHTML = '';
-                months.forEach((m, i) => {
-                    const bar = document.createElement('div');
-                    bar.className = 'chart-bar';
-                    bar.dataset.label = m;
-                    bar.style.height = '0%';
-                    bar.title = `${m}: ${monthCounts[i]} enrollments`;
-                    if (i % 2 === 0) bar.style.background = 'var(--grad-teal)';
-                    chart.appendChild(bar);
-                    const pct = (monthCounts[i] / maxCount * 100) || 4;
-                    setTimeout(() => { bar.style.height = pct + '%'; }, 200 + i * 80);
-                });
+                if (keysLoaded.has('enrollments')) {
+                    const thisYear = new Date().getFullYear();
+                    const monthCounts = new Array(12).fill(0);
+                    eList.forEach(e => {
+                        const d = new Date(e.enrollmentDate || e.createdAt);
+                        if (d.getFullYear() === thisYear) monthCounts[d.getMonth()]++;
+                    });
+                    const maxCount = Math.max(...monthCounts, 1);
+                    chart.innerHTML = '';
+                    months.forEach((m, i) => {
+                        const bar = document.createElement('div');
+                        bar.className = 'chart-bar';
+                        bar.dataset.label = m;
+                        bar.style.height = '0%';
+                        bar.title = `${m}: ${monthCounts[i]} enrollments`;
+                        if (i % 2 === 0) bar.style.background = 'var(--grad-teal)';
+                        chart.appendChild(bar);
+                        const pct = (monthCounts[i] / maxCount * 100) || 4;
+                        setTimeout(() => { bar.style.height = pct + '%'; }, 50);
+                    });
+                }
 
                 // ═══ 3. Department Distribution (Bar Chart) ═══
-                const deptMap = {};
-                sList.forEach(s => {
-                    const dn = Resolve.deptName(s.departmentId, deptList);
-                    deptMap[dn] = (deptMap[dn] || 0) + 1;
-                });
-                const deptNames = Object.keys(deptMap);
-                const deptVals = deptNames.map(k => deptMap[k]);
-                document.getElementById('deptChart').innerHTML = deptNames.length
-                    ? MiniChart.barChart(deptVals, deptNames, null, 80)
-                    : '<p class="text-muted text-sm" style="text-align:center;">No department data</p>';
+                if (keysLoaded.has('students') && keysLoaded.has('departments')) {
+                    const deptMap = {};
+                    sList.forEach(s => {
+                        const dn = Resolve.deptName(s.departmentId, deptList);
+                        deptMap[dn] = (deptMap[dn] || 0) + 1;
+                    });
+                    const deptNames = Object.keys(deptMap);
+                    const deptVals = deptNames.map(k => deptMap[k]);
+                    document.getElementById('deptChart').innerHTML = deptNames.length
+                        ? MiniChart.barChart(deptVals, deptNames, null, 80)
+                        : '<p class="text-muted text-sm" style="text-align:center;">No department data</p>';
+                }
 
                 // ═══ 4. Attendance Gauge ═══
-                const attPct = Resolve.attendancePercent(attList);
-                const gaugeColor = attPct >= 85 ? '#10b981' : attPct >= 70 ? '#f59e0b' : '#f43f5e';
-                document.getElementById('attendanceGauge').innerHTML = attPct != null
-                    ? `<div style="text-align:center;">${MiniChart.donut(attPct, 72, gaugeColor, 'Campus Attendance')}<div style="font-size:0.68rem;color:var(--text-tertiary);margin-top:6px;">${attList.length} records</div></div>`
-                    : '<p class="text-muted text-sm">No attendance data</p>';
-
-                // ═══ 5. Fee Collection Progress ═══
-                const pendingCount = fList.filter(f => f.status === 'Pending' || f.status === 'Overdue').length;
-                const overdueCount = fList.filter(f => f.status === 'Overdue').length;
-                document.getElementById('feeProgress').innerHTML = fList.length
-                    ? `<div style="margin-top:6px;">${MiniChart.bar(paidFees, totalFees, '#10b981', 8)}
-                        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.7rem;color:var(--text-secondary);">
-                            <span>Paid: ${Utils.formatCurrency(paidFees)}</span>
-                            <span>Total: ${Utils.formatCurrency(totalFees)}</span>
-                        </div>
-                        <div style="display:flex;gap:8px;margin-top:8px;">
-                            <span class="badge badge-amber" style="font-size:0.6rem;">${pendingCount} pending</span>
-                            ${overdueCount ? `<span class="badge badge-rose" style="font-size:0.6rem;">${overdueCount} overdue</span>` : ''}
-                        </div></div>`
-                    : '<p class="text-muted text-sm">No fee data</p>';
+                if (keysLoaded.has('attendance')) {
+                    const attPct = Resolve.attendancePercent(attList);
+                    const gaugeColor = attPct >= 85 ? '#10b981' : attPct >= 70 ? '#f59e0b' : '#f43f5e';
+                    document.getElementById('attendanceGauge').innerHTML = attPct != null
+                        ? `<div style="text-align:center;">${MiniChart.donut(attPct, 72, gaugeColor, 'Campus Attendance')}<div style="font-size:0.68rem;color:var(--text-tertiary);margin-top:6px;">${attList.length} records</div></div>`
+                        : '<p class="text-muted text-sm">No attendance data</p>';
+                }
 
                 // ═══ 6. Gender Distribution ═══
-                const genderMap = {};
-                sList.forEach(s => { const g = s.gender || 'Unknown'; genderMap[g] = (genderMap[g] || 0) + 1; });
-                const gNames = Object.keys(genderMap), gVals = gNames.map(k => genderMap[k]);
-                const gColors = gNames.map(g => g === 'Male' ? '#6366f1' : g === 'Female' ? '#d946ef' : '#94a3b8');
-                document.getElementById('genderChart').innerHTML = gNames.length
-                    ? `${MiniChart.barChart(gVals, gNames, gColors, 70)}`
-                    : '<p class="text-muted text-sm">No data</p>';
+                if (keysLoaded.has('students')) {
+                    const genderMap = {};
+                    sList.forEach(s => { const g = s.gender || 'Unknown'; genderMap[g] = (genderMap[g] || 0) + 1; });
+                    const gNames = Object.keys(genderMap), gVals = gNames.map(k => genderMap[k]);
+                    const gColors = gNames.map(g => g === 'Male' ? '#6366f1' : g === 'Female' ? '#d946ef' : '#94a3b8');
+                    document.getElementById('genderChart').innerHTML = gNames.length
+                        ? `${MiniChart.barChart(gVals, gNames, gColors, 70)}`
+                        : '<p class="text-muted text-sm">No data</p>';
+                }
 
                 // ═══ 7. Activity Feed (cross-API) ═══
-                const activities = [];
-                sList.slice(-3).reverse().forEach(s => {
-                    activities.push({
-                        icon: 'ri-user-add-fill', bg: 'rgba(99,102,241,0.15)', color: 'var(--indigo-400)',
-                        title: `${s.firstName || ''} ${s.lastName || ''} registered`,
-                        meta: `${Resolve.deptName(s.departmentId, deptList)} • ${Utils.timeAgo(s.createdAt)}`
+                if (keysLoaded.has('students') && keysLoaded.has('enrollments') && keysLoaded.has('fees') && keysLoaded.has('departments') && keysLoaded.has('courses')) {
+                    const activities = [];
+                    sList.slice(-3).reverse().forEach(s => {
+                        activities.push({
+                            icon: 'ri-user-add-fill', bg: 'rgba(99,102,241,0.15)', color: 'var(--indigo-400)',
+                            title: `${s.firstName || ''} ${s.lastName || ''} registered`,
+                            meta: `${Resolve.deptName(s.departmentId, deptList)} • ${Utils.timeAgo(s.createdAt)}`,
+                            ts: new Date(s.createdAt).getTime()
+                        });
                     });
-                });
-                eList.slice(-2).reverse().forEach(e => {
-                    activities.push({
-                        icon: 'ri-file-list-3-fill', bg: 'rgba(20,184,166,0.15)', color: 'var(--teal-400)',
-                        title: `${Resolve.studentName(e.studentId, sList)} enrolled`,
-                        meta: `${Resolve.courseName(e.courseId, cList)} • ${Utils.timeAgo(e.enrollmentDate)}`
+                    eList.slice(-2).reverse().forEach(e => {
+                        activities.push({
+                            icon: 'ri-file-list-3-fill', bg: 'rgba(20,184,166,0.15)', color: 'var(--teal-400)',
+                            title: `${Resolve.studentName(e.studentId, sList)} enrolled`,
+                            meta: `${Resolve.courseName(e.courseId, cList)} • ${Utils.timeAgo(e.enrollmentDate)}`,
+                            ts: new Date(e.enrollmentDate).getTime()
+                        });
                     });
-                });
-                fList.filter(f => f.status === 'Paid').slice(-2).reverse().forEach(f => {
-                    activities.push({
-                        icon: 'ri-wallet-3-fill', bg: 'rgba(245,158,11,0.15)', color: 'var(--amber-400)',
-                        title: `Fee paid: ${Utils.formatCurrency(f.amount)}`,
-                        meta: `${Resolve.studentName(f.studentId, sList)} • ${Utils.timeAgo(f.paidDate)}`
+                    fList.filter(f => f.status === 'Paid').slice(-2).reverse().forEach(f => {
+                        activities.push({
+                            icon: 'ri-wallet-3-fill', bg: 'rgba(245,158,11,0.15)', color: 'var(--amber-400)',
+                            title: `Fee paid: ${Utils.formatCurrency(f.amount)}`,
+                            meta: `${Resolve.studentName(f.studentId, sList)} • ${Utils.timeAgo(f.paidDate)}`,
+                            ts: new Date(f.paidDate).getTime()
+                        });
                     });
-                });
-                document.getElementById('activityList').innerHTML = activities.slice(0, 5).map(a => `
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background:${a.bg}; color:${a.color};"><i class="${a.icon}"></i></div>
-                        <div class="activity-text">
-                            <div class="title">${a.title}</div>
-                            <div class="meta">${a.meta}</div>
+                    activities.sort((a, b) => b.ts - a.ts);
+                    document.getElementById('activityList').innerHTML = activities.slice(0, 5).map(a => `
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background:${a.bg}; color:${a.color};"><i class="${a.icon}"></i></div>
+                            <div class="activity-text">
+                                <div class="title">${a.title}</div>
+                                <div class="meta">${a.meta}</div>
+                            </div>
                         </div>
-                    </div>
-                `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No recent activity</p>';
+                    `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No recent activity</p>';
+                }
 
                 // ═══ 8. Today's Schedule (TimeSlots + Courses + Teachers) ═══
-                const todaySlots = tsList.filter(t => t.dayOfWeek === todayDay).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-                document.getElementById('todayClassCount').textContent = todaySlots.length + ' classes';
-                document.getElementById('todaySchedule').innerHTML = todaySlots.length
-                    ? todaySlots.map((slot, i) => {
-                        const course = Resolve.course(slot.courseId, cList);
-                        const teacher = Resolve.teacher(slot.teacherId, tList);
-                        const tName = teacher ? Resolve.teacherName(slot.teacherId, tList) : '—';
-                        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
-                            <div style="width:36px;height:36px;border-radius:10px;background:${Utils.colorByIndex(i)}20;color:${Utils.colorByIndex(i)};display:grid;place-items:center;font-size:0.85rem;flex-shrink:0;"><i class="ri-book-open-line"></i></div>
-                            <div style="flex:1;min-width:0;">
-                                <div style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${course ? (course.courseName || course.courseCode) : 'Course'}</div>
-                                <div style="font-size:0.68rem;color:var(--text-tertiary);">${tName} • ${slot.room || 'TBD'}</div>
-                            </div>
-                            <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;white-space:nowrap;">${(slot.startTime || '').slice(0, 5)} – ${(slot.endTime || '').slice(0, 5)}</div>
-                        </div>`;
-                    }).join('')
-                    : '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No classes today</p>';
+                if (keysLoaded.has('timeslots') && keysLoaded.has('courses') && keysLoaded.has('teachers')) {
+                    const todaySlots = tsList.filter(t => t.dayOfWeek === todayDay).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+                    document.getElementById('todayClassCount').textContent = todaySlots.length + ' classes';
+                    document.getElementById('todaySchedule').innerHTML = todaySlots.length
+                        ? todaySlots.map((slot, i) => {
+                            const course = Resolve.course(slot.courseId, cList);
+                            const teacher = Resolve.teacher(slot.teacherId, tList);
+                            const tName = teacher ? Resolve.teacherName(slot.teacherId, tList) : '—';
+                            return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                                <div style="width:36px;height:36px;border-radius:10px;background:${Utils.colorByIndex(i)}20;color:${Utils.colorByIndex(i)};display:grid;place-items:center;font-size:0.85rem;flex-shrink:0;"><i class="ri-book-open-line"></i></div>
+                                <div style="flex:1;min-width:0;">
+                                    <div style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${course ? (course.courseName || course.courseCode) : 'Course'}</div>
+                                    <div style="font-size:0.68rem;color:var(--text-tertiary);">${tName} • ${slot.room || 'TBD'}</div>
+                                </div>
+                                <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;white-space:nowrap;">${(slot.startTime || '').slice(0, 5)} – ${(slot.endTime || '').slice(0, 5)}</div>
+                            </div>`;
+                        }).join('')
+                        : '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No classes today</p>';
+                }
 
                 // ═══ 9. Notices (from API) ═══
-                const noticeColors = ['var(--rose-400)', 'var(--indigo-400)', 'var(--teal-400)', 'var(--emerald-400)', 'var(--amber-400)'];
-                const allNotices = [];
-                (nList || []).forEach((n, i) => {
-                    allNotices.push({ title: n.title || 'Notice', time: Utils.timeAgo(n.createdAt), color: noticeColors[i % 5] });
-                });
-                // Add system-generated notices if API notices are few
-                if (allNotices.length < 4) {
-                    if (pendingCount) allNotices.push({ title: `${pendingCount} fee payments pending/overdue`, time: 'Action required', color: 'var(--rose-400)' });
-                    if (exList.filter(e => e.isPublished && new Date(e.scheduledDate) > new Date()).length)
-                        allNotices.push({ title: `${exList.filter(e => e.isPublished && new Date(e.scheduledDate) > new Date()).length} upcoming exams`, time: 'Check schedule', color: 'var(--amber-400)' });
-                    allNotices.push({ title: `${sList.length} students across ${deptNames.length} departments`, time: 'Current semester', color: 'var(--teal-400)' });
+                if (keysLoaded.has('notices') && keysLoaded.has('fees') && keysLoaded.has('exams') && keysLoaded.has('students') && keysLoaded.has('departments')) {
+                    const pendingCount = fList.filter(f => f.status === 'Pending' || f.status === 'Overdue').length;
+                    const deptNames = Object.keys(sList.reduce((acc, s) => { if (s.departmentId) acc[s.departmentId] = true; return acc; }, {}));
+                    const noticeColors = ['var(--rose-400)', 'var(--indigo-400)', 'var(--teal-400)', 'var(--emerald-400)', 'var(--amber-400)'];
+                    const allNotices = [];
+                    (nList || []).forEach((n, i) => {
+                        allNotices.push({ title: n.title || 'Notice', time: Utils.timeAgo(n.createdAt), color: noticeColors[i % 5] });
+                    });
+                    // Add system-generated notices if API notices are few
+                    if (allNotices.length < 4) {
+                        if (pendingCount) allNotices.push({ title: `${pendingCount} fee payments pending/overdue`, time: 'Action required', color: 'var(--rose-400)' });
+                        if (exList.filter(e => e.isPublished && new Date(e.scheduledDate) > new Date()).length)
+                            allNotices.push({ title: `${exList.filter(e => e.isPublished && new Date(e.scheduledDate) > new Date()).length} upcoming exams`, time: 'Check schedule', color: 'var(--amber-400)' });
+                        allNotices.push({ title: `${sList.length} students across ${deptNames.length} departments`, time: 'Current semester', color: 'var(--teal-400)' });
+                    }
+                    document.getElementById('noticeCount').textContent = allNotices.length;
+                    document.getElementById('noticeList').innerHTML = allNotices.slice(0, 5).map(n => `
+                        <div class="notice-item">
+                            <div class="notice-dot" style="background:${n.color};"></div>
+                            <div><div class="n-title">${n.title}</div><div class="n-time">${n.time}</div></div>
+                        </div>
+                    `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No notices</p>';
                 }
-                document.getElementById('noticeCount').textContent = allNotices.length;
-                document.getElementById('noticeList').innerHTML = allNotices.slice(0, 5).map(n => `
-                    <div class="notice-item">
-                        <div class="notice-dot" style="background:${n.color};"></div>
-                        <div><div class="n-title">${n.title}</div><div class="n-time">${n.time}</div></div>
-                    </div>
-                `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No notices</p>';
 
                 // ═══ 10. Active & Upcoming Exams ═══
-                const upcoming = exList.filter(e => new Date(e.scheduledDate) >= new Date()).sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
-                document.getElementById('examCount').textContent = upcoming.length + ' upcoming';
-                document.getElementById('examCards').innerHTML = upcoming.length
-                    ? upcoming.slice(0, 6).map((ex, i) => {
-                        const course = Resolve.course(ex.courseId, cList);
-                        const days = Utils.daysUntil(ex.scheduledDate);
-                        const daysLabel = days === 0 ? 'Today!' : days === 1 ? 'Tomorrow' : days + 'd left';
-                        const urgColor = days <= 2 ? '#f43f5e' : days <= 7 ? '#f59e0b' : '#10b981';
-                        return `<div style="background:var(--bg-glass);border:1px solid var(--border-subtle);border-radius:14px;padding:14px;transition:all 0.3s;" onmouseenter="this.style.borderColor='var(--border-default)';this.style.transform='translateY(-2px)'" onmouseleave="this.style.borderColor='var(--border-subtle)';this.style.transform=''">
-                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                                <span style="font-size:0.65rem;padding:2px 8px;background:${urgColor}20;color:${urgColor};border-radius:20px;font-weight:700;">${daysLabel}</span>
-                                <span class="badge ${ex.isPublished ? 'badge-emerald' : 'badge-amber'}" style="font-size:0.55rem;">${ex.isPublished ? 'Published' : 'Draft'}</span>
-                            </div>
-                            <div style="font-size:0.82rem;font-weight:700;margin-bottom:4px;">${ex.title || 'Exam'}</div>
-                            <div style="font-size:0.68rem;color:var(--text-tertiary);">${course ? (course.courseName || course.courseCode) : '—'} • ${Utils.formatDate(ex.scheduledDate)}</div>
-                            <div style="display:flex;gap:6px;margin-top:8px;">
-                                <span style="font-size:0.6rem;color:var(--text-secondary);">${ex.totalMarks || 0} marks</span>
-                                <span style="font-size:0.6rem;color:var(--text-secondary);">• ${ex.examType || 'Mixed'}</span>
-                            </div>
-                        </div>`;
-                    }).join('')
-                    : '<p class="text-muted text-sm">No upcoming exams</p>';
+                if (keysLoaded.has('exams') && keysLoaded.has('courses')) {
+                    const upcoming = exList.filter(e => new Date(e.scheduledDate) >= new Date()).sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+                    document.getElementById('examCount').textContent = upcoming.length + ' upcoming';
+                    document.getElementById('examCards').innerHTML = upcoming.length
+                        ? upcoming.slice(0, 6).map((ex, i) => {
+                            const course = Resolve.course(ex.courseId, cList);
+                            const days = Utils.daysUntil(ex.scheduledDate);
+                            const daysLabel = days === 0 ? 'Today!' : days === 1 ? 'Tomorrow' : days + 'd left';
+                            const urgColor = days <= 2 ? '#f43f5e' : days <= 7 ? '#f59e0b' : '#10b981';
+                            return `<div style="background:var(--bg-glass);border:1px solid var(--border-subtle);border-radius:14px;padding:14px;transition:all 0.3s;" onmouseenter="this.style.borderColor='var(--border-default)';this.style.transform='translateY(-2px)'" onmouseleave="this.style.borderColor='var(--border-subtle)';this.style.transform=''">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                    <span style="font-size:0.65rem;padding:2px 8px;background:${urgColor}20;color:${urgColor};border-radius:20px;font-weight:700;">${daysLabel}</span>
+                                    <span class="badge ${ex.isPublished ? 'badge-emerald' : 'badge-amber'}" style="font-size:0.55rem;">${ex.isPublished ? 'Published' : 'Draft'}</span>
+                                </div>
+                                <div style="font-size:0.82rem;font-weight:700;margin-bottom:4px;">${ex.title || 'Exam'}</div>
+                                <div style="font-size:0.68rem;color:var(--text-tertiary);">${course ? (course.courseName || course.courseCode) : '—'} • ${Utils.formatDate(ex.scheduledDate)}</div>
+                                <div style="display:flex;gap:6px;margin-top:8px;">
+                                    <span style="font-size:0.6rem;color:var(--text-secondary);">${ex.totalMarks || 0} marks</span>
+                                    <span style="font-size:0.6rem;color:var(--text-secondary);">• ${ex.examType || 'Mixed'}</span>
+                                </div>
+                            </div>`;
+                        }).join('')
+                        : '<p class="text-muted text-sm">No upcoming exams</p>';
+                }
 
             } catch (e) {
+                console.error('Progressive render error:', e);
+            }
+        }
+
+        async function loadDashboard() {
+            const keysToLoad = ['students', 'courses', 'teachers', 'enrollments', 'fees', 'departments', 'attendance', 'grades', 'exams', 'timeslots', 'notices'];
+            const loadedKeys = new Set();
+
+            // Listen for progressive datastore loads
+            const onLoaded = (e) => {
+                loadedKeys.add(e.detail.key);
+                renderDashboardUI(loadedKeys);
+            };
+            document.addEventListener('datastore:loaded', onLoaded);
+
+            try {
+                // Instantly render anything that is already cached in sessionStorage
+                keysToLoad.forEach(k => {
+                    if (sessionStorage.getItem(`cms_ds_${k}`)) loadedKeys.add(k);
+                });
+                if (loadedKeys.size > 0) renderDashboardUI(loadedKeys);
+
+                // Fetch data (will be batched automatically by DataStore.fetchAll)
+                await DataStore.fetchAll(keysToLoad);
+
+                // Final render fallback sync
+                keysToLoad.forEach(k => loadedKeys.add(k));
+                renderDashboardUI(loadedKeys);
+            } catch (e) {
                 console.error('Dashboard load error:', e);
-                Toast.error('Failed to load some dashboard data');
+                Toast.error('Failed to fully load dashboard data');
+            } finally {
+                document.removeEventListener('datastore:loaded', onLoaded);
             }
         }
 
