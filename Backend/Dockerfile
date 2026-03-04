@@ -43,6 +43,9 @@ RUN dotnet publish CMS.ApiGateway/CMS.ApiGateway.csproj -c Release -o /app/gatew
 # Copy docker-specific ocelot config to gateway
 COPY CMS.ApiGateway/ocelot.docker.json /app/gateway/ocelot.json
 
+# Copy startup script
+COPY start-all.sh /app/start-all.sh
+
 # --- RUNTIME STAGE ---
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
@@ -56,7 +59,7 @@ COPY --from=build /app/services ./services
 COPY --from=build /app/gateway ./gateway
 
 # Copy startup script
-COPY start-all.sh ./start-all.sh
+COPY --from=build /app/start-all.sh ./start-all.sh
 RUN chmod +x ./start-all.sh
 
 # Set environment
