@@ -3,7 +3,7 @@
    ═══════════════════════════════════════════════════════════ */
 
 const API = {
-    BASE: 'https://localhost:7000/api',
+    BASE: 'https://collegemanagementsystem-2gp3.onrender.com/api',
     TIMEOUT: 15000,
 
     async request(endpoint, opts = {}) {
