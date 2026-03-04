@@ -31,6 +31,9 @@ dotnet /app/services/CMS.AuthService/CMS.AuthService.dll --urls "http://0.0.0.0:
 echo "[8/9] Starting AcademicService on port 5008..."
 dotnet /app/services/CMS.AcademicService/CMS.AcademicService.dll --urls "http://0.0.0.0:5008" --contentRoot /app/services/CMS.AcademicService &
 
+echo "[BOT] Starting TelegramBot on port 5009..."
+dotnet /app/services/CMS.TelegramService/CMS.TelegramService.dll --urls "http://0.0.0.0:5009" --contentRoot /app/services/CMS.TelegramService &
+
 # Wait for services to initialize
 echo "Waiting for services to initialize..."
 sleep 5

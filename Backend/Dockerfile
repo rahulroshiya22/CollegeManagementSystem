@@ -38,6 +38,7 @@ RUN dotnet publish CMS.AttendanceService/CMS.AttendanceService.csproj -c Release
 RUN dotnet publish CMS.AuthService/CMS.AuthService.csproj -c Release -o /app/services/CMS.AuthService --no-restore
 RUN dotnet publish CMS.AcademicService/CMS.AcademicService.csproj -c Release -o /app/services/CMS.AcademicService --no-restore
 RUN dotnet publish CMS.AIAssistantService/CMS.AIAssistantService.csproj -c Release -o /app/services/CMS.AIAssistantService --no-restore
+RUN dotnet publish CMS.TelegramService/CMS.TelegramService.csproj -c Release -o /app/services/CMS.TelegramService --no-restore
 RUN dotnet publish CMS.ApiGateway/CMS.ApiGateway.csproj -c Release -o /app/gateway --no-restore
 
 # Copy docker-specific ocelot config to gateway
