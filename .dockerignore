@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+**/Migrations/
+**/wwwroot/uploads/
+**/logs/
+*.user
+*.suo
+Backend_SqlServer_Backup/
+Frontend/
+Frontend_v3/
+PostgreSQL/
+.git/
