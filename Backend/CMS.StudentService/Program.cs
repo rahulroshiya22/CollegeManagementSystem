@@ -1,3 +1,6 @@
+// Fix: Npgsql 8.x requires 'timestamp with time zone' by default, but our Supabase tables use 'timestamp'
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 using CMS.StudentService.Data;
 using CMS.StudentService.Repositories;
 using CMS.StudentService.Services;
@@ -101,6 +104,7 @@ app.UseCors("AllowAll");
 // Configure the HTTP request pipeline
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseDeveloperExceptionPage();
 
 if (!app.Environment.IsProduction()) app.UseHttpsRedirection();
 app.UseAuthentication();

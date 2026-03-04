@@ -1,3 +1,4 @@
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 using CMS.AttendanceService.Data;
 using CMS.AttendanceService.Repositories;
 using CMS.AttendanceService.Services;

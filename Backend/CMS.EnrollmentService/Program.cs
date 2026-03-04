@@ -1,3 +1,4 @@
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 using CMS.EnrollmentService.Data;
 using CMS.EnrollmentService.Services;
 using Microsoft.EntityFrameworkCore;

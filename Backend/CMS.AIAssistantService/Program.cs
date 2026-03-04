@@ -1,3 +1,4 @@
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 using CMS.AIAssistantService.Data;
 using CMS.AIAssistantService.Services;
 using Microsoft.EntityFrameworkCore;
@@ -42,11 +43,7 @@ app.UseCors();
 app.UseAuthorization();
 app.MapControllers();
 
-// Create database if it doesn't exist
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
-    dbContext.Database.EnsureCreated();
-}
+// Database already exists in Supabase — no EnsureCreated needed
+
 
 app.Run();

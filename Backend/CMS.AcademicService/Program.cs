@@ -1,3 +1,4 @@
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 using CMS.AcademicService.Data;
 using CMS.AcademicService.Services;
 using Microsoft.EntityFrameworkCore;
@@ -39,12 +40,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Auto-create database
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<AcademicDbContext>();
-    context.Database.EnsureCreated();
-}
+// Database already exists in Supabase — no EnsureCreated needed
+
 
 // Correlation ID Middleware
 app.Use(async (context, next) =>
