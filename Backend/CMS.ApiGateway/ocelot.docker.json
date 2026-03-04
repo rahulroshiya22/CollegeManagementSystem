@@ -10,7 +10,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5001
                 }
             ],
@@ -28,7 +28,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5001
                 }
             ],
@@ -44,7 +44,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5002
                 }
             ],
@@ -62,7 +62,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5002
                 }
             ],
@@ -78,7 +78,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5002
                 }
             ],
@@ -96,7 +96,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5002
                 }
             ],
@@ -112,7 +112,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5003
                 }
             ],
@@ -130,7 +130,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5003
                 }
             ],
@@ -146,7 +146,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5004
                 }
             ],
@@ -164,7 +164,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5004
                 }
             ],
@@ -180,7 +180,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5005
                 }
             ],
@@ -198,7 +198,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5005
                 }
             ],
@@ -216,7 +216,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5007
                 }
             ],
@@ -234,7 +234,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5007
                 }
             ],
@@ -250,7 +250,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5007
                 }
             ],
@@ -268,7 +268,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5007
                 }
             ],
@@ -286,7 +286,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5007
                 }
             ],
@@ -302,7 +302,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -320,7 +320,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -336,7 +336,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -354,7 +354,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -370,7 +370,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -388,7 +388,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -406,7 +406,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -424,7 +424,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -442,7 +442,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5008
                 }
             ],
@@ -459,7 +459,7 @@
             "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "0.0.0.0",
+                    "Host": "127.0.0.1",
                     "Port": 5006
                 }
             ],
