@@ -7,11 +7,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Student",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7001
+                    "Host": "127.0.0.1",
+                    "Port": 5001
                 }
             ],
             "SwaggerKey": "StudentService"
@@ -25,11 +25,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Student/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7001
+                    "Host": "127.0.0.1",
+                    "Port": 5001
                 }
             ],
             "SwaggerKey": "StudentService"
@@ -41,11 +41,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Course",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7002
+                    "Host": "127.0.0.1",
+                    "Port": 5002
                 }
             ],
             "SwaggerKey": "CourseService"
@@ -59,11 +59,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Course/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7002
+                    "Host": "127.0.0.1",
+                    "Port": 5002
                 }
             ],
             "SwaggerKey": "CourseService"
@@ -75,11 +75,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Department",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7002
+                    "Host": "127.0.0.1",
+                    "Port": 5002
                 }
             ],
             "SwaggerKey": "CourseService"
@@ -93,11 +93,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Department/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7002
+                    "Host": "127.0.0.1",
+                    "Port": 5002
                 }
             ],
             "SwaggerKey": "CourseService"
@@ -109,11 +109,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Enrollment",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7003
+                    "Host": "127.0.0.1",
+                    "Port": 5003
                 }
             ],
             "SwaggerKey": "EnrollmentService"
@@ -127,11 +127,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Enrollment/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7003
+                    "Host": "127.0.0.1",
+                    "Port": 5003
                 }
             ],
             "SwaggerKey": "EnrollmentService"
@@ -143,11 +143,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Fee",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7004
+                    "Host": "127.0.0.1",
+                    "Port": 5004
                 }
             ],
             "SwaggerKey": "FeeService"
@@ -161,11 +161,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Fee/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7004
+                    "Host": "127.0.0.1",
+                    "Port": 5004
                 }
             ],
             "SwaggerKey": "FeeService"
@@ -177,11 +177,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Attendance",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7005
+                    "Host": "127.0.0.1",
+                    "Port": 5005
                 }
             ],
             "SwaggerKey": "AttendanceService"
@@ -195,11 +195,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Attendance/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7005
+                    "Host": "127.0.0.1",
+                    "Port": 5005
                 }
             ],
             "SwaggerKey": "AttendanceService"
@@ -213,11 +213,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Auth",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7007
+                    "Host": "127.0.0.1",
+                    "Port": 5007
                 }
             ],
             "SwaggerKey": "AuthService"
@@ -231,11 +231,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Auth/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7007
+                    "Host": "127.0.0.1",
+                    "Port": 5007
                 }
             ],
             "SwaggerKey": "AuthService"
@@ -247,11 +247,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Teacher",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7007
+                    "Host": "127.0.0.1",
+                    "Port": 5007
                 }
             ],
             "SwaggerKey": "AuthService"
@@ -265,11 +265,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Teacher/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7007
+                    "Host": "127.0.0.1",
+                    "Port": 5007
                 }
             ],
             "SwaggerKey": "AuthService"
@@ -283,11 +283,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Admin/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7007
+                    "Host": "127.0.0.1",
+                    "Port": 5007
                 }
             ],
             "SwaggerKey": "AuthService"
@@ -299,11 +299,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/TimeSlot",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -317,11 +317,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/TimeSlot/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -333,11 +333,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Grade",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -351,11 +351,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Grade/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -367,11 +367,11 @@
                 "POST"
             ],
             "DownstreamPathTemplate": "/api/Notice",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -385,11 +385,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Message/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -403,11 +403,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Announcement/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -421,11 +421,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Exam/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -439,11 +439,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Notice/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7008
+                    "Host": "127.0.0.1",
+                    "Port": 5008
                 }
             ],
             "SwaggerKey": "AcademicService"
@@ -456,11 +456,11 @@
                 "DELETE"
             ],
             "DownstreamPathTemplate": "/api/Chat/{everything}",
-            "DownstreamScheme": "https",
+            "DownstreamScheme": "http",
             "DownstreamHostAndPorts": [
                 {
-                    "Host": "localhost",
-                    "Port": 7006
+                    "Host": "127.0.0.1",
+                    "Port": 5006
                 }
             ],
             "SwaggerKey": "AIAssistantService"
@@ -473,7 +473,7 @@
                 {
                     "Name": "Student Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5001/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5001/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -483,7 +483,7 @@
                 {
                     "Name": "Course Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5002/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5002/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -493,7 +493,7 @@
                 {
                     "Name": "Enrollment Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5003/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5003/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -503,7 +503,7 @@
                 {
                     "Name": "Fee Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5004/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5004/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -513,7 +513,7 @@
                 {
                     "Name": "Attendance Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5005/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5005/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -523,7 +523,7 @@
                 {
                     "Name": "AI Assistant Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5006/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5006/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -533,7 +533,7 @@
                 {
                     "Name": "Auth Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5007/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5007/swagger/v1/swagger.json"
                 }
             ]
         },
@@ -543,7 +543,7 @@
                 {
                     "Name": "Academic Service API",
                     "Version": "v1",
-                    "Url": "http://localhost:5008/swagger/v1/swagger.json"
+                    "Url": "http://127.0.0.1:5008/swagger/v1/swagger.json"
                 }
             ]
         }
