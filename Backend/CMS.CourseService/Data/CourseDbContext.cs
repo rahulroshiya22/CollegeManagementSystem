@@ -12,6 +12,7 @@ namespace CMS.CourseService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("cms_courses");
             modelBuilder.Entity<Course>(entity =>
             {
                 entity.HasKey(e => e.CourseId);

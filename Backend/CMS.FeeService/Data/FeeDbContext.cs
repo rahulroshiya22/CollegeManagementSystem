@@ -11,6 +11,7 @@ namespace CMS.FeeService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("cms_fees");
             modelBuilder.Entity<Fee>(entity =>
             {
                 entity.HasKey(e => e.FeeId);

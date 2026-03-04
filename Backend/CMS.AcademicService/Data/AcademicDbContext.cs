@@ -24,6 +24,7 @@ namespace CMS.AcademicService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("cms_academic");
             modelBuilder.Entity<TimeSlot>(entity =>
             {
                 entity.HasKey(e => e.TimeSlotId);

@@ -14,6 +14,7 @@ namespace CMS.StudentService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("cms_students");
             base.OnModelCreating(modelBuilder);
 
             // Student Configuration

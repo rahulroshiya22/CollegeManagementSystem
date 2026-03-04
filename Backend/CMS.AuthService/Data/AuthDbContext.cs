@@ -14,6 +14,7 @@ public class AuthDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+            modelBuilder.HasDefaultSchema("cms_auth");
         base.OnModelCreating(modelBuilder);
 
         // User configuration

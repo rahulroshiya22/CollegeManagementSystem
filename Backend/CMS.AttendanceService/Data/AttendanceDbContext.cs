@@ -10,6 +10,7 @@ namespace CMS.AttendanceService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("cms_attendance");
             modelBuilder.Entity<Attendance>(entity =>
             {
                 entity.HasKey(e => e.AttendanceId);

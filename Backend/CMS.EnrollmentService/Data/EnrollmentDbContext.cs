@@ -11,6 +11,7 @@ namespace CMS.EnrollmentService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasDefaultSchema("cms_enrollments");
             modelBuilder.Entity<Enrollment>(entity =>
             {
                 entity.HasKey(e => e.EnrollmentId);
