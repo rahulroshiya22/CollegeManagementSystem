@@ -549,6 +549,6 @@
         }
     ],
     "GlobalConfiguration": {
-        "BaseUrl": "https://localhost:7000"
+        "BaseUrl": "https://collegemanagementsystem-2gp3.onrender.com"
     }
 }

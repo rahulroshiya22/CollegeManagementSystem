@@ -101,13 +101,10 @@ app.UseSerilogRequestLogging();
 // IMPORTANT: CORS must be one of the first middlewares
 app.UseCors("AllowAll");
 
-if (app.Environment.IsDevelopment())
+app.UseSwaggerForOcelotUI(opt =>
 {
-    app.UseSwaggerForOcelotUI(opt =>
-    {
-        opt.PathToSwaggerGenerator = "/swagger/docs";
-    });
-}
+    opt.PathToSwaggerGenerator = "/swagger/docs";
+});
 
 if (!app.Environment.IsProduction()) app.UseHttpsRedirection();
 
