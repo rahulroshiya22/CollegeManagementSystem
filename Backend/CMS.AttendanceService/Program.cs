@@ -87,7 +87,8 @@ app.UseSerilogRequestLogging();
 
 app.UseCors("AllowAll");
 
-app.UseSwagger();
+app.UseDeveloperExceptionPage();
+		app.UseSwagger();
 app.UseSwaggerUI();
 
 if (!app.Environment.IsProduction()) app.UseHttpsRedirection();

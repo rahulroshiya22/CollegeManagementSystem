@@ -30,9 +30,10 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure pipeline
-if (app.Environment.IsDevelopment())
+if (true)
 {
-    app.UseSwagger();
+    app.UseDeveloperExceptionPage();
+		app.UseSwagger();
     app.UseSwaggerUI();
 }
 

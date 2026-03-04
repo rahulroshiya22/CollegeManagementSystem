@@ -32,9 +32,10 @@ app.Use(async (context, next) =>
 app.UseSerilogRequestLogging();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (true)
 {
-    app.UseSwagger();
+    app.UseDeveloperExceptionPage();
+		app.UseSwagger();
     app.UseSwaggerUI();
 }
 
