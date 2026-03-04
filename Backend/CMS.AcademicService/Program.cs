@@ -1,4 +1,3 @@
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 using CMS.AcademicService.Data;
 using CMS.AcademicService.Services;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +10,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .CreateBootstrapLogger();
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();

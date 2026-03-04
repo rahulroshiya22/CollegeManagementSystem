@@ -1,5 +1,3 @@
-// Fix: Npgsql 8.x requires 'timestamp with time zone' by default, but our Supabase tables use 'timestamp'
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 using CMS.StudentService.Data;
 using CMS.StudentService.Repositories;
@@ -18,6 +16,7 @@ Log.Logger = new LoggerConfiguration()
         .Build())
     .CreateBootstrapLogger();
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 // Use Serilog
