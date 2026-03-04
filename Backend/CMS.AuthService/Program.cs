@@ -131,7 +131,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction()) app.UseHttpsRedirection();
 
 app.UseStaticFiles(); // Enable serving static files (uploaded photos)
 
