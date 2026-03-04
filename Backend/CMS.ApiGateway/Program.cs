@@ -31,21 +31,18 @@ builder.Services.AddSwaggerForOcelot(builder.Configuration,
         o.GenerateDocsForGatewayItSelf = false;
     });
 
-// Bypass SSL cert validation for downstream swagger.json fetching (dev certs)
-if (builder.Environment.IsDevelopment())
+// Bypass SSL cert validation for downstream swagger.json fetching
+builder.Services.ConfigureAll<HttpClientFactoryOptions>(options =>
 {
-    builder.Services.ConfigureAll<HttpClientFactoryOptions>(options =>
+    options.HttpMessageHandlerBuilderActions.Add(b =>
     {
-        options.HttpMessageHandlerBuilderActions.Add(b =>
+        b.PrimaryHandler = new HttpClientHandler
         {
-            b.PrimaryHandler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            };
-        });
+            ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
     });
-}
+});
 
 builder.Services.AddControllers();
 
