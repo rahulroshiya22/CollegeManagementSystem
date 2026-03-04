@@ -163,6 +163,8 @@
             <div class="loading-overlay" id="loadingOverlay">
                 <div class="loader"></div>
             </div>
+            <div id="courseStats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;">
+            </div>
             <div class="course-grid slide-up delay-1" id="courseGrid"></div>
             <div class="empty-state hidden" id="emptyState">
                 <i class="ri-book-line"></i>
@@ -220,7 +222,7 @@
     <script src="../assets/js/app.js"></script>
     <script>
         if (!Auth.requireAuth()) throw 'auth';
-        let allCourses = [], allDepts = [], allEnrollments = [];
+        let allCourses = [], allDepts = [], allEnrollments = [], allTeachers = [], allGrades = [], allAttendance = [];
         const bannerGrads = [
             'linear-gradient(135deg, #6366f1, #8b5cf6)',
             'linear-gradient(135deg, #14b8a6, #06b6d4)',
@@ -235,18 +237,18 @@
         async function loadCourses() {
             document.getElementById('loadingOverlay').style.display = 'flex';
             try {
-                const [courses, depts, enrollments] = await Promise.all([
-                    API.getCourses(),
-                    API.getDepartments(),
-                    API.getEnrollments().catch(() => [])
-                ]);
-                allCourses = Array.isArray(courses) ? courses : [];
-                allDepts = Array.isArray(depts) ? depts : [];
-                allEnrollments = Array.isArray(enrollments) ? enrollments : [];
+                const D = await DataStore.fetchAll(['courses', 'departments', 'enrollments', 'teachers', 'grades', 'attendance', 'timeslots']);
+                allCourses = D.courses;
+                allDepts = D.departments;
+                allEnrollments = D.enrollments;
+                allTeachers = D.teachers;
+                allGrades = D.grades;
+                allAttendance = D.attendance;
                 // Fill dept dropdown
                 document.getElementById('cDeptId').innerHTML = allDepts.map(d =>
                     `<option value="${d.departmentId || d.id}">${d.departmentName || d.name}</option>`
                 ).join('');
+                renderCourseStats();
                 renderCourses(allCourses);
             } catch (e) { Toast.error('Failed: ' + e.message); }
             finally { document.getElementById('loadingOverlay').style.display = 'none'; }
@@ -257,6 +259,18 @@
             return d ? (d.departmentName || d.name) : '—';
         }
 
+        function renderCourseStats() {
+            const totalStudents = new Set(allEnrollments.map(e => e.studentId)).size;
+            const totalCredits = allCourses.reduce((s, c) => s + (c.credits || 0), 0);
+            const avgGradeAll = allGrades.length ? (allGrades.reduce((s, g) => s + (g.marks || 0), 0) / allGrades.length).toFixed(1) : '—';
+            document.getElementById('courseStats').innerHTML = `
+                ${MiniChart.summaryCard('Total Courses', allCourses.length, allDepts.length + ' departments', 'ri-book-open-fill', '#6366f1')}
+                ${MiniChart.summaryCard('Enrolled Students', totalStudents, allEnrollments.length + ' enrollments', 'ri-group-fill', '#14b8a6')}
+                ${MiniChart.summaryCard('Total Credits', totalCredits, 'Avg ' + (allCourses.length ? (totalCredits / allCourses.length).toFixed(1) : 0) + '/course', 'ri-award-fill', '#f59e0b')}
+                ${MiniChart.summaryCard('Avg Grade', avgGradeAll + '%', allGrades.length + ' grades recorded', 'ri-bar-chart-fill', '#f43f5e')}
+            `;
+        }
+
         function renderCourses(courses) {
             const grid = document.getElementById('courseGrid');
             const empty = document.getElementById('emptyState');
@@ -264,10 +278,15 @@
             empty.classList.add('hidden');
             grid.innerHTML = courses.map((c, i) => {
                 const cid = c.courseId || c.id;
-                // #44: Enrolled student count
                 const enrolledCount = allEnrollments.filter(e => e.courseId === cid && (e.status || 'Active') === 'Active').length;
-                // #46: Semester info
-                const semester = c.semester || (c.courseCode ? 'Sem ' + (parseInt(c.courseCode.replace(/[^0-9]/g, '').charAt(0)) || '—') : '—');
+                const teacher = Resolve.teacherForCourse(cid, null, allTeachers);
+                const teacherName = teacher ? `${teacher.firstName || ''} ${teacher.lastName || ''}`.trim() : '—';
+                // Avg grade for this course
+                const courseGrades = allGrades.filter(g => g.courseId === cid);
+                const avgGrade = courseGrades.length ? Math.round(courseGrades.reduce((s, g) => s + (g.marks || 0), 0) / courseGrades.length) : null;
+                // Attendance for this course
+                const courseAtt = allAttendance.filter(a => a.courseId === cid);
+                const attPct = Resolve.attendancePercent(courseAtt);
                 return `
                 <div class="course-card" style="animation-delay:${i * 0.06}s">
                     <div class="course-banner" style="background:${bannerGrads[i % bannerGrads.length]}">
@@ -277,14 +296,19 @@
                     <div class="course-body">
                         <div class="course-code">${c.courseCode || c.code || ''}</div>
                         <div class="course-title">${c.courseName || c.name}</div>
-                        <p class="text-sm text-muted" style="margin-top:6px;">${c.description || 'No description available.'}</p>
+                        <p class="text-sm text-muted" style="margin-top:4px;font-size:0.72rem;">${c.description || 'No description.'}</p>
+                        <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding:8px 0;border-top:1px solid rgba(255,255,255,0.04);">
+                            <div style="width:28px;height:28px;border-radius:8px;background:${Utils.colorByIndex(i)}20;color:${Utils.colorByIndex(i)};display:grid;place-items:center;font-size:0.75rem;"><i class="ri-user-star-fill"></i></div>
+                            <div style="flex:1;"><div style="font-size:0.72rem;font-weight:600;">${teacherName}</div><div style="font-size:0.58rem;color:var(--text-tertiary);">Instructor</div></div>
+                        </div>
                         <div class="course-meta">
                             <div class="course-meta-item"><i class="ri-award-fill" style="color:var(--amber-400);"></i> ${c.credits || 0} Credits</div>
-                            <div class="course-meta-item"><i class="ri-building-2-fill" style="color:var(--teal-400);"></i> ${getDeptName(c.departmentId)}</div>
-                            <!-- #44: Enrolled count -->
                             <div class="course-meta-item"><i class="ri-group-fill" style="color:var(--indigo-400);"></i> ${enrolledCount} Students</div>
-                            <!-- #46: Semester -->
-                            <div class="course-meta-item"><i class="ri-calendar-line" style="color:var(--violet-400);"></i> ${semester}</div>
+                            <div class="course-meta-item"><i class="ri-building-2-fill" style="color:var(--teal-400);"></i> ${getDeptName(c.departmentId)}</div>
+                        </div>
+                        <div style="display:flex;gap:10px;margin-top:10px;">
+                            ${avgGrade != null ? `<div style="flex:1;"><div style="font-size:0.6rem;color:var(--text-tertiary);margin-bottom:2px;">Avg Grade</div>${MiniChart.bar(avgGrade, 100, Utils.gradeColor(avgGrade >= 85 ? 'A' : avgGrade >= 70 ? 'B' : avgGrade >= 55 ? 'C' : 'D'), 5)}<div style="font-size:0.58rem;color:var(--text-secondary);margin-top:2px;">${avgGrade}%</div></div>` : ''}
+                            ${attPct != null ? `<div style="flex:1;"><div style="font-size:0.6rem;color:var(--text-tertiary);margin-bottom:2px;">Attendance</div>${MiniChart.bar(attPct, 100, attPct >= 75 ? '#10b981' : '#f43f5e', 5)}<div style="font-size:0.58rem;color:var(--text-secondary);margin-top:2px;">${attPct}%</div></div>` : ''}
                         </div>
                         <div class="course-actions">
                             <button class="btn btn-ghost btn-sm" onclick="editCourse(${cid})"><i class="ri-edit-line"></i> Edit</button>
@@ -335,9 +359,10 @@
             } catch (e) { Toast.error(e.message); }
         }
         async function deleteCourse(id) {
-            if (!confirm('Delete this course?')) return;
-            try { await API.deleteCourse(id); Toast.success('Deleted!'); loadCourses(); }
-            catch (e) { Toast.error(e.message); }
+            Confirm.show('Delete Course', 'Delete this course? This cannot be undone.', async () => {
+                try { await API.deleteCourse(id); Toast.success('Deleted!'); loadCourses(); }
+                catch (e) { Toast.error(e.message); }
+            }, 'Delete', 'Cancel');
         }
         loadCourses();
     </script>

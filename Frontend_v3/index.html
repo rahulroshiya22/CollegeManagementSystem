@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS V3 | Ethereal Obsidian</title>
+
+    <!-- Fonts: Playfair Display for emphasis, Manrope for data/UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind CSS (via CDN for rapid prototyping) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        obsidian: {
+                            900: '#06070a', // Deepest background
+                            800: '#0b0c10', // Main background
+                            700: '#1f2833', // Surfaces/Cards
+                            600: '#2c394b',
+                        },
+                        ethereal: {
+                            gold: '#d4af37', // Primary Accent
+                            green: '#8a9a5b', // Success
+                            red: '#e2725b', // Alert/Warning
+                        },
+                        glass: 'rgba(31, 40, 51, 0.4)',
+                        glassBorder: 'rgba(255, 255, 255, 0.05)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS Base -->
+    <link rel="stylesheet" href="./assets/css/styles.css">
+
+    <!-- Phosphor Icons (Sleek, modern line icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- GSAP for Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Spline 3D Viewer -->
+    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.9.28/build/spline-viewer.js"></script>
+</head>
+
+<body class="bg-obsidian-800 text-gray-200 antialiased overflow-hidden h-screen flex">
+
+    <!-- Animated Background Mesh (CSS-driven for now, easily upgraded to Three.js) -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-30">
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-ethereal-gold/10 blur-[120px] mix-blend-screen animate-pulse-slow">
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-obsidian-600/30 blur-[150px] mix-blend-screen">
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar"
+        class="relative z-20 w-20 hover:w-64 h-full sidebar-glass flex flex-col transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden group border-r border-glassBorder shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+
+        <!-- Logo Area -->
+        <div class="h-20 flex items-center px-6 min-w-max border-b border-glassBorder">
+            <div
+                class="w-8 h-8 rounded bg-ethereal-gold/20 flex items-center justify-center border border-ethereal-gold/50 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                <i class="ph ph-buildings text-ethereal-gold text-xl"></i>
+            </div>
+            <span
+                class="ml-4 font-serif font-bold text-xl text-white tracking-wide opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">CMS<span
+                    class="text-ethereal-gold">.</span>v3</span>
+        </div>
+
+        <!-- Nav Links -->
+        <nav class="flex-1 py-8 px-4 flex flex-col gap-2 min-w-max">
+            <a href="#"
+                class="nav-item active group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <!-- Active Indicator -->
+                <div
+                    class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-100 shadow-[0_0_10px_rgba(212,175,55,0.5)]">
+                </div>
+                <i
+                    class="ph ph-squares-four text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-ethereal-gold"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Dashboard</span>
+            </a>
+
+            <a href="./pages/students.html"
+                class="nav-item group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <div class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-0"></div>
+                <i class="ph ph-users text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Students</span>
+            </a>
+
+            <a href="#"
+                class="nav-item group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <div class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-0"></div>
+                <i
+                    class="ph ph-chalkboard-teacher text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Teachers</span>
+            </a>
+
+            <a href="#"
+                class="nav-item group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300 mt-auto">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <div class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-0"></div>
+                <i
+                    class="ph ph-gear text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:rotate-90"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Settings</span>
+            </a>
+        </nav>
+
+        <!-- User Profile Area -->
+        <div
+            class="h-20 border-t border-glassBorder flex items-center px-5 min-w-max mt-auto cursor-pointer hover:bg-white/5 transition-colors">
+            <img src="https://i.pravatar.cc/150?img=11" alt="User"
+                class="w-9 h-9 rounded-full border border-glassBorder ring-2 ring-transparent group-hover:ring-ethereal-gold/30 transition-all">
+            <div class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col">
+                <span class="text-sm font-bold text-white leading-tight">Admin User</span>
+                <span class="text-xs text-gray-500">Superadmin</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="relative z-10 flex-1 flex flex-col h-full overflow-hidden">
+
+        <!-- Topbar -->
+        <header
+            class="h-20 flex items-center justify-between px-10 border-b border-glassBorder/50 w-full relative z-20">
+            <div class="flex items-center">
+                <h1 class="font-serif text-3xl font-semibold text-white tracking-wide gs-reveal">Overview</h1>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <!-- Omni Search Trigger -->
+                <button
+                    class="flex items-center bg-obsidian-700/50 border border-glassBorder px-4 py-2 rounded-full hover:bg-obsidian-700 hover:border-ethereal-gold/50 transition-all duration-300 text-sm text-gray-400 group shadow-[0_4px_12px_rgba(0,0,0,0.2)] gs-reveal">
+                    <i class="ph ph-magnifying-glass text-lg mr-2 group-hover:text-ethereal-gold transition-colors"></i>
+                    <span>Search anything...</span>
+                    <span
+                        class="ml-8 border border-gray-600 rounded px-1.5 text-xs text-gray-500 font-mono">Ctrl+K</span>
+                </button>
+
+                <!-- Notifications -->
+                <button class="relative text-gray-400 hover:text-white transition-colors duration-300 gs-reveal">
+                    <i class="ph ph-bell text-2xl"></i>
+                    <!-- Notification Dot -->
+                    <span
+                        class="absolute top-0 right-0 w-2.5 h-2.5 bg-ethereal-red rounded-full border border-obsidian-800 animate-pulse"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Content Canvas -->
+        <div id="page-content" class="flex-1 overflow-y-auto overflow-x-hidden p-10 scrollbar-hide">
+
+            <!-- Welcome Section -->
+            <div class="mb-10 gs-reveal">
+                <h2 class="text-gray-400 text-sm font-medium uppercase tracking-widest mb-1">Thursday, Oct 26</h2>
+                <p class="text-white text-4xl font-light">Welcome back, <span
+                        class="font-serif font-bold text-ethereal-gold">Admin</span>.</p>
+            </div>
+
+            <!-- Dashboard Grid (The Shell) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+
+                <!-- KPI Card 1 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden group gs-reveal delay-1">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-ethereal-gold/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-ethereal-gold/20 transition-all duration-500">
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-obsidian-700 border border-glassBorder flex items-center justify-center">
+                            <i class="ph ph-users text-ethereal-gold text-xl"></i>
+                        </div>
+                        <span
+                            class="text-ethereal-green text-sm flex items-center bg-ethereal-green/10 px-2 py-1 rounded-full"><i
+                                class="ph ph-trend-up mr-1"></i> +12%</span>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-gray-400 text-sm font-medium mb-1">Total Students</h3>
+                        <p class="text-3xl font-bold text-white" id="stat-students">0</p>
+                    </div>
+                </div>
+
+                <!-- KPI Card 2 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden group gs-reveal delay-2">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-ethereal-green/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-ethereal-green/20 transition-all duration-500">
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-obsidian-700 border border-glassBorder flex items-center justify-center">
+                            <i class="ph ph-wallet text-white text-xl"></i>
+                        </div>
+                        <span
+                            class="text-ethereal-green text-sm flex items-center bg-ethereal-green/10 px-2 py-1 rounded-full"><i
+                                class="ph ph-trend-up mr-1"></i> +5.4%</span>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-gray-400 text-sm font-medium mb-1">Revenue</h3>
+                        <p class="text-3xl font-bold text-white" id="stat-revenue">₹0</p>
+                    </div>
+                </div>
+
+                <!-- KPI Card 3 -->
+                <div class="glass-card rounded-2xl p-6 relative overflow-hidden group gs-reveal delay-3">
+                    <div
+                        class="absolute top-0 right-0 w-32 h-32 bg-ethereal-red/10 rounded-full blur-2xl -mr-10 -mt-10 group-hover:bg-ethereal-red/20 transition-all duration-500">
+                    </div>
+                    <div class="flex justify-between items-start mb-4 relative z-10">
+                        <div
+                            class="w-10 h-10 rounded-lg bg-obsidian-700 border border-glassBorder flex items-center justify-center">
+                            <i class="ph ph-warning-circle text-ethereal-red text-xl"></i>
+                        </div>
+                        <span class="text-gray-500 text-sm flex items-center bg-white/5 px-2 py-1 rounded-full">Requires
+                            Attention</span>
+                    </div>
+                    <div class="relative z-10">
+                        <h3 class="text-gray-400 text-sm font-medium mb-1">Pending Fees (Alert)</h3>
+                        <p class="text-3xl font-bold text-white">42</p>
+                    </div>
+                </div>
+
+                <!-- KPI Card 4 -->
+                <div
+                    class="glass-card rounded-2xl p-6 relative overflow-hidden group flex flex-col justify-center items-center cursor-pointer hover:border-ethereal-gold/40 transition-all duration-300 gs-reveal delay-4">
+                    <div
+                        class="w-12 h-12 rounded-full border-2 border-dashed border-gray-600 flex items-center justify-center mb-3 group-hover:border-ethereal-gold group-hover:text-ethereal-gold transition-all duration-300">
+                        <i
+                            class="ph ph-plus text-xl text-gray-500 group-hover:text-ethereal-gold transition-colors"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-400 group-hover:text-white transition-colors">Add
+                        Widget</span>
+                </div>
+
+            </div>
+
+            <!-- Large Main Area Placeholder -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 glass-card rounded-2xl min-h-[400px] p-6 flex flex-col gs-reveal delay-5">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-white font-serif">Revenue Snapshot (Interactive)</h3>
+                        <button class="text-gray-400 hover:text-white"><i
+                                class="ph ph-dots-three-circle text-2xl"></i></button>
+                    </div>
+                    <div
+                        class="flex-1 relative border border-solid border-glassBorder rounded-xl overflow-hidden flex items-center justify-center bg-obsidian-800/20">
+                        <!-- Spline Background (Absolute to fill) -->
+                        <div
+                            class="absolute right-0 top-0 bottom-0 w-1/2 z-0 opacity-50 mix-blend-screen pointer-events-none">
+                            <spline-viewer
+                                url="https://prod.spline.design/6Wq1Q7YGyM-iab9i/scene.splinecode"></spline-viewer>
+                        </div>
+
+                        <!-- Chart JS Canvas (Relative to sit on top) -->
+                        <div class="relative z-10 w-full h-full p-4 flex items-center justify-center">
+                            <canvas id="revenueChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl min-h-[400px] p-6 flex flex-col gs-reveal delay-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-lg font-bold text-white font-serif">Quick Actions</h3>
+                    </div>
+                    <div class="flex-1 flex flex-col gap-3">
+                        <!-- Action Items -->
+                        <button
+                            class="flex items-center justify-between p-4 rounded-xl bg-obsidian-700/50 hover:bg-obsidian-700 border border-transparent hover:border-glassBorder transition-all group">
+                            <div class="flex items-center">
+                                <i class="ph ph-user-plus text-xl text-ethereal-gold mr-3"></i>
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white">Enroll
+                                    Student</span>
+                            </div>
+                            <i
+                                class="ph ph-caret-right text-gray-600 group-hover:translate-x-1 group-hover:text-ethereal-gold transition-all"></i>
+                        </button>
+
+                        <button
+                            class="flex items-center justify-between p-4 rounded-xl bg-obsidian-700/50 hover:bg-obsidian-700 border border-transparent hover:border-glassBorder transition-all group">
+                            <div class="flex items-center">
+                                <i class="ph ph-receipt text-xl text-ethereal-gold mr-3"></i>
+                                <span class="text-sm font-medium text-gray-300 group-hover:text-white">Generate
+                                    Invoice</span>
+                            </div>
+                            <i
+                                class="ph ph-caret-right text-gray-600 group-hover:translate-x-1 group-hover:text-ethereal-gold transition-all"></i>
+                        </button>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Data Grid Area (Students List Preview) -->
+            <div class="mt-10 gs-reveal delay-7">
+                <div class="flex justify-between items-end mb-4">
+                    <h3 class="text-xl font-bold text-white font-serif">Recent Enrollments</h3>
+                    <div class="flex gap-2">
+                        <!-- Filters -->
+                        <button
+                            class="bg-obsidian-700/50 border border-glassBorder hover:border-ethereal-gold px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 transition-all">
+                            <i class="ph ph-funnel text-gray-400"></i> Filter
+                        </button>
+                        <button
+                            class="bg-obsidian-700/50 border border-glassBorder hover:border-ethereal-gold px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 transition-all">
+                            <i class="ph ph-export text-gray-400"></i> Export
+                        </button>
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl overflow-hidden border border-glassBorder">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="bg-obsidian-900/40 text-gray-400 text-sm uppercase tracking-wider border-b border-glassBorder">
+                                    <th class="py-4 px-6 font-medium">Student</th>
+                                    <th class="py-4 px-6 font-medium">Department</th>
+                                    <th class="py-4 px-6 font-medium">Status</th>
+                                    <th class="py-4 px-6 font-medium text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-gray-300">
+                                <tr
+                                    class="border-b border-glassBorder/50 hover:bg-obsidian-700/30 transition-colors group cursor-pointer">
+                                    <td class="py-4 px-6 flex items-center gap-4">
+                                        <img src="https://i.pravatar.cc/150?img=12"
+                                            class="w-10 h-10 rounded-full border border-glassBorder">
+                                        <div>
+                                            <p
+                                                class="text-white font-medium group-hover:text-ethereal-gold transition-colors">
+                                                Arjun Kumar</p>
+                                            <p class="text-xs text-gray-500">B.Tech CS • Sem 3</p>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-6 text-sm">Computer Science</td>
+                                    <td class="py-4 px-6">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-ethereal-green/10 text-ethereal-green border border-ethereal-green/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-ethereal-green"></span> Active
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <button class="text-gray-500 hover:text-ethereal-gold transition-colors p-2"><i
+                                                class="ph ph-dots-three text-xl"></i></button>
+                                    </td>
+                                </tr>
+                                <tr
+                                    class="border-b border-glassBorder/50 hover:bg-obsidian-700/30 transition-colors group cursor-pointer">
+                                    <td class="py-4 px-6 flex items-center gap-4">
+                                        <img src="https://i.pravatar.cc/150?img=5"
+                                            class="w-10 h-10 rounded-full border border-glassBorder">
+                                        <div>
+                                            <p
+                                                class="text-white font-medium group-hover:text-ethereal-gold transition-colors">
+                                                Priya Sharma</p>
+                                            <p class="text-xs text-gray-500">B.Sc Physics • Sem 1</p>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-6 text-sm">Physics</td>
+                                    <td class="py-4 px-6">
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-ethereal-red/10 text-ethereal-red border border-ethereal-red/20">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-ethereal-red"></span> Fees Pending
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-right">
+                                        <button class="text-gray-500 hover:text-ethereal-gold transition-colors p-2"><i
+                                                class="ph ph-dots-three text-xl"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Overlays & Modals (Hidden by default, triggered via GSAP) -->
+
+        <!-- 1. Omni Search Palette (Ctrl + K) -->
+        <div id="omni-search"
+            class="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] opacity-0 pointer-events-none">
+            <!-- Blur Backdrop (Separate element for better GSAP control) -->
+            <div class="absolute inset-0 bg-obsidian-900/60 backdrop-blur-md" id="omni-backdrop"></div>
+
+            <div class="relative w-full max-w-2xl glass-card rounded-2xl border flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform scale-95"
+                id="omni-modal">
+                <div class="flex items-center px-6 py-4 border-b border-glassBorder bg-obsidian-800/80">
+                    <i class="ph ph-magnifying-glass text-ethereal-gold text-2xl mr-4"></i>
+                    <input type="text" placeholder="Search pages, students, or commands... (e.g. 'Rahul')"
+                        class="w-full bg-transparent border-none outline-none text-white text-lg placeholder-gray-500 font-sans"
+                        id="omni-input">
+                    <button id="omni-close"
+                        class="text-gray-500 hover:text-white transition-colors bg-white/5 rounded px-2 py-1 text-xs font-mono ml-4">ESC</button>
+                </div>
+                <!-- Search Results Skeleton -->
+                <div class="flex-1 max-h-[40vh] overflow-y-auto p-2 bg-obsidian-900/50">
+                    <div class="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Suggestions
+                    </div>
+
+                    <a href="#"
+                        class="flex items-center px-4 py-3 mx-2 rounded-xl hover:bg-obsidian-700 transition-colors group">
+                        <div
+                            class="w-8 h-8 rounded bg-obsidian-600 flex items-center justify-center mr-4 group-hover:bg-ethereal-gold/20 group-hover:text-ethereal-gold transition-colors">
+                            <i class="ph ph-user"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white text-sm">Rahul Roshiya</p>
+                            <p class="text-xs text-gray-500">Student • Roll 104 • Dept: CS</p>
+                        </div>
+                        <i
+                            class="ph ph-arrow-right text-gray-600 group-hover:text-ethereal-gold opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i>
+                    </a>
+
+                    <a href="#"
+                        class="flex items-center px-4 py-3 mx-2 rounded-xl hover:bg-obsidian-700 transition-colors group mt-1">
+                        <div
+                            class="w-8 h-8 rounded bg-obsidian-600 flex items-center justify-center mr-4 group-hover:bg-ethereal-gold/20 group-hover:text-ethereal-gold transition-colors">
+                            <i class="ph ph-file-text"></i>
+                        </div>
+                        <div class="flex-1">
+                            <p class="text-white text-sm">Generate Fee Report</p>
+                            <p class="text-xs text-gray-500">Action • Finances</p>
+                        </div>
+                        <i
+                            class="ph ph-arrow-right text-gray-600 group-hover:text-ethereal-gold opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0"></i>
+                    </a>
+                </div>
+                <div
+                    class="px-6 py-3 border-t border-glassBorder bg-obsidian-800/80 text-xs text-gray-500 flex justify-between items-center">
+                    <span><i class="ph ph-arrows-down-up mr-1 text-gray-400"></i> to navigate</span>
+                    <span><i class="ph ph-key-return mr-1 text-gray-400"></i> to select</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Detailed Profile Drawer (Slide in from right) -->
+        <div id="side-drawer-container" class="fixed inset-0 z-40 flex justify-end opacity-0 pointer-events-none">
+            <!-- Overlay -->
+            <div id="drawer-overlay" class="absolute inset-0 bg-obsidian-900/40 backdrop-blur-sm"></div>
+
+            <!-- Drawer -->
+            <div id="side-drawer"
+                class="relative w-full max-w-md h-full bg-obsidian-800 border-l border-glassBorder shadow-[-10px_0_40px_rgba(0,0,0,0.5)] flex flex-col translate-x-full">
+                <!-- Header Component -->
+                <div class="relative h-48 bg-gradient-to-br from-obsidian-600 to-obsidian-800 overflow-hidden">
+                    <div class="absolute inset-0 bg-ethereal-gold/10 mix-blend-overlay"></div>
+                    <button id="close-drawer"
+                        class="absolute top-6 left-6 w-8 h-8 rounded-full bg-black/40 hover:bg-black/80 flex items-center justify-center text-white backdrop-blur-md transition-colors z-10">
+                        <i class="ph ph-x"></i>
+                    </button>
+                    <!-- Floating Actions -->
+                    <div class="absolute top-6 right-6 flex gap-2 z-10">
+                        <button
+                            class="w-8 h-8 rounded-full bg-black/40 hover:bg-ethereal-gold hover:text-obsidian-900 flex items-center justify-center text-white backdrop-blur-md transition-colors"><i
+                                class="ph ph-pencil-simple"></i></button>
+                        <button
+                            class="w-8 h-8 rounded-full bg-black/40 hover:bg-ethereal-red hover:text-white flex items-center justify-center text-white backdrop-blur-md transition-colors"><i
+                                class="ph ph-trash"></i></button>
+                    </div>
+                    <!-- Avatar Offset -->
+                    <div
+                        class="absolute -bottom-12 left-8 p-1 bg-obsidian-800 rounded-full border border-glassBorder shadow-lg">
+                        <img src="https://i.pravatar.cc/150?img=12" class="w-24 h-24 rounded-full object-cover">
+                    </div>
+                </div>
+
+                <!-- Form / Data Area -->
+                <div class="flex-1 overflow-y-auto pt-16 px-8 pb-8 scrollbar-hide">
+                    <h2 class="text-2xl font-serif font-bold text-white mb-1">Arjun Kumar</h2>
+                    <p class="text-sm text-ethereal-gold mb-6 flex items-center"><i
+                            class="ph ph-identification-card mr-2"></i> B.Tech CS • 2nd Year</p>
+
+                    <!-- Tabs -->
+                    <div class="flex border-b border-glassBorder mb-6">
+                        <button
+                            class="px-4 py-2 text-sm font-medium text-ethereal-gold border-b-2 border-ethereal-gold">Overview</button>
+                        <button
+                            class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-white transition-colors">Academics</button>
+                        <button
+                            class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-white transition-colors">Fees</button>
+                    </div>
+
+                    <!-- Metrics -->
+                    <div class="grid grid-cols-2 gap-4 mb-8">
+                        <div class="bg-obsidian-700/50 p-4 rounded-xl border border-glassBorder">
+                            <span class="text-xs text-gray-500 block mb-1">Attendance</span>
+                            <div class="flex items-end gap-2">
+                                <span class="text-2xl font-bold text-white leading-none">85%</span>
+                                <span class="text-xs text-ethereal-green mb-0.5"><i class="ph ph-trend-up"></i></span>
+                            </div>
+                        </div>
+                        <div class="bg-obsidian-700/50 p-4 rounded-xl border border-glassBorder">
+                            <span class="text-xs text-gray-500 block mb-1">Latest Grade</span>
+                            <div class="flex items-end gap-2">
+                                <span class="text-2xl font-bold text-white leading-none">A-</span>
+                                <span class="text-xs text-gray-400 mb-0.5">Sem 2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details List -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center py-2 border-b border-glassBorder/50">
+                            <span class="text-sm text-gray-500">Student ID</span>
+                            <span class="text-sm text-white font-mono bg-white/5 px-2 py-0.5 rounded">R-10492</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-glassBorder/50">
+                            <span class="text-sm text-gray-500">Email</span>
+                            <span class="text-sm text-white">arjun.k@college.edu</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-glassBorder/50">
+                            <span class="text-sm text-gray-500">Phone</span>
+                            <span class="text-sm text-white">+91 98765 43210</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-glassBorder/50">
+                            <span class="text-sm text-gray-500">Enrollment Date</span>
+                            <span class="text-sm text-white">Aug 14, 2024</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-glassBorder/50">
+                            <span class="text-sm text-gray-500">Account Status</span>
+                            <span
+                                class="text-xs bg-ethereal-green/10 text-ethereal-green px-2 py-1 rounded border border-ethereal-green/30">Active</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Action -->
+                <div class="p-6 border-t border-glassBorder bg-obsidian-800/80">
+                    <button
+                        class="w-full py-3 rounded-lg bg-obsidian-600 hover:bg-ethereal-gold text-white hover:text-obsidian-900 font-bold transition-all flex items-center justify-center group shadow-[0_0_15px_rgba(212,175,55,0)] hover:shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+                        <i class="ph ph-chat-teardrop-text mr-2 text-xl group-hover:-mt-1 transition-all"></i> Send
+                        Message
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Custom JavaScript -->
+    <script src="./assets/js/api.js"></script>
+    <script src="./assets/js/main.js"></script>
+</body>
+
+</html>

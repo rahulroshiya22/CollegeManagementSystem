@@ -1,0 +1,6 @@
+@CMS.EnrollmentService_HostAddress = http://localhost:5230
+
+GET {{CMS.EnrollmentService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

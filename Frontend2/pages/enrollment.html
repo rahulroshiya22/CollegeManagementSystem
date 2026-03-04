@@ -8,143 +8,368 @@
     <link rel="stylesheet" href="../assets/css/core.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
     <style>
-        .enroll-layout {
+        /* ─── Stats ─── */
+        .en-stats {
             display: grid;
-            grid-template-columns: 380px 1fr;
-            gap: 24px;
-        }
-
-        .enroll-form-card {
-            position: sticky;
-            top: 100px;
-            align-self: start;
-        }
-
-        .enroll-form-card h3 {
-            margin-bottom: var(--space-5);
-        }
-
-        .enroll-list-card h4 {
-            margin-bottom: var(--space-4);
-        }
-
-        .enroll-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 14px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-        }
-
-        .enroll-item:last-child {
-            border-bottom: none;
-        }
-
-        .enroll-left {
-            display: flex;
-            gap: 14px;
-            align-items: center;
-        }
-
-        .enroll-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            display: grid;
-            place-items: center;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .enroll-info .e-name {
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .enroll-info .e-meta {
-            font-size: 0.75rem;
-            color: var(--text-tertiary);
-        }
-
-        .arrow-icon {
-            font-size: 1.2rem;
-            color: var(--text-tertiary);
-        }
-
-        .loading-overlay {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .loader {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--border-subtle);
-            border-top-color: var(--indigo-500);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @media (max-width: 900px) {
-            .enroll-layout {
-                grid-template-columns: 1fr;
-            }
-
-            .enroll-form-card {
-                position: static;
-            }
-        }
-
-        /* #39: Stats cards */
-        .enroll-stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 14px;
             margin-bottom: 24px;
         }
 
-        .enroll-stat-card {
+        .en-stat {
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-xl);
             padding: 18px;
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
-        .enroll-stat-card .esv {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: var(--text-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .en-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-md);
+            display: grid;
+            place-items: center;
+            font-size: 1.15rem;
+            flex-shrink: 0;
         }
 
-        .enroll-stat-card .esl {
-            font-size: 0.7rem;
+        .en-stat .label {
+            font-size: .65rem;
             color: var(--text-tertiary);
-            margin-top: 4px;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: .06em;
+        }
+
+        .en-stat .value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-top: 2px;
+        }
+
+        /* ─── Toolbar ─── */
+        .en-toolbar {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .en-toolbar .search-box {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 0 14px;
+        }
+
+        .en-toolbar .search-box i {
+            color: var(--text-tertiary);
+        }
+
+        .en-toolbar .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            padding: 10px 0;
+            font-size: .88rem;
+        }
+
+        .en-toolbar select {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-lg);
+            font-size: .85rem;
+            min-width: 160px;
+        }
+
+        /* ─── Table ─── */
+        .en-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .en-table thead th {
+            text-align: left;
+            padding: 12px 14px;
+            font-size: .7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            color: var(--text-tertiary);
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .en-table thead th:hover {
+            color: var(--text-secondary);
+        }
+
+        .en-table thead th i {
+            margin-left: 4px;
+            font-size: .6rem;
+        }
+
+        .en-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, .03);
+            transition: background .15s;
+        }
+
+        .en-table tbody tr:hover {
+            background: rgba(255, 255, 255, .03);
+        }
+
+        .en-table td {
+            padding: 12px 14px;
+            font-size: .85rem;
+            vertical-align: middle;
+        }
+
+        .en-table .student-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .en-table .student-cell .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: .7rem;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .en-table .student-cell .name {
+            font-weight: 600;
+        }
+
+        .en-table .student-cell .email {
+            font-size: .72rem;
+            color: var(--text-tertiary);
+        }
+
+        .en-table .course-cell .course-name {
+            font-weight: 600;
+        }
+
+        .en-table .course-cell .course-code {
+            font-size: .68rem;
+            color: var(--text-tertiary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .en-table .att-bar {
+            width: 60px;
+            height: 5px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 3px;
+        }
+
+        .en-table .att-bar div {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .en-table .actions-cell {
+            text-align: right;
+        }
+
+        .en-table .actions-cell button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--text-tertiary);
+            font-size: .95rem;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: all .15s;
+        }
+
+        .en-table .actions-cell button:hover {
+            background: rgba(244, 63, 94, .1);
+            color: var(--rose-400);
+        }
+
+        .badge-status {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .68rem;
+            font-weight: 600;
         }
 
         .badge-active {
-            background: rgba(52, 211, 153, 0.15);
+            background: rgba(52, 211, 153, .15);
             color: var(--emerald-400);
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 600;
         }
 
         .badge-dropped {
-            background: rgba(248, 113, 113, 0.15);
+            background: rgba(244, 63, 94, .15);
             color: var(--rose-400);
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.7rem;
+        }
+
+        /* ─── Enroll Modal ─── */
+        .enroll-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            backdrop-filter: blur(6px);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .enroll-modal.active {
+            display: flex;
+        }
+
+        .enroll-form-box {
+            background: #12122a;
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-2xl);
+            padding: 28px;
+            width: min(440px, 92vw);
+            box-shadow: var(--shadow-xl);
+            animation: confirmPop .2s var(--ease-spring);
+        }
+
+        .enroll-form-box h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .enroll-form-box h3 i {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, .15);
+            color: var(--indigo-400);
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+        }
+
+        .ef-group {
+            margin-bottom: 16px;
+        }
+
+        .ef-group label {
+            display: block;
+            font-size: .72rem;
             font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .ef-group select {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: .88rem;
+            font-family: inherit;
+        }
+
+        .ef-group select:focus {
+            border-color: var(--indigo-500);
+            outline: none;
+        }
+
+        .ef-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* ─── Pagination ─── */
+        .en-pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            font-size: .78rem;
+            color: var(--text-tertiary);
+        }
+
+        .en-pagination .page-btns {
+            display: flex;
+            gap: 4px;
+        }
+
+        .en-pagination .page-btns button {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: .78rem;
+            cursor: pointer;
+        }
+
+        .en-pagination .page-btns button:hover {
+            background: var(--bg-glass-hover);
+        }
+
+        .en-pagination .page-btns button.active {
+            background: var(--indigo-500);
+            border-color: var(--indigo-500);
+        }
+
+        .en-pagination .page-btns button:disabled {
+            opacity: .3;
+            cursor: default;
+        }
+
+        /* ─── Empty ─── */
+        .en-empty {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-tertiary);
+        }
+
+        .en-empty i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            display: block;
+            opacity: .3;
+        }
+
+        .en-empty h4 {
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        @media(max-width:768px) {
+            .en-stats {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
@@ -156,17 +381,16 @@
             <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
         </a>
         <nav class="header-nav" id="mainNav">
-            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
-            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
-            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
-            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
-            <a href="timetable.html" data-tip="Timetable"><i class="ri-calendar-2-line"></i> Timetable</a>
-            <a href="enrollment.html" class="active" data-tip="Enrollment"><i class="ri-file-list-3-line"></i>
-                Enrollment</a>
-            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
-            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
-            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
-            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+            <a href="dashboard.html"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html" class="active"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html"><i class="ri-mail-line"></i> Messages</a>
         </nav>
         <div class="header-actions">
             <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"><i
@@ -179,144 +403,295 @@
 
     <main class="page-wrapper">
         <div class="container">
-            <div class="slide-up" style="margin-bottom:var(--space-8);">
-                <h1><i class="ri-file-list-3-fill" style="color:var(--amber-400);"></i> Enrollment Management</h1>
-                <p class="text-sm text-muted mt-2">Enroll students in courses and manage registrations</p>
+            <!-- Header -->
+            <div class="slide-up"
+                style="margin-bottom:var(--space-6);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                <div style="flex:1;">
+                    <h1><i class="ri-file-list-3-fill" style="color:var(--amber-400);"></i> Enrollment Management</h1>
+                    <p class="text-sm text-muted mt-2">Manage student-course enrollments across all departments</p>
+                </div>
+                <button class="btn btn-primary" onclick="openEnrollModal()">
+                    <i class="ri-user-add-line"></i> Enroll Student
+                </button>
             </div>
 
-            <!-- #39: Stats cards -->
-            <div class="enroll-stats slide-up delay-1" id="enrollStats"></div>
+            <!-- Stats -->
+            <div class="en-stats slide-up delay-1" id="statsRow"></div>
 
-            <div class="enroll-layout">
-                <!-- Enroll Form -->
-                <div class="glass-card enroll-form-card slide-up delay-1">
-                    <h3><i class="ri-add-circle-fill" style="color:var(--indigo-400);"></i> New Enrollment</h3>
-                    <div class="form-group">
-                        <label class="form-label">Student</label>
-                        <select class="form-select" id="enrollStudent"></select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Course</label>
-                        <select class="form-select" id="enrollCourse"></select>
-                    </div>
-                    <button class="btn btn-primary w-full" onclick="createEnrollment()">
-                        <i class="ri-check-line"></i> Enroll Student
-                    </button>
+            <!-- Toolbar -->
+            <div class="en-toolbar slide-up delay-2">
+                <div class="search-box">
+                    <i class="ri-search-line"></i>
+                    <input type="text" id="searchInput" placeholder="Search students, courses..."
+                        oninput="renderTable()">
                 </div>
+                <select id="filterCourse" onchange="renderTable()">
+                    <option value="all">All Courses</option>
+                </select>
+                <select id="filterStatus" onchange="renderTable()">
+                    <option value="all">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Dropped">Dropped</option>
+                </select>
+            </div>
 
-                <!-- Enrollment List -->
-                <div class="glass-card enroll-list-card slide-up delay-2">
-                    <div class="flex items-center justify-between mb-4">
-                        <h4>Recent Enrollments</h4>
-                        <span class="badge badge-indigo" id="enrollCount">0</span>
-                    </div>
-                    <div class="loading-overlay" id="loadingOverlay">
-                        <div class="loader"></div>
-                    </div>
-                    <div id="enrollList"></div>
-                    <div class="empty-state hidden" id="emptyState" style="padding:40px 20px;">
-                        <i class="ri-file-list-3-line"></i>
-                        <h4>No enrollments yet</h4>
-                    </div>
+            <!-- Table -->
+            <div class="glass-card slide-up delay-3" style="padding:0;overflow-x:auto;">
+                <table class="en-table" id="enrollTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortBy('student')">Student <i class="ri-arrow-up-down-line"></i></th>
+                            <th onclick="sortBy('course')">Course <i class="ri-arrow-up-down-line"></i></th>
+                            <th onclick="sortBy('teacher')">Teacher</th>
+                            <th onclick="sortBy('date')">Enrolled <i class="ri-arrow-up-down-line"></i></th>
+                            <th>Attendance</th>
+                            <th onclick="sortBy('status')">Status <i class="ri-arrow-up-down-line"></i></th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div class="en-empty hidden" id="emptyState">
+                    <i class="ri-file-list-3-line"></i>
+                    <h4>No enrollments found</h4>
+                    <p class="text-sm text-muted">Try adjusting your filters or enroll a student</p>
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <div class="en-pagination slide-up delay-4" id="pagination"></div>
+
             <div style="height:60px;"></div>
         </div>
     </main>
+
+    <!-- Enroll Modal -->
+    <div class="enroll-modal" id="enrollModal">
+        <div class="enroll-form-box">
+            <h3><i class="ri-user-add-fill"></i> New Enrollment</h3>
+            <div class="ef-group">
+                <label>Student</label>
+                <select id="enrollStudent"></select>
+            </div>
+            <div class="ef-group">
+                <label>Course</label>
+                <select id="enrollCourse"></select>
+            </div>
+            <div class="ef-actions">
+                <button class="btn btn-ghost" onclick="closeEnrollModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createEnrollment()"><i class="ri-check-line"></i>
+                    Enroll</button>
+            </div>
+        </div>
+    </div>
 
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/app.js"></script>
     <script>
         if (!Auth.requireAuth()) throw 'auth';
-        let students = [], courses = [], enrollments = [];
-        const colors = ['rgba(99,102,241,0.15)', 'rgba(20,184,166,0.15)', 'rgba(244,63,94,0.15)', 'rgba(245,158,11,0.15)', 'rgba(16,185,129,0.15)', 'rgba(217,70,239,0.15)'];
-        const iconColors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--rose-400)', 'var(--amber-400)', 'var(--emerald-400)', 'var(--fuchsia-400)'];
+
+        let students = [], courses = [], enrollments = [], timeslots = [], teachers = [], attendance = [], fees = [];
+        const avatarColors = ['#6366f1', '#8b5cf6', '#14b8a6', '#f43f5e', '#f59e0b', '#0ea5e9', '#10b981', '#d946ef'];
+        let sortField = 'date', sortDir = -1;
+        let page = 1;
+        const perPage = 15;
 
         async function loadData() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
             try {
-                const [s, c, e] = await Promise.all([API.getStudents(), API.getCourses(), API.getEnrollments()]);
-                students = Array.isArray(s) ? s : (s || []);
-                courses = Array.isArray(c) ? c : [];
-                enrollments = Array.isArray(e) ? e : [];
-
-                document.getElementById('enrollStudent').innerHTML = students.map(x =>
-                    `<option value="${x.studentId || x.id}">${x.firstName} ${x.lastName}</option>`
-                ).join('');
-                document.getElementById('enrollCourse').innerHTML = courses.map(x =>
-                    `<option value="${x.courseId || x.id}">${x.courseName || x.name} (${x.courseCode || x.code})</option>`
-                ).join('');
-
-                renderEnrollments();
-            } catch (e) { Toast.error(e.message); }
-            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
+                const D = await DataStore.fetchAll(['students', 'courses', 'enrollments', 'timeslots', 'teachers', 'attendance', 'fees']);
+                students = D.students; courses = D.courses; enrollments = D.enrollments;
+                timeslots = D.timeslots; teachers = D.teachers; attendance = D.attendance; fees = D.fees;
+                populateFilters();
+                renderStats();
+                renderTable();
+            } catch (e) { Toast.error('Load failed: ' + e.message); }
         }
 
-        function renderEnrollments() {
-            const list = document.getElementById('enrollList');
+        function populateFilters() {
+            const cSel = document.getElementById('filterCourse');
+            courses.forEach(c => { cSel.add(new Option(`${c.courseCode || c.code} — ${c.courseName || c.name}`, c.courseId || c.id)); });
+            const sSel = document.getElementById('enrollStudent');
+            sSel.innerHTML = '<option value="">Select student...</option>' + students.map(s =>
+                `<option value="${s.studentId || s.id}">${s.firstName} ${s.lastName} (${s.email || ''})</option>`
+            ).join('');
+            const ecSel = document.getElementById('enrollCourse');
+            ecSel.innerHTML = '<option value="">Select course...</option>' + courses.map(c =>
+                `<option value="${c.courseId || c.id}">${c.courseCode || c.code} — ${c.courseName || c.name}</option>`
+            ).join('');
+        }
+
+        function renderStats() {
+            const total = enrollments.length;
+            const uniqueS = new Set(enrollments.map(e => e.studentId)).size;
+            const uniqueC = new Set(enrollments.map(e => e.courseId)).size;
+            const active = enrollments.filter(e => (e.status || 'Active') === 'Active').length;
+            const avgPerCourse = uniqueC ? Math.round(total / uniqueC) : 0;
+            document.getElementById('statsRow').innerHTML = `
+                <div class="en-stat"><div class="en-stat-icon" style="background:rgba(99,102,241,.15);color:var(--indigo-400);"><i class="ri-file-list-3-line"></i></div><div><div class="label">Total</div><div class="value">${total}</div></div></div>
+                <div class="en-stat"><div class="en-stat-icon" style="background:rgba(16,185,129,.15);color:var(--emerald-400);"><i class="ri-check-double-line"></i></div><div><div class="label">Active</div><div class="value">${active}</div></div></div>
+                <div class="en-stat"><div class="en-stat-icon" style="background:rgba(20,184,166,.15);color:var(--teal-400);"><i class="ri-group-line"></i></div><div><div class="label">Students</div><div class="value">${uniqueS}</div></div></div>
+                <div class="en-stat"><div class="en-stat-icon" style="background:rgba(217,70,239,.15);color:var(--fuchsia-400);"><i class="ri-book-open-line"></i></div><div><div class="label">Courses</div><div class="value">${uniqueC}</div></div></div>
+                <div class="en-stat"><div class="en-stat-icon" style="background:rgba(245,158,11,.15);color:var(--amber-400);"><i class="ri-bar-chart-fill"></i></div><div><div class="label">Avg/Course</div><div class="value">${avgPerCourse}</div></div></div>
+            `;
+        }
+
+        // ─── Helpers ───
+        function studentObj(id) { return students.find(s => (s.studentId || s.id) === id); }
+        function courseObj(id) { return courses.find(c => (c.courseId || c.id) === id); }
+        function teacherForCourse(cid) {
+            const slot = timeslots.find(s => s.courseId === cid && s.teacherId);
+            if (!slot) return '—';
+            const t = teachers.find(x => (x.teacherId || x.id) === slot.teacherId);
+            if (!t) return '—';
+            return t.firstName ? `${t.firstName} ${t.lastName || ''}`.trim() : (t.displayName || '—');
+        }
+        function attPercent(sid, cid) {
+            const recs = attendance.filter(a => a.studentId === sid && a.courseId === cid);
+            if (!recs.length) return null;
+            const present = recs.filter(r => r.status === 'Present' || r.isPresent).length;
+            return Math.round((present / recs.length) * 100);
+        }
+        function avatarColor(name) { return avatarColors[(name || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) % avatarColors.length]; }
+
+        // ─── Filtering + Sorting ───
+        function getFiltered() {
+            const q = (document.getElementById('searchInput').value || '').toLowerCase();
+            const fc = document.getElementById('filterCourse').value;
+            const fs = document.getElementById('filterStatus').value;
+            let list = enrollments.map(e => {
+                const s = studentObj(e.studentId);
+                const c = courseObj(e.courseId);
+                return {
+                    ...e, _student: s, _course: c,
+                    _sName: s ? `${s.firstName} ${s.lastName}` : '',
+                    _cName: c ? (c.courseName || c.name) : '',
+                    _cCode: c ? (c.courseCode || c.code) : '',
+                    _teacher: teacherForCourse(e.courseId),
+                    _att: attPercent(e.studentId, e.courseId),
+                    _status: e.status || 'Active',
+                };
+            });
+            if (q) list = list.filter(e => e._sName.toLowerCase().includes(q) || e._cName.toLowerCase().includes(q) || e._cCode.toLowerCase().includes(q) || e._teacher.toLowerCase().includes(q));
+            if (fc !== 'all') list = list.filter(e => e.courseId == fc);
+            if (fs !== 'all') list = list.filter(e => e._status === fs);
+
+            // Sort
+            list.sort((a, b) => {
+                let va, vb;
+                if (sortField === 'student') { va = a._sName; vb = b._sName; }
+                else if (sortField === 'course') { va = a._cName; vb = b._cName; }
+                else if (sortField === 'teacher') { va = a._teacher; vb = b._teacher; }
+                else if (sortField === 'date') { va = a.enrollmentDate || a.createdAt || ''; vb = b.enrollmentDate || b.createdAt || ''; }
+                else if (sortField === 'status') { va = a._status; vb = b._status; }
+                else { va = ''; vb = ''; }
+                if (va < vb) return -1 * sortDir;
+                if (va > vb) return 1 * sortDir;
+                return 0;
+            });
+            return list;
+        }
+
+        function sortBy(field) {
+            if (sortField === field) sortDir *= -1;
+            else { sortField = field; sortDir = 1; }
+            renderTable();
+        }
+
+        // ─── Render Table ───
+        function renderTable() {
+            const filtered = getFiltered();
+            const totalPages = Math.ceil(filtered.length / perPage) || 1;
+            if (page > totalPages) page = totalPages;
+            const start = (page - 1) * perPage;
+            const pageData = filtered.slice(start, start + perPage);
+
+            const tbody = document.getElementById('tableBody');
             const empty = document.getElementById('emptyState');
-            document.getElementById('enrollCount').textContent = enrollments.length;
-            if (!enrollments.length) { list.innerHTML = ''; empty.classList.remove('hidden'); return; }
+
+            if (!filtered.length) {
+                tbody.innerHTML = '';
+                empty.classList.remove('hidden');
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
             empty.classList.add('hidden');
-            list.innerHTML = enrollments.map((en, i) => {
-                const st = students.find(s => (s.studentId || s.id) === en.studentId);
-                const co = courses.find(c => (c.courseId || c.id) === en.courseId);
-                const status = en.status || 'Active';
-                return `
-                <div class="enroll-item">
-                    <div class="enroll-left">
-                        <div class="enroll-icon" style="background:${colors[i % colors.length]}; color:${iconColors[i % iconColors.length]};"><i class="ri-user-3-fill"></i></div>
-                        <div class="enroll-info">
-                            <div class="e-name">${st ? st.firstName + ' ' + st.lastName : 'Student #' + en.studentId}</div>
-                            <div class="e-meta">${co ? (co.courseName || co.name) : 'Course #' + en.courseId} • ${Utils.formatDate(en.enrollmentDate || en.createdAt)} • <span class="badge-${status.toLowerCase() === 'active' ? 'active' : 'dropped'}">${status}</span></div>
-                        </div>
-                    </div>
-                    <button class="btn-icon btn-ghost sm" style="color:var(--rose-400);" onclick="removeEnrollment(${en.enrollmentId || en.id})"><i class="ri-delete-bin-line"></i></button>
-                </div>`;
+
+            tbody.innerHTML = pageData.map(e => {
+                const s = e._student;
+                const c = e._course;
+                const col = avatarColor(e._sName);
+                const initials = s ? Utils.initials(s.firstName + ' ' + s.lastName) : '??';
+                const attVal = e._att;
+                const attColor = attVal === null ? 'var(--text-tertiary)' : attVal >= 75 ? 'var(--emerald-400)' : attVal >= 50 ? 'var(--amber-400)' : 'var(--rose-400)';
+                const statusClass = e._status === 'Active' ? 'badge-active' : 'badge-dropped';
+
+                return `<tr>
+                    <td><div class="student-cell">
+                        <div class="avatar" style="background:${col}">${initials}</div>
+                        <div><div class="name">${e._sName || 'Student #' + e.studentId}</div><div class="email">${s?.email || ''}</div></div>
+                    </div></td>
+                    <td><div class="course-cell"><div class="course-name">${e._cName || '?'}</div><div class="course-code">${e._cCode || ''} ${c?.credits ? '• ' + c.credits + ' Cr' : ''}</div></div></td>
+                    <td style="font-size:.82rem;color:var(--text-secondary);">${e._teacher}</td>
+                    <td style="font-size:.8rem;color:var(--text-secondary);">${Utils.formatDate(e.enrollmentDate || e.createdAt)}</td>
+                    <td><div style="font-size:.78rem;font-weight:600;color:${attColor};">${attVal !== null ? attVal + '%' : '—'}</div>
+                        ${attVal !== null ? `<div class="att-bar"><div style="width:${attVal}%;background:${attColor};"></div></div>` : ''}
+                    </td>
+                    <td><span class="badge-status ${statusClass}">${e._status}</span></td>
+                    <td class="actions-cell">
+                        <button onclick="removeEnrollment(${e.enrollmentId || e.id})" title="Remove"><i class="ri-delete-bin-line"></i></button>
+                    </td>
+                </tr>`;
             }).join('');
 
-            // #39: Render stats
-            renderEnrollStats();
+            // Pagination
+            let pagHtml = `<span>Showing ${start + 1}–${Math.min(start + perPage, filtered.length)} of ${filtered.length}</span><div class="page-btns">`;
+            pagHtml += `<button ${page <= 1 ? 'disabled' : ''} onclick="page--;renderTable()"><i class="ri-arrow-left-s-line"></i></button>`;
+            for (let i = 1; i <= totalPages; i++) {
+                if (totalPages > 7 && i > 2 && i < totalPages - 1 && Math.abs(i - page) > 1) {
+                    if (i === 3 || i === totalPages - 2) pagHtml += `<button disabled>…</button>`;
+                    continue;
+                }
+                pagHtml += `<button class="${i === page ? 'active' : ''}" onclick="page=${i};renderTable()">${i}</button>`;
+            }
+            pagHtml += `<button ${page >= totalPages ? 'disabled' : ''} onclick="page++;renderTable()"><i class="ri-arrow-right-s-line"></i></button></div>`;
+            document.getElementById('pagination').innerHTML = pagHtml;
         }
 
-        // #39: Stats cards
-        function renderEnrollStats() {
-            const uniqueStudents = new Set(enrollments.map(e => e.studentId)).size;
-            const uniqueCourses = new Set(enrollments.map(e => e.courseId)).size;
-            const today = new Date().toISOString().split('T')[0];
-            const todayCount = enrollments.filter(e => (e.enrollmentDate || e.createdAt || '').startsWith(today)).length;
-            document.getElementById('enrollStats').innerHTML = `
-                <div class="enroll-stat-card"><div class="esv">${enrollments.length}</div><div class="esl">Total Enrollments</div></div>
-                <div class="enroll-stat-card"><div class="esv" style="background:linear-gradient(135deg,var(--emerald-400),var(--teal-400));-webkit-background-clip:text;">${uniqueStudents}</div><div class="esl">Unique Students</div></div>
-                <div class="enroll-stat-card"><div class="esv" style="background:linear-gradient(135deg,var(--indigo-400),var(--violet-400));-webkit-background-clip:text;">${uniqueCourses}</div><div class="esl">Courses With Enrollments</div></div>
-                <div class="enroll-stat-card"><div class="esv" style="background:linear-gradient(135deg,var(--amber-400),var(--orange-400));-webkit-background-clip:text;">${todayCount}</div><div class="esl">Today's Enrollments</div></div>`;
-        }
+        // ─── CRUD ───
+        function openEnrollModal() { document.getElementById('enrollModal').classList.add('active'); }
+        function closeEnrollModal() { document.getElementById('enrollModal').classList.remove('active'); }
 
-        // #40: Duplicate prevention
         async function createEnrollment() {
-            const sid = document.getElementById('enrollStudent').value;
-            const cid = document.getElementById('enrollCourse').value;
-            if (!sid || !cid) { Toast.error('Select student and course'); return; }
-            // Check for duplicate
-            const duplicate = enrollments.find(e => e.studentId == sid && e.courseId == cid && (e.status || 'Active') === 'Active');
-            if (duplicate) {
-                const st = students.find(s => (s.studentId || s.id) == sid);
-                const co = courses.find(c => (c.courseId || c.id) == cid);
-                Toast.error(`${st ? st.firstName + ' ' + st.lastName : 'Student'} is already enrolled in ${co ? (co.courseName || co.name) : 'this course'}!`);
+            const sid = parseInt(document.getElementById('enrollStudent').value);
+            const cid = parseInt(document.getElementById('enrollCourse').value);
+            if (!sid || !cid) { Toast.error('Select both student and course'); return; }
+            // Duplicate check
+            const dup = enrollments.find(e => e.studentId === sid && e.courseId === cid && (e.status || 'Active') === 'Active');
+            if (dup) {
+                const s = studentObj(sid), c = courseObj(cid);
+                Toast.error(`${s ? s.firstName + ' ' + s.lastName : 'Student'} is already enrolled in ${c ? (c.courseName || c.name) : 'this course'}!`);
                 return;
             }
             try {
-                await API.createEnrollment({ studentId: parseInt(sid), courseId: parseInt(cid), enrollmentDate: new Date().toISOString() });
+                await API.createEnrollment({ studentId: sid, courseId: cid, enrollmentDate: new Date().toISOString() });
                 Toast.success('Enrolled successfully!');
-                loadData();
+                closeEnrollModal();
+                await loadData();
             } catch (e) { Toast.error(e.message); }
         }
 
         async function removeEnrollment(id) {
-            if (!confirm('Remove enrollment?')) return;
-            try { await API.deleteEnrollment(id); Toast.success('Removed!'); loadData(); }
-            catch (e) { Toast.error(e.message); }
+            Confirm.show('Remove Enrollment', 'Remove this enrollment? The student will be unenrolled from the course.', async () => {
+                try { await API.deleteEnrollment(id); Toast.success('Enrollment removed!'); await loadData(); }
+                catch (e) { Toast.error(e.message); }
+            }, 'Remove', 'Cancel');
         }
+
+        // Close modal on bg click
+        document.getElementById('enrollModal').addEventListener('click', e => {
+            if (e.target.classList.contains('enroll-modal')) closeEnrollModal();
+        });
+
         loadData();
     </script>
 </body>

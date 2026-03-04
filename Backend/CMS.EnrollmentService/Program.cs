@@ -25,7 +25,7 @@ builder.Services.AddSwaggerGen();
 
 // Database
 builder.Services.AddDbContext<EnrollmentDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Service
 builder.Services.AddScoped<IEnrollmentService, EnrollmentManagementService>();

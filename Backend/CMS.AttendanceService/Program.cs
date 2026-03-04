@@ -26,7 +26,7 @@ builder.Services.AddSwaggerGen();
 
 // Database
 builder.Services.AddDbContext<AttendanceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repositories & Services
 builder.Services.AddScoped<IAttendanceDapperRepository, AttendanceDapperRepository>();

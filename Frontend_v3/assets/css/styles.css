@@ -1,0 +1,148 @@
+/* Ethereal Obsidian Custom CSS overrides and animations */
+
+body {
+    /* Provide fallback background while Tailwind loads */
+    background-color: #0b0c10;
+}
+
+/* Scrollbar Customization / Hiding */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+/* Glassmorphism Surfaces */
+.glass-card {
+    background: rgba(31, 40, 51, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease;
+}
+
+/* Subtle 3D lift on hovering glass cards */
+.glass-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    /* slight brightening */
+}
+
+/* Opaque/Dark Sidebar Glass */
+.sidebar-glass {
+    background: rgba(11, 12, 16, 0.85);
+    /* Darker than card */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* Ambient 3D background lighting mesh animation */
+@keyframes pulse-slow {
+
+    0%,
+    100% {
+        transform: scale(1) translate(0, 0);
+        opacity: 0.3;
+    }
+
+    50% {
+        transform: scale(1.1) translate(30px, -20px);
+        opacity: 0.6;
+    }
+}
+
+.animate-pulse-slow {
+    animation: pulse-slow 15s infinite ease-in-out;
+}
+
+/* Prepare elements for GSAP (prevent flash of unstyled/unanimated content) */
+.gs-reveal {
+    visibility: hidden;
+}
+
+/* Tooltip Hover System */
+.has-tooltip {
+    position: relative;
+}
+
+.has-tooltip .tooltip {
+    visibility: hidden;
+    background-color: rgba(6, 7, 10, 0.95);
+    color: #fff;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    position: absolute;
+    z-index: 50;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    pointer-events: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.has-tooltip:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* Custom Checkbox Glass Design */
+.glass-checkbox {
+    appearance: none;
+    background-color: rgba(31, 40, 51, 0.4);
+    margin: 0;
+    font: inherit;
+    color: currentColor;
+    width: 1.15em;
+    height: 1.15em;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.25em;
+    display: grid;
+    place-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.glass-checkbox::before {
+    content: "";
+    width: 0.65em;
+    height: 0.65em;
+    transform: scale(0);
+    transition: 120ms transform ease-in-out;
+    box-shadow: inset 1em 1em #d4af37;
+    background-color: #d4af37;
+    transform-origin: bottom left;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+.glass-checkbox:checked::before {
+    transform: scale(1);
+}
+
+.glass-checkbox:checked {
+    border-color: #d4af37;
+    background-color: rgba(212, 175, 55, 0.1);
+}
+
+/* 3D Tilt Wrapper */
+.tilt-wrapper {
+    perspective: 1000px;
+}
+
+.tilt-element {
+    transition: transform 0.1s ease;
+    transform-style: preserve-3d;
+}

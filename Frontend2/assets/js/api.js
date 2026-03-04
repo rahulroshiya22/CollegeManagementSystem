@@ -84,7 +84,7 @@ const API = {
     // Exams
     getExams() { return this.get('/exam'); },
     getExam(id) { return this.get(`/exam/${id}`); },
-    createExam(d) { return this.post('/exam', d); },
+    createExamSimple(d) { return this.post('/exam', d); },
     updateExam(id, d) { return this.put(`/exam/${id}`, d); },
     deleteExam(id) { return this.del(`/exam/${id}`); },
 
@@ -160,4 +160,144 @@ const API = {
     // Enrollment (extended)
     getEnrollmentsByStudent(id) { return this.get(`/enrollment/student/${id}`); },
     getEnrollmentsByCourse(id) { return this.get(`/enrollment/course/${id}`); },
+};
+
+/* ═══════════════════════════════════════════════════════════
+   DataStore — In-memory cache for multi-API pages
+   ═══════════════════════════════════════════════════════════ */
+const DataStore = {
+    _cache: {},
+    _ttl: 60000, // 60 seconds default TTL
+
+    async load(key, fetchFn) {
+        const cached = this._cache[key];
+        if (cached && Date.now() - cached.ts < this._ttl) return cached.data;
+        try {
+            const raw = await fetchFn();
+            const data = Array.isArray(raw) ? raw : (raw?.students || raw?.data || (raw ? [raw] : []));
+            this._cache[key] = { data, ts: Date.now() };
+            return data;
+        } catch (e) {
+            console.warn(`DataStore: Failed to load "${key}":`, e.message);
+            return cached?.data || [];
+        }
+    },
+
+    get(key) { return this._cache[key]?.data || []; },
+    clear(key) { if (key) delete this._cache[key]; else this._cache = {}; },
+
+    // Parallel fetch all major datasets at once
+    async fetchAll(keys) {
+        const map = {
+            students: () => API.getStudents(),
+            courses: () => API.getCourses(),
+            departments: () => API.getDepartments(),
+            teachers: () => API.getTeachers(),
+            enrollments: () => API.getEnrollments(),
+            fees: () => API.getFees(),
+            attendance: () => API.getAttendance(),
+            grades: () => API.getGrades(),
+            exams: () => API.getExams(),
+            timeslots: () => API.getTimeSlots(),
+            notices: () => API.getActiveNotices(),
+            announcements: () => API.getAnnouncements(),
+            authUsers: () => API.getAllAuthUsers(),
+        };
+        const toFetch = (keys || Object.keys(map)).filter(k => map[k]);
+        const results = await Promise.allSettled(toFetch.map(k => this.load(k, map[k])));
+        const out = {};
+        toFetch.forEach((k, i) => {
+            out[k] = results[i].status === 'fulfilled' ? results[i].value : [];
+        });
+        return out;
+    }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   DataResolver — Cross-reference IDs to names/objects
+   ═══════════════════════════════════════════════════════════ */
+const Resolve = {
+    student(id, students) {
+        const s = (students || DataStore.get('students')).find(x => (x.studentId || x.id) == id);
+        return s ? { ...s, fullName: `${s.firstName || ''} ${s.lastName || ''}`.trim() } : null;
+    },
+    course(id, courses) {
+        return (courses || DataStore.get('courses')).find(x => (x.courseId || x.id) == id) || null;
+    },
+    teacher(id, teachers) {
+        return (teachers || DataStore.get('teachers')).find(x => (x.teacherId || x.id) == id) || null;
+    },
+    department(id, departments) {
+        return (departments || DataStore.get('departments')).find(x => (x.departmentId || x.id) == id) || null;
+    },
+    deptName(id, departments) {
+        const d = this.department(id, departments);
+        return d ? (d.departmentName || d.name || '—') : '—';
+    },
+    studentName(id, students) {
+        const s = this.student(id, students);
+        return s ? s.fullName : `Student #${id}`;
+    },
+    courseName(id, courses) {
+        const c = this.course(id, courses);
+        return c ? (c.courseName || c.name || c.courseCode || '—') : '—';
+    },
+    teacherName(id, teachers) {
+        const t = this.teacher(id, teachers);
+        if (!t) return '—';
+        if (t.firstName) return `${t.firstName || ''} ${t.lastName || ''}`.trim();
+        if (t.user) return `${t.user.firstName || ''} ${t.user.lastName || ''}`.trim() || t.department;
+        return t.specialization || t.department || `Teacher #${id}`;
+    },
+    // Aggregate helpers
+    enrollmentsForStudent(sid, enrollments) {
+        return (enrollments || DataStore.get('enrollments')).filter(e => e.studentId == sid);
+    },
+    enrollmentsForCourse(cid, enrollments) {
+        return (enrollments || DataStore.get('enrollments')).filter(e => e.courseId == cid);
+    },
+    feesForStudent(sid, fees) {
+        return (fees || DataStore.get('fees')).filter(f => f.studentId == sid);
+    },
+    attendanceForStudent(sid, attendance) {
+        return (attendance || DataStore.get('attendance')).filter(a => a.studentId == sid);
+    },
+    attendanceForCourse(cid, attendance) {
+        return (attendance || DataStore.get('attendance')).filter(a => a.courseId == cid);
+    },
+    gradesForStudent(sid, grades) {
+        return (grades || DataStore.get('grades')).filter(g => g.studentId == sid);
+    },
+    gradesForCourse(cid, grades) {
+        return (grades || DataStore.get('grades')).filter(g => g.courseId == cid);
+    },
+    timeslotsForCourse(cid, ts) {
+        return (ts || DataStore.get('timeslots')).filter(t => t.courseId == cid);
+    },
+    timeslotsForTeacher(tid, ts) {
+        return (ts || DataStore.get('timeslots')).filter(t => t.teacherId == tid);
+    },
+    attendancePercent(records) {
+        if (!records || !records.length) return null;
+        const present = records.filter(a => a.isPresent).length;
+        return Math.round((present / records.length) * 100);
+    },
+    cgpa(grades) {
+        if (!grades || !grades.length) return null;
+        const gradePoints = { 'A+': 10, 'A': 9, 'B+': 8, 'B': 7, 'C+': 6, 'C': 5, 'D': 4, 'F': 0 };
+        let total = 0, count = 0;
+        grades.forEach(g => {
+            const pt = gradePoints[g.gradeLetter] ?? (g.marks >= 90 ? 10 : g.marks >= 80 ? 9 : g.marks >= 70 ? 8 : g.marks >= 60 ? 7 : g.marks >= 50 ? 6 : g.marks >= 40 ? 5 : 0);
+            total += pt; count++;
+        });
+        return count ? (total / count).toFixed(1) : null;
+    },
+    pendingFees(fees) {
+        return (fees || []).filter(f => f.status === 'Pending' || f.status === 'Overdue')
+            .reduce((s, f) => s + (f.amount || 0), 0);
+    },
+    teacherForCourse(cid, timeslots, teachers) {
+        const slot = (timeslots || DataStore.get('timeslots')).find(t => t.courseId == cid && t.teacherId);
+        return slot ? this.teacher(slot.teacherId, teachers) : null;
+    }
 };

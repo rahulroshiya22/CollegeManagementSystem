@@ -634,6 +634,8 @@
         const userId = user.userId || 1;
         let exams = [];
         let courses = [];
+        let allEnrollments = [];
+        let allStudents = [];
         let currentExam = null;
         let timerInterval = null;
         let managingExamId = null;
@@ -648,11 +650,17 @@
 
         async function loadCourses() {
             try {
-                courses = await API.getCourses();
-                courses = Array.isArray(courses) ? courses : [];
+                const D = await DataStore.fetchAll(['courses', 'enrollments', 'students']);
+                courses = D.courses;
+                allEnrollments = D.enrollments;
+                allStudents = D.students;
                 const sel = document.getElementById('examCourseId');
                 sel.innerHTML = '<option value="">Select Course</option>' +
                     courses.map(c => `<option value="${c.courseId || c.id}">${c.courseName || c.name} (${c.courseCode || c.code})</option>`).join('');
+                // Populate base course filter too
+                const baseFilt = document.getElementById('baseCourseFilter');
+                baseFilt.innerHTML = '<option value="">All Courses</option>' +
+                    courses.map(c => `<option value="${c.courseId || c.id}">${c.courseCode || c.code}</option>`).join('');
             } catch (e) { console.error(e); }
         }
 
@@ -746,7 +754,7 @@
                 return `
                     <tr>
                         <td><div style="font-weight:600;">${exam.title}</div><div class="text-xs text-muted">${exam.description || ''}</div></td>
-                        <td>${getCourseName(exam.courseId)}</td>
+                        <td>${getCourseName(exam.courseId)} <span style="font-size:0.6rem;color:var(--text-tertiary);"><i class="ri-group-line"></i> ${allEnrollments.filter(e => e.courseId === exam.courseId && (e.status || 'Active') === 'Active').length}</span></td>
                         <td>${Utils.formatDate(exam.scheduledDate)}</td>
                         <td>${durationStr}</td>
                         <td>${exam.totalMarks}</td>
@@ -759,7 +767,11 @@
 
         function filterList(list) {
             const q = document.getElementById('examSearch').value.toLowerCase();
-            return list.filter(e => e.title.toLowerCase().includes(q) || getCourseName(e.courseId).toLowerCase().includes(q));
+            const cf = document.getElementById('baseCourseFilter').value;
+            let result = list;
+            if (cf) result = result.filter(e => e.courseId == cf);
+            if (q) result = result.filter(e => e.title.toLowerCase().includes(q) || getCourseName(e.courseId).toLowerCase().includes(q));
+            return result;
         }
 
         function filterExams() {
@@ -797,26 +809,25 @@
         async function duplicateExam(id) {
             const e = exams.find(x => x.examId === id);
             if (!e) return;
-            if (!confirm(`Duplicate "${e.title}"?`)) return;
+            Confirm.show('Duplicate Exam', `Duplicate "${e.title}"?`, async () => {
+                try {
+                    const copyData = { ...e, title: e.title + ' (Copy)', isPublished: false, examId: undefined };
+                    const newExam = await API.request(`/ exam ? teacherId = ${userId} `, { method: 'POST', body: JSON.stringify(copyData) });
+                    const newId = newExam.examId || newExam.id;
 
-            try {
-                // 1. Create copy
-                const copyData = { ...e, title: e.title + ' (Copy)', isPublished: false, examId: undefined };
-                const newExam = await API.request(`/exam?teacherId=${userId}`, { method: 'POST', body: JSON.stringify(copyData) });
-                const newId = newExam.examId || newExam.id;
-
-                // 2. Copy questions
-                let questions = await API.getExamQuestions(id);
-                if (Array.isArray(questions)) {
-                    for (const q of questions) {
-                        const qData = { ...q, id: undefined, questionId: undefined };
-                        await API.addExamQuestion(newId, qData);
+                    // 2. Copy questions
+                    let questions = await API.getExamQuestions(id);
+                    if (Array.isArray(questions)) {
+                        for (const q of questions) {
+                            const qData = { ...q, id: undefined, questionId: undefined };
+                            await API.addExamQuestion(newId, qData);
+                        }
                     }
-                }
 
-                Toast.success('Exam duplicated successfully!');
-                loadExams();
-            } catch (err) { Toast.error(err.message); }
+                    Toast.success('Exam duplicated successfully!');
+                    loadExams();
+                } catch (err) { Toast.error(err.message); }
+            }, 'Duplicate', 'Cancel');
         }
 
         async function createExam() {
@@ -836,7 +847,7 @@
                     await API.updateExam(editingExamId, data);
                     Toast.success('Exam updated!');
                 } else {
-                    await API.request(`/exam?teacherId=${userId}`, { method: 'POST', body: JSON.stringify(data) });
+                    await API.request(`/ exam ? teacherId = ${userId} `, { method: 'POST', body: JSON.stringify(data) });
                     Toast.success('Exam created!');
                 }
                 Modal.close('createExamModal');
@@ -847,12 +858,13 @@
         }
 
         async function deleteExam(id) {
-            if (!confirm('Delete this exam? This cannot be undone.')) return;
-            try {
-                await API.deleteExam(id);
-                Toast.success('Exam deleted');
-                loadExams();
-            } catch (e) { Toast.error(e.message); }
+            Confirm.show('Delete Exam', 'Delete this exam? This cannot be undone.', async () => {
+                try {
+                    await API.deleteExam(id);
+                    Toast.success('Exam deleted');
+                    loadExams();
+                } catch (e) { Toast.error(e.message); }
+            }, 'Delete', 'Cancel');
         }
 
         async function publishExam(id) {
@@ -872,11 +884,18 @@
         const studentMap = {};
 
         async function loadStudents() {
-            if (Object.keys(studentMap).length > 0) return;
+            // Students are already loaded from DataStore via loadCourses
+            if (allStudents.length) {
+                allStudents.forEach(s => {
+                    const sid = s.studentId || s.id;
+                    studentMap[sid] = `${s.firstName || ''} ${s.lastName || ''} `.trim() || s.name || 'Unknown';
+                });
+                return;
+            }
             try {
                 const students = await API.getStudents();
                 if (Array.isArray(students)) {
-                    students.forEach(s => studentMap[s.studentId || s.id] = s.name || s.fullName || 'Unknown');
+                    students.forEach(s => studentMap[s.studentId || s.id] = `${s.firstName || ''} ${s.lastName || ''} `.trim() || s.name || 'Unknown');
                 }
             } catch (e) { console.warn('Failed to load students map', e); }
         }
@@ -905,7 +924,7 @@
             const avgScore = results.length ? Math.round(results.reduce((a, b) => a + b.obtainedMarks, 0) / results.length) : 0;
 
             manage.innerHTML = `
-                <button class="btn btn-ghost mb-4" onclick="backToExamList()"><i class="ri-arrow-left-line"></i> Back to Exams</button>
+                    < button class="btn btn-ghost mb-4" onclick = "backToExamList()" > <i class="ri-arrow-left-line"></i> Back to Exams</button >
                 <div class="exam-card">
                     <div class="flex justify-between">
                         <div>
@@ -953,13 +972,13 @@
                     ` : '<p class="text-muted">No questions added yet.</p>'}
                 </div>
 
-                <!-- #10 Results with Student Names -->
-                <div class="add-q-section" style="margin-top:16px;">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3><i class="ri-bar-chart-2-line" style="color:var(--emerald-400);"></i> Results (${results.length})</h3>
-                        <button class="btn btn-ghost btn-sm" onclick="exportResultsCSV()"><i class="ri-download-line"></i> CSV</button>
-                    </div>
-                    ${results.length ? `
+                <!-- #10 Results with Student Names-- >
+                    <div class="add-q-section" style="margin-top:16px;">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3><i class="ri-bar-chart-2-line" style="color:var(--emerald-400);"></i> Results (${results.length})</h3>
+                            <button class="btn btn-ghost btn-sm" onclick="exportResultsCSV()"><i class="ri-download-line"></i> CSV</button>
+                        </div>
+                        ${results.length ? `
                         <div class="table-container">
                             <table class="data-table">
                                 <thead><tr><th>Student</th><th>Score</th><th>Grade</th><th>Status</th></tr></thead>
@@ -979,8 +998,8 @@
                             </table>
                         </div>
                     ` : '<p class="text-muted mt-3">No submissions yet.</p>'}
-                </div>
-            `;
+                    </div>
+                `;
 
             // Store for CSV export
             window.currentExamResults = results;
@@ -1020,12 +1039,13 @@
         }
 
         async function deleteQuestion(qid) {
-            if (!confirm('Delete this question?')) return;
-            try {
-                await API.deleteExamQuestion(managingExamId, qid);
-                Toast.success('Question deleted');
-                viewExamManage(managingExamId);
-            } catch (e) { Toast.error(e.message); }
+            Confirm.show('Delete Question', 'Delete this question?', async () => {
+                try {
+                    await API.deleteExamQuestion(managingExamId, qid);
+                    Toast.success('Question deleted');
+                    viewExamManage(managingExamId);
+                } catch (e) { Toast.error(e.message); }
+            }, 'Delete', 'Cancel');
         }
 
         function exportResultsCSV() {
@@ -1035,7 +1055,7 @@
             let csv = 'Student ID,Student Name,Score,Total,Grade,Status\n';
             results.forEach(r => {
                 const name = studentMap[r.studentId] || 'Student #' + r.studentId;
-                csv += `${r.studentId},"${name}",${r.obtainedMarks},${r.totalMarks},${r.grade},${r.isPassed ? 'PASSED' : 'FAILED'}\n`;
+                csv += `${r.studentId}, "${name}", ${r.obtainedMarks},${r.totalMarks},${r.grade},${r.isPassed ? 'PASSED' : 'FAILED'} \n`;
             });
 
             const blob = new Blob([csv], { type: 'text/csv' });
@@ -1043,7 +1063,7 @@
             const a = document.createElement('a');
             a.setAttribute('hidden', '');
             a.setAttribute('href', url);
-            a.setAttribute('download', `${window.currentExamTitle || 'Exam'}_Results.csv`);
+            a.setAttribute('download', `${window.currentExamTitle || 'Exam'} _Results.csv`);
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1053,7 +1073,7 @@
             if (hasAttempted(examId)) return Toast.error('Already submitted.');
             try {
                 const exam = exams.find(e => e.examId === examId);
-                const questions = await API.request(`/exam/${examId}/questions`);
+                const questions = await API.request(`/ exam / ${examId}/questions`);
 
                 // Store temporarily
                 currentExam = { exam, questions: Array.isArray(questions) ? questions : [], answers: {} };

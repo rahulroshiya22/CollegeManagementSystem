@@ -1,6 +1,6 @@
 using CMS.AttendanceService.Models;
 using Dapper;
-using Microsoft.Data.SqlClient;
+using Npgsql;
 using System.Data;
 
 namespace CMS.AttendanceService.Repositories
@@ -26,33 +26,33 @@ namespace CMS.AttendanceService.Repositories
             _connectionString = config.GetConnectionString("DefaultConnection")!;
         }
 
-        private SqlConnection GetConnection() => new SqlConnection(_connectionString);
+        private NpgsqlConnection GetConnection() => new NpgsqlConnection(_connectionString);
 
         public async Task<IEnumerable<Attendance>> GetAllAsync()
         {
             using var connection = GetConnection();
-            const string sql = "SELECT AttendanceId, StudentId, CourseId, Date, IsPresent, Remarks FROM Attendances";
+            const string sql = @"SELECT ""AttendanceId"", ""StudentId"", ""CourseId"", ""Date"", ""IsPresent"", ""Remarks"" FROM ""Attendances""";
             return await connection.QueryAsync<Attendance>(sql);
         }
 
         public async Task<Attendance?> GetByIdAsync(int id)
         {
             using var connection = GetConnection();
-            const string sql = "SELECT AttendanceId, StudentId, CourseId, Date, IsPresent, Remarks FROM Attendances WHERE AttendanceId = @Id";
+            const string sql = @"SELECT ""AttendanceId"", ""StudentId"", ""CourseId"", ""Date"", ""IsPresent"", ""Remarks"" FROM ""Attendances"" WHERE ""AttendanceId"" = @Id";
             return await connection.QueryFirstOrDefaultAsync<Attendance>(sql, new { Id = id });
         }
 
         public async Task<IEnumerable<Attendance>> GetByStudentIdAsync(int studentId)
         {
             using var connection = GetConnection();
-            const string sql = "SELECT AttendanceId, StudentId, CourseId, Date, IsPresent, Remarks FROM Attendances WHERE StudentId = @StudentId";
+            const string sql = @"SELECT ""AttendanceId"", ""StudentId"", ""CourseId"", ""Date"", ""IsPresent"", ""Remarks"" FROM ""Attendances"" WHERE ""StudentId"" = @StudentId";
             return await connection.QueryAsync<Attendance>(sql, new { StudentId = studentId });
         }
 
         public async Task<IEnumerable<Attendance>> GetByCourseIdAsync(int courseId)
         {
             using var connection = GetConnection();
-            const string sql = "SELECT AttendanceId, StudentId, CourseId, Date, IsPresent, Remarks FROM Attendances WHERE CourseId = @CourseId";
+            const string sql = @"SELECT ""AttendanceId"", ""StudentId"", ""CourseId"", ""Date"", ""IsPresent"", ""Remarks"" FROM ""Attendances"" WHERE ""CourseId"" = @CourseId";
             return await connection.QueryAsync<Attendance>(sql, new { CourseId = courseId });
         }
 
@@ -60,9 +60,9 @@ namespace CMS.AttendanceService.Repositories
         {
             using var connection = GetConnection();
             const string sql = @"
-                INSERT INTO Attendances (StudentId, CourseId, Date, IsPresent, Remarks)
-                VALUES (@StudentId, @CourseId, @Date, @IsPresent, @Remarks);
-                SELECT CAST(SCOPE_IDENTITY() as int)";
+                INSERT INTO ""Attendances"" (""StudentId"", ""CourseId"", ""Date"", ""IsPresent"", ""Remarks"")
+                VALUES (@StudentId, @CourseId, @Date, @IsPresent, @Remarks)
+                RETURNING ""AttendanceId""";
             return await connection.ExecuteScalarAsync<int>(sql, attendance);
         }
 
@@ -70,10 +70,10 @@ namespace CMS.AttendanceService.Repositories
         {
             using var connection = GetConnection();
             const string sql = @"
-                UPDATE Attendances 
-                SET StudentId = @StudentId, CourseId = @CourseId, Date = @Date, 
-                    IsPresent = @IsPresent, Remarks = @Remarks
-                WHERE AttendanceId = @AttendanceId";
+                UPDATE ""Attendances"" 
+                SET ""StudentId"" = @StudentId, ""CourseId"" = @CourseId, ""Date"" = @Date, 
+                    ""IsPresent"" = @IsPresent, ""Remarks"" = @Remarks
+                WHERE ""AttendanceId"" = @AttendanceId";
             var affected = await connection.ExecuteAsync(sql, attendance);
             return affected > 0;
         }
@@ -81,53 +81,25 @@ namespace CMS.AttendanceService.Repositories
         public async Task<bool> DeleteAsync(int id)
         {
             using var connection = GetConnection();
-            const string sql = "DELETE FROM Attendances WHERE AttendanceId = @Id";
+            const string sql = @"DELETE FROM ""Attendances"" WHERE ""AttendanceId"" = @Id";
             var affected = await connection.ExecuteAsync(sql, new { Id = id });
             return affected > 0;
         }
 
         /// <summary>
-        /// Bulk insert using SqlBulkCopy for high-performance batch inserts
+        /// Bulk insert using Dapper batch for PostgreSQL
         /// </summary>
         public async Task<int> BulkInsertAsync(IEnumerable<Attendance> attendances)
         {
-            var dataTable = new DataTable();
-            dataTable.Columns.Add("StudentId", typeof(int));
-            dataTable.Columns.Add("CourseId", typeof(int));
-            dataTable.Columns.Add("Date", typeof(DateTime));
-            dataTable.Columns.Add("IsPresent", typeof(bool));
-            dataTable.Columns.Add("Remarks", typeof(string));
-
-            foreach (var attendance in attendances)
-            {
-                dataTable.Rows.Add(
-                    attendance.StudentId,
-                    attendance.CourseId,
-                    attendance.Date,
-                    attendance.IsPresent,
-                    attendance.Remarks ?? (object)DBNull.Value
-                );
-            }
-
             using var connection = GetConnection();
             await connection.OpenAsync();
 
-            using var bulkCopy = new SqlBulkCopy(connection)
-            {
-                DestinationTableName = "Attendances",
-                BatchSize = 1000
-            };
+            const string sql = @"
+                INSERT INTO ""Attendances"" (""StudentId"", ""CourseId"", ""Date"", ""IsPresent"", ""Remarks"")
+                VALUES (@StudentId, @CourseId, @Date, @IsPresent, @Remarks)";
 
-            // Map columns
-            bulkCopy.ColumnMappings.Add("StudentId", "StudentId");
-            bulkCopy.ColumnMappings.Add("CourseId", "CourseId");
-            bulkCopy.ColumnMappings.Add("Date", "Date");
-            bulkCopy.ColumnMappings.Add("IsPresent", "IsPresent");
-            bulkCopy.ColumnMappings.Add("Remarks", "Remarks");
-
-            await bulkCopy.WriteToServerAsync(dataTable);
-
-            return dataTable.Rows.Count;
+            var count = await connection.ExecuteAsync(sql, attendances);
+            return count;
         }
     }
 }

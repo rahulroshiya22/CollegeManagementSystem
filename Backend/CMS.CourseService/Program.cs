@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen();
 
 // Database
 builder.Services.AddDbContext<CourseDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Repository & Service
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();

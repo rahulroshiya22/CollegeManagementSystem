@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+**/.vs/
+**/Migrations/
+**/wwwroot/uploads/
+**/logs/
+*.user
+*.suo
+Backend_SqlServer_Backup/

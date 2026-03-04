@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen();
 
 // Database
 builder.Services.AddDbContext<StudentDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Distributed Cache - using in-memory (switch to Redis when available)
 builder.Services.AddDistributedMemoryCache();

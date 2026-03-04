@@ -249,6 +249,19 @@
             font-size: 0.7rem;
             color: var(--text-tertiary);
         }
+
+        /* ─── Role-Themed Header (#21) ─── */
+        body.role-admin .neo-header {
+            border-bottom-color: rgba(99, 102, 241, .3);
+        }
+
+        body.role-teacher .neo-header {
+            border-bottom-color: rgba(217, 70, 239, .3);
+        }
+
+        body.role-student .neo-header {
+            border-bottom-color: rgba(20, 184, 166, .3);
+        }
     </style>
 </head>
 
@@ -395,97 +408,91 @@
                 </div>
             </div>
 
-            <!-- Third Row: Activity + Campus + Notices -->
+            <!-- ═══ Multi-API Insights Row ═══ -->
+            <div class="bento-grid mt-8" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+                <div class="glass-card slide-up delay-2" style="padding:18px;">
+                    <div
+                        style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-tertiary);font-weight:700;margin-bottom:8px;">
+                        <i class="ri-pie-chart-fill" style="color:var(--indigo-400);"></i> Dept. Distribution
+                    </div>
+                    <div id="deptChart" style="min-height:90px;">Loading...</div>
+                </div>
+                <div class="glass-card slide-up delay-3" style="padding:18px;">
+                    <div
+                        style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-tertiary);font-weight:700;margin-bottom:8px;">
+                        <i class="ri-checkbox-circle-fill" style="color:var(--emerald-400);"></i> Attendance Rate
+                    </div>
+                    <div id="attendanceGauge"
+                        style="display:flex;align-items:center;justify-content:center;min-height:90px;">—</div>
+                </div>
+                <div class="glass-card slide-up delay-4" style="padding:18px;">
+                    <div
+                        style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-tertiary);font-weight:700;margin-bottom:8px;">
+                        <i class="ri-money-dollar-circle-fill" style="color:var(--amber-400);"></i> Fee Collection
+                    </div>
+                    <div id="feeProgress" style="min-height:90px;">—</div>
+                </div>
+                <div class="glass-card slide-up delay-5" style="padding:18px;">
+                    <div
+                        style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-tertiary);font-weight:700;margin-bottom:8px;">
+                        <i class="ri-group-fill" style="color:var(--rose-400);"></i> Gender Split
+                    </div>
+                    <div id="genderChart" style="min-height:90px;">—</div>
+                </div>
+            </div>
+
+            <!-- Third Row: Activity + Today's Schedule + Notices -->
             <div class="bento-grid mt-8" style="grid-template-columns: 1fr 1fr 1fr;">
                 <!-- Recent Activity -->
                 <div class="glass-card slide-up delay-3">
                     <h4 class="mb-4"><i class="ri-time-line" style="color:var(--indigo-400);"></i> Recent Activity</h4>
                     <div id="activityList">
-                        <div class="activity-item">
-                            <div class="activity-icon"
-                                style="background:rgba(99,102,241,0.15); color:var(--indigo-400);"><i
-                                    class="ri-user-add-fill"></i></div>
-                            <div class="activity-text">
-                                <div class="title">New Student Registered</div>
-                                <div class="meta">John Doe • 2 mins ago</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon" style="background:rgba(20,184,166,0.15); color:var(--teal-400);">
-                                <i class="ri-book-open-fill"></i>
-                            </div>
-                            <div class="activity-text">
-                                <div class="title">Course Updated</div>
-                                <div class="meta">Data Structures • 15 mins ago</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon"
-                                style="background:rgba(245,158,11,0.15); color:var(--amber-400);"><i
-                                    class="ri-wallet-3-fill"></i></div>
-                            <div class="activity-text">
-                                <div class="title">Fee Payment Received</div>
-                                <div class="meta">₹25,000 • 1 hour ago</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div class="activity-icon"
-                                style="background:rgba(16,185,129,0.15); color:var(--emerald-400);"><i
-                                    class="ri-check-double-fill"></i></div>
-                            <div class="activity-text">
-                                <div class="title">Attendance Marked</div>
-                                <div class="meta">CS-301 • 2 hours ago</div>
-                            </div>
-                        </div>
+                        <p class="text-muted text-sm" style="padding:20px;text-align:center;">Loading...</p>
                     </div>
                 </div>
 
-                <!-- Campus Card -->
-                <div class="glass-card campus-card slide-up delay-4">
+                <!-- Today's Schedule (NEW — from TimeSlots + Courses + Teachers API) -->
+                <div class="glass-card slide-up delay-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4><i class="ri-calendar-2-fill" style="color:var(--teal-400);"></i> Today's Classes</h4>
+                        <span class="badge badge-teal" id="todayClassCount">0</span>
+                    </div>
+                    <div id="todaySchedule" style="max-height:280px;overflow-y:auto;">
+                        <p class="text-muted text-sm" style="padding:20px;text-align:center;">Loading...</p>
+                    </div>
+                </div>
+
+                <!-- Notices (dynamic from API) -->
+                <div class="glass-card notice-card slide-up delay-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4><i class="ri-megaphone-line" style="color:var(--amber-400);"></i> Notices</h4>
+                        <span class="badge badge-amber" id="noticeCount">—</span>
+                    </div>
+                    <div id="noticeList">
+                        <p class="text-muted text-sm" style="padding:20px;text-align:center;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fourth Row: Active Exams + Campus -->
+            <div class="bento-grid mt-8" style="grid-template-columns: 2fr 1fr;">
+                <div class="glass-card slide-up delay-4">
+                    <div class="flex items-center justify-between mb-4">
+                        <h4><i class="ri-edit-2-fill" style="color:var(--rose-400);"></i> Active & Upcoming Exams</h4>
+                        <span class="badge badge-rose" id="examCount">0</span>
+                    </div>
+                    <div id="examCards"
+                        style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+                        <p class="text-muted text-sm">Loading...</p>
+                    </div>
+                </div>
+                <div class="glass-card campus-card slide-up delay-5">
                     <img src="https://images.unsplash.com/photo-1562774053-701939374585?w=600&h=400&fit=crop&q=80"
-                        alt="Campus" loading="lazy">
+                        alt="NeoVerse Campus with modern buildings and green spaces" loading="lazy">
                     <div class="campus-overlay">
                         <span class="badge badge-emerald mb-2">📍 Campus Life</span>
                         <h4>World-Class Facilities</h4>
                         <p>Modern labs, libraries & sports complexes</p>
-                    </div>
-                </div>
-
-                <!-- Notices -->
-                <div class="glass-card notice-card slide-up delay-5">
-                    <div class="flex items-center justify-between mb-4">
-                        <h4><i class="ri-megaphone-line" style="color:var(--amber-400);"></i> Notices</h4>
-                        <span class="badge badge-amber">New</span>
-                    </div>
-                    <div id="noticeList">
-                        <div class="notice-item">
-                            <div class="notice-dot" style="background:var(--rose-400);"></div>
-                            <div>
-                                <div class="n-title">Mid-Semester Exams Schedule</div>
-                                <div class="n-time">Published 2 hours ago</div>
-                            </div>
-                        </div>
-                        <div class="notice-item">
-                            <div class="notice-dot" style="background:var(--indigo-400);"></div>
-                            <div>
-                                <div class="n-title">Hackathon 2026 Registration Open</div>
-                                <div class="n-time">Published yesterday</div>
-                            </div>
-                        </div>
-                        <div class="notice-item">
-                            <div class="notice-dot" style="background:var(--teal-400);"></div>
-                            <div>
-                                <div class="n-title">Library Hours Extended</div>
-                                <div class="n-time">Published 3 days ago</div>
-                            </div>
-                        </div>
-                        <div class="notice-item">
-                            <div class="notice-dot" style="background:var(--emerald-400);"></div>
-                            <div>
-                                <div class="n-title">Sports Day — March 15</div>
-                                <div class="n-time">Published last week</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -574,67 +581,61 @@
     <script>
         if (!Auth.requireAuth()) throw 'Not authenticated';
 
-        // Set user name
         const user = Auth.getUser();
         document.getElementById('userName').textContent = user?.displayName || 'Admin';
-
-        // Set date
         document.getElementById('currentDate').textContent =
             new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        // Animated chart bars — will be filled dynamically in #47
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const daysMap = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const todayDay = daysMap[new Date().getDay()];
         const chart = document.getElementById('chartArea');
 
-        // Load stats
+        // ─── Multi-API Dashboard Load ───
         async function loadDashboard() {
             try {
-                const [students, courses, teachers, enrollments, fees] = await Promise.allSettled([
-                    API.getStudents(),
-                    API.getCourses(),
-                    API.getTeachers(),
-                    API.getEnrollments(),
-                    API.getFees()
-                ]);
+                const D = await DataStore.fetchAll(['students', 'courses', 'teachers', 'enrollments', 'fees', 'departments', 'attendance', 'grades', 'exams', 'timeslots', 'notices']);
 
-                const sVal = students.value;
-                const sList = Array.isArray(sVal) ? sVal : (sVal?.students || []);
-                const sCount = sList.length;
-                const cVal = courses.value;
-                const cList = Array.isArray(cVal) ? cVal : [];
-                const cCount = cList.length;
-                const tVal = teachers.value;
-                const tList = Array.isArray(tVal) ? tVal : [];
-                const tCount = tList.length;
-                const eVal = enrollments.value;
-                const eList = Array.isArray(eVal) ? eVal : [];
-                const fVal = fees.value;
-                const fList = Array.isArray(fVal) ? fVal : [];
+                const sList = D.students, cList = D.courses, tList = D.teachers, eList = D.enrollments, fList = D.fees;
+                const deptList = D.departments, attList = D.attendance, grList = D.grades, exList = D.exams, tsList = D.timeslots, nList = D.notices;
 
-                Utils.animateCounter(document.getElementById('statStudents'), sCount);
-                Utils.animateCounter(document.getElementById('statTeachers'), tCount);
-                Utils.animateCounter(document.getElementById('statCourses'), cCount);
+                // ═══ 1. Stat Cards (with REAL trend data) ═══
+                Utils.animateCounter(document.getElementById('statStudents'), sList.length);
+                Utils.animateCounter(document.getElementById('statTeachers'), tList.length);
+                Utils.animateCounter(document.getElementById('statCourses'), cList.length);
 
-                // #47: Dynamic fee collection
-                const totalFees = fList.reduce((sum, f) => sum + (f.paidAmount || f.amount || 0), 0);
+                // Dynamic stat trends
+                const thisYear = new Date().getFullYear();
+                const newStudents = sList.filter(s => new Date(s.createdAt).getFullYear() === thisYear).length;
+                document.querySelector('#statStudents').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                    `<i class="ri-arrow-up-s-fill"></i> ${newStudents} joined this year`;
+                document.querySelector('#statTeachers').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                    `<i class="ri-arrow-up-s-fill"></i> ${tList.filter(t => t.isActive !== false).length} active`;
+                document.querySelector('#statCourses').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                    `<i class="ri-arrow-up-s-fill"></i> ${cList.filter(c => c.isActive !== false).length} active`;
+
+                // Fee collection
+                const totalFees = fList.reduce((s, f) => s + (f.amount || 0), 0);
+                const paidFees = fList.filter(f => f.status === 'Paid').reduce((s, f) => s + (f.amount || 0), 0);
+                const collPct = totalFees ? Math.round(paidFees / totalFees * 100) : 0;
                 const revEl = document.getElementById('statRevenue');
-                let start = 0;
-                const step = (ts) => {
-                    if (!start) start = ts;
-                    const p = Math.min((ts - start) / 1200, 1);
+                let _s = 0;
+                const _step = (ts) => {
+                    if (!_s) _s = ts;
+                    const p = Math.min((ts - _s) / 1200, 1);
                     const ease = 1 - Math.pow(1 - p, 3);
-                    revEl.textContent = '₹' + Math.floor(ease * totalFees).toLocaleString('en-IN');
-                    if (p < 1) requestAnimationFrame(step);
+                    revEl.textContent = '₹' + Math.floor(ease * paidFees).toLocaleString('en-IN');
+                    if (p < 1) requestAnimationFrame(_step);
                 };
-                requestAnimationFrame(step);
+                requestAnimationFrame(_step);
+                document.querySelector('#statRevenue').closest('.stat-card').querySelector('.stat-trend').innerHTML =
+                    `<i class="ri-arrow-up-s-fill"></i> ${collPct}% collected`;
 
-                // #47: Dynamic chart from enrollment data
+                // ═══ 2. Enrollment Chart ═══
                 const monthCounts = new Array(12).fill(0);
                 eList.forEach(e => {
                     const d = new Date(e.enrollmentDate || e.createdAt);
-                    if (d.getFullYear() === new Date().getFullYear()) {
-                        monthCounts[d.getMonth()]++;
-                    }
+                    if (d.getFullYear() === thisYear) monthCounts[d.getMonth()]++;
                 });
                 const maxCount = Math.max(...monthCounts, 1);
                 chart.innerHTML = '';
@@ -650,39 +651,72 @@
                     setTimeout(() => { bar.style.height = pct + '%'; }, 200 + i * 80);
                 });
 
-                // #48: Dynamic activity feed
+                // ═══ 3. Department Distribution (Bar Chart) ═══
+                const deptMap = {};
+                sList.forEach(s => {
+                    const dn = Resolve.deptName(s.departmentId, deptList);
+                    deptMap[dn] = (deptMap[dn] || 0) + 1;
+                });
+                const deptNames = Object.keys(deptMap);
+                const deptVals = deptNames.map(k => deptMap[k]);
+                document.getElementById('deptChart').innerHTML = deptNames.length
+                    ? MiniChart.barChart(deptVals, deptNames, null, 80)
+                    : '<p class="text-muted text-sm" style="text-align:center;">No department data</p>';
+
+                // ═══ 4. Attendance Gauge ═══
+                const attPct = Resolve.attendancePercent(attList);
+                const gaugeColor = attPct >= 85 ? '#10b981' : attPct >= 70 ? '#f59e0b' : '#f43f5e';
+                document.getElementById('attendanceGauge').innerHTML = attPct != null
+                    ? `<div style="text-align:center;">${MiniChart.donut(attPct, 72, gaugeColor, 'Campus Attendance')}<div style="font-size:0.68rem;color:var(--text-tertiary);margin-top:6px;">${attList.length} records</div></div>`
+                    : '<p class="text-muted text-sm">No attendance data</p>';
+
+                // ═══ 5. Fee Collection Progress ═══
+                const pendingCount = fList.filter(f => f.status === 'Pending' || f.status === 'Overdue').length;
+                const overdueCount = fList.filter(f => f.status === 'Overdue').length;
+                document.getElementById('feeProgress').innerHTML = fList.length
+                    ? `<div style="margin-top:6px;">${MiniChart.bar(paidFees, totalFees, '#10b981', 8)}
+                        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:0.7rem;color:var(--text-secondary);">
+                            <span>Paid: ${Utils.formatCurrency(paidFees)}</span>
+                            <span>Total: ${Utils.formatCurrency(totalFees)}</span>
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:8px;">
+                            <span class="badge badge-amber" style="font-size:0.6rem;">${pendingCount} pending</span>
+                            ${overdueCount ? `<span class="badge badge-rose" style="font-size:0.6rem;">${overdueCount} overdue</span>` : ''}
+                        </div></div>`
+                    : '<p class="text-muted text-sm">No fee data</p>';
+
+                // ═══ 6. Gender Distribution ═══
+                const genderMap = {};
+                sList.forEach(s => { const g = s.gender || 'Unknown'; genderMap[g] = (genderMap[g] || 0) + 1; });
+                const gNames = Object.keys(genderMap), gVals = gNames.map(k => genderMap[k]);
+                const gColors = gNames.map(g => g === 'Male' ? '#6366f1' : g === 'Female' ? '#d946ef' : '#94a3b8');
+                document.getElementById('genderChart').innerHTML = gNames.length
+                    ? `${MiniChart.barChart(gVals, gNames, gColors, 70)}`
+                    : '<p class="text-muted text-sm">No data</p>';
+
+                // ═══ 7. Activity Feed (cross-API) ═══
                 const activities = [];
-                // Recent students
                 sList.slice(-3).reverse().forEach(s => {
                     activities.push({
-                        icon: 'ri-user-add-fill',
-                        bg: 'rgba(99,102,241,0.15)', color: 'var(--indigo-400)',
+                        icon: 'ri-user-add-fill', bg: 'rgba(99,102,241,0.15)', color: 'var(--indigo-400)',
                         title: `${s.firstName || ''} ${s.lastName || ''} registered`,
-                        meta: `Student • ${s.department || ''}`
+                        meta: `${Resolve.deptName(s.departmentId, deptList)} • ${Utils.timeAgo(s.createdAt)}`
                     });
                 });
-                // Recent enrollments
                 eList.slice(-2).reverse().forEach(e => {
-                    const st = sList.find(s => (s.studentId || s.id) === e.studentId);
-                    const co = cList.find(c => (c.courseId || c.id) === e.courseId);
                     activities.push({
-                        icon: 'ri-file-list-3-fill',
-                        bg: 'rgba(20,184,166,0.15)', color: 'var(--teal-400)',
-                        title: `${st ? st.firstName + ' ' + st.lastName : 'Student'} enrolled`,
-                        meta: `${co ? (co.courseName || co.name) : 'Course'} • ${e.enrollmentDate ? new Date(e.enrollmentDate).toLocaleDateString() : ''}`
+                        icon: 'ri-file-list-3-fill', bg: 'rgba(20,184,166,0.15)', color: 'var(--teal-400)',
+                        title: `${Resolve.studentName(e.studentId, sList)} enrolled`,
+                        meta: `${Resolve.courseName(e.courseId, cList)} • ${Utils.timeAgo(e.enrollmentDate)}`
                     });
                 });
-                // Recent fees
-                fList.slice(-2).reverse().forEach(f => {
-                    const st = sList.find(s => (s.studentId || s.id) === f.studentId);
+                fList.filter(f => f.status === 'Paid').slice(-2).reverse().forEach(f => {
                     activities.push({
-                        icon: 'ri-wallet-3-fill',
-                        bg: 'rgba(245,158,11,0.15)', color: 'var(--amber-400)',
-                        title: `Fee payment: ₹${(f.paidAmount || f.amount || 0).toLocaleString('en-IN')}`,
-                        meta: `${st ? st.firstName + ' ' + st.lastName : 'Student #' + f.studentId} • ${f.status || 'Paid'}`
+                        icon: 'ri-wallet-3-fill', bg: 'rgba(245,158,11,0.15)', color: 'var(--amber-400)',
+                        title: `Fee paid: ${Utils.formatCurrency(f.amount)}`,
+                        meta: `${Resolve.studentName(f.studentId, sList)} • ${Utils.timeAgo(f.paidDate)}`
                     });
                 });
-
                 document.getElementById('activityList').innerHTML = activities.slice(0, 5).map(a => `
                     <div class="activity-item">
                         <div class="activity-icon" style="background:${a.bg}; color:${a.color};"><i class="${a.icon}"></i></div>
@@ -693,31 +727,73 @@
                     </div>
                 `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No recent activity</p>';
 
-                // #49: Dynamic notices from courses/exams date-based
-                const notices = [];
-                const noticeColors = ['var(--rose-400)', 'var(--indigo-400)', 'var(--teal-400)', 'var(--emerald-400)', 'var(--amber-400)'];
-                cList.slice(-2).reverse().forEach((c, i) => {
-                    notices.push({ title: `New Course: ${c.courseName || c.name}`, time: `${c.credits || 0} credits • ${c.courseCode || ''}`, color: noticeColors[i] });
-                });
-                if (sCount > 0) notices.push({ title: `${sCount} students enrolled across ${cCount} courses`, time: 'Current semester', color: noticeColors[2] });
-                if (tCount > 0) notices.push({ title: `${tCount} faculty members active`, time: 'Faculty Summary', color: noticeColors[3] });
-                if (fList.length) {
-                    const pending = fList.filter(f => f.status === 'Pending' || f.status === 'Overdue').length;
-                    if (pending) notices.push({ title: `${pending} fee payments pending/overdue`, time: 'Action required', color: noticeColors[0] });
-                }
+                // ═══ 8. Today's Schedule (TimeSlots + Courses + Teachers) ═══
+                const todaySlots = tsList.filter(t => t.dayOfWeek === todayDay).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+                document.getElementById('todayClassCount').textContent = todaySlots.length + ' classes';
+                document.getElementById('todaySchedule').innerHTML = todaySlots.length
+                    ? todaySlots.map((slot, i) => {
+                        const course = Resolve.course(slot.courseId, cList);
+                        const teacher = Resolve.teacher(slot.teacherId, tList);
+                        const tName = teacher ? Resolve.teacherName(slot.teacherId, tList) : '—';
+                        return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+                            <div style="width:36px;height:36px;border-radius:10px;background:${Utils.colorByIndex(i)}20;color:${Utils.colorByIndex(i)};display:grid;place-items:center;font-size:0.85rem;flex-shrink:0;"><i class="ri-book-open-line"></i></div>
+                            <div style="flex:1;min-width:0;">
+                                <div style="font-size:0.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${course ? (course.courseName || course.courseCode) : 'Course'}</div>
+                                <div style="font-size:0.68rem;color:var(--text-tertiary);">${tName} • ${slot.room || 'TBD'}</div>
+                            </div>
+                            <div style="font-size:0.7rem;color:var(--text-secondary);font-weight:600;white-space:nowrap;">${(slot.startTime || '').slice(0, 5)} – ${(slot.endTime || '').slice(0, 5)}</div>
+                        </div>`;
+                    }).join('')
+                    : '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No classes today</p>';
 
-                document.getElementById('noticeList').innerHTML = notices.slice(0, 4).map(n => `
+                // ═══ 9. Notices (from API) ═══
+                const noticeColors = ['var(--rose-400)', 'var(--indigo-400)', 'var(--teal-400)', 'var(--emerald-400)', 'var(--amber-400)'];
+                const allNotices = [];
+                (nList || []).forEach((n, i) => {
+                    allNotices.push({ title: n.title || 'Notice', time: Utils.timeAgo(n.createdAt), color: noticeColors[i % 5] });
+                });
+                // Add system-generated notices if API notices are few
+                if (allNotices.length < 4) {
+                    if (pendingCount) allNotices.push({ title: `${pendingCount} fee payments pending/overdue`, time: 'Action required', color: 'var(--rose-400)' });
+                    if (exList.filter(e => e.isPublished && new Date(e.scheduledDate) > new Date()).length)
+                        allNotices.push({ title: `${exList.filter(e => e.isPublished && new Date(e.scheduledDate) > new Date()).length} upcoming exams`, time: 'Check schedule', color: 'var(--amber-400)' });
+                    allNotices.push({ title: `${sList.length} students across ${deptNames.length} departments`, time: 'Current semester', color: 'var(--teal-400)' });
+                }
+                document.getElementById('noticeCount').textContent = allNotices.length;
+                document.getElementById('noticeList').innerHTML = allNotices.slice(0, 5).map(n => `
                     <div class="notice-item">
                         <div class="notice-dot" style="background:${n.color};"></div>
-                        <div>
-                            <div class="n-title">${n.title}</div>
-                            <div class="n-time">${n.time}</div>
-                        </div>
+                        <div><div class="n-title">${n.title}</div><div class="n-time">${n.time}</div></div>
                     </div>
                 `).join('') || '<p class="text-muted text-sm" style="padding:20px;text-align:center;">No notices</p>';
 
+                // ═══ 10. Active & Upcoming Exams ═══
+                const upcoming = exList.filter(e => new Date(e.scheduledDate) >= new Date()).sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+                document.getElementById('examCount').textContent = upcoming.length + ' upcoming';
+                document.getElementById('examCards').innerHTML = upcoming.length
+                    ? upcoming.slice(0, 6).map((ex, i) => {
+                        const course = Resolve.course(ex.courseId, cList);
+                        const days = Utils.daysUntil(ex.scheduledDate);
+                        const daysLabel = days === 0 ? 'Today!' : days === 1 ? 'Tomorrow' : days + 'd left';
+                        const urgColor = days <= 2 ? '#f43f5e' : days <= 7 ? '#f59e0b' : '#10b981';
+                        return `<div style="background:var(--bg-glass);border:1px solid var(--border-subtle);border-radius:14px;padding:14px;transition:all 0.3s;" onmouseenter="this.style.borderColor='var(--border-default)';this.style.transform='translateY(-2px)'" onmouseleave="this.style.borderColor='var(--border-subtle)';this.style.transform=''">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                <span style="font-size:0.65rem;padding:2px 8px;background:${urgColor}20;color:${urgColor};border-radius:20px;font-weight:700;">${daysLabel}</span>
+                                <span class="badge ${ex.isPublished ? 'badge-emerald' : 'badge-amber'}" style="font-size:0.55rem;">${ex.isPublished ? 'Published' : 'Draft'}</span>
+                            </div>
+                            <div style="font-size:0.82rem;font-weight:700;margin-bottom:4px;">${ex.title || 'Exam'}</div>
+                            <div style="font-size:0.68rem;color:var(--text-tertiary);">${course ? (course.courseName || course.courseCode) : '—'} • ${Utils.formatDate(ex.scheduledDate)}</div>
+                            <div style="display:flex;gap:6px;margin-top:8px;">
+                                <span style="font-size:0.6rem;color:var(--text-secondary);">${ex.totalMarks || 0} marks</span>
+                                <span style="font-size:0.6rem;color:var(--text-secondary);">• ${ex.examType || 'Mixed'}</span>
+                            </div>
+                        </div>`;
+                    }).join('')
+                    : '<p class="text-muted text-sm">No upcoming exams</p>';
+
             } catch (e) {
                 console.error('Dashboard load error:', e);
+                Toast.error('Failed to load some dashboard data');
             }
         }
 
@@ -734,17 +810,22 @@
                     tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--text-muted);">No users found</td></tr>';
                     return;
                 }
-                tbody.innerHTML = list.map(u => `
+                tbody.innerHTML = list.map(u => {
+                    const photo = u.photoUrl || u.profilePictureUrl;
+                    const avatarHtml = photo
+                        ? `<img src="${photo}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;margin-right:8px;vertical-align:middle;">`
+                        : `<span style="width:28px;height:28px;border-radius:50%;background:${Utils.colorByIndex(u.userId || 0)}30;color:${Utils.colorByIndex(u.userId || 0)};display:inline-grid;place-items:center;font-size:0.65rem;font-weight:700;margin-right:8px;vertical-align:middle;">${Utils.initials((u.firstName || '') + ' ' + (u.lastName || ''))}</span>`;
+                    return `
                     <tr style="border-bottom:1px solid var(--border-subtle);transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.03)'" onmouseleave="this.style.background=''">
-                        <td style="padding:10px 12px;font-size:0.88rem;">${u.firstName || ''} ${u.lastName || ''}</td>
+                        <td style="padding:10px 12px;font-size:0.88rem;">${avatarHtml}${u.firstName || ''} ${u.lastName || ''}</td>
                         <td style="padding:10px 12px;font-size:0.85rem;color:var(--text-secondary);">${u.email}</td>
                         <td style="padding:10px 12px;"><span class="badge ${roleBadgeColors[u.role] || 'badge-indigo'}">${u.role}</span></td>
                         <td style="padding:10px 12px;text-align:right;">
                             <button class="btn btn-ghost btn-sm" onclick="openChangePwd('${u.email}')" title="Change Password"><i class="ri-key-2-line"></i> Reset Pwd</button>
                             ${u.role !== 'Admin' ? `<button class="btn btn-ghost btn-sm" style="color:var(--rose-400);" onclick="deleteAuthUser(${u.userId}, '${u.email}')" title="Delete"><i class="ri-delete-bin-line"></i></button>` : ''}
                         </td>
-                    </tr>
-                `).join('');
+                    </tr>`;
+                }).join('');
             } catch (e) {
                 console.error('Failed to load auth users:', e);
                 document.getElementById('usersTableBody').innerHTML = '<tr><td colspan="4" style="padding:20px;text-align:center;color:var(--rose-400);">Failed to load users</td></tr>';
@@ -772,16 +853,24 @@
         }
 
         async function deleteAuthUser(id, email) {
-            if (!confirm(`Delete login account for ${email}? This cannot be undone.`)) return;
-            try {
-                await API.deleteAuthUser(id);
-                Toast.success('User account deleted: ' + email);
-                loadAuthUsers();
-            } catch (e) { Toast.error('Error: ' + e.message); }
+            Confirm.show('Delete User', `Delete login account for ${email}? This cannot be undone.`, async () => {
+                try {
+                    await API.deleteAuthUser(id);
+                    Toast.success('User account deleted: ' + email);
+                    loadAuthUsers();
+                } catch (e) { Toast.error('Error: ' + e.message); }
+            }, 'Delete', 'Cancel');
         }
 
         loadDashboard();
         loadAuthUsers();
+
+        // Role-themed body class (#21)
+        const _role = Auth.getRole()?.toLowerCase();
+        if (_role) document.body.classList.add('role-' + _role);
+
+        // Auto-refresh every 90s (#14)
+        setInterval(() => { loadDashboard(); }, 90000);
     </script>
 </body>
 

@@ -8,14 +8,16 @@
     <link rel="stylesheet" href="../assets/css/core.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
     <style>
-        .tt-filters {
+        /* ─── Filters ─── */
+        .tt-toolbar {
             display: flex;
+            align-items: center;
             gap: 12px;
             flex-wrap: wrap;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
-        .tt-filters select {
+        .tt-toolbar select {
             background: var(--bg-glass);
             border: 1px solid var(--border-subtle);
             color: var(--text-primary);
@@ -23,31 +25,72 @@
             border-radius: var(--radius-lg);
             font-size: 0.85rem;
             min-width: 160px;
+            cursor: pointer;
         }
 
+        .tt-toolbar select:focus {
+            border-color: var(--indigo-500);
+            outline: none;
+        }
+
+        .tt-toolbar .spacer {
+            flex: 1;
+        }
+
+        .tt-stat {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            background: var(--bg-glass);
+            padding: 8px 16px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--border-subtle);
+        }
+
+        .tt-stat strong {
+            color: var(--text-primary);
+        }
+
+        /* ─── Week Grid ─── */
         .tt-week {
             display: grid;
-            grid-template-columns: 80px repeat(6, 1fr);
-            gap: 2px;
+            grid-template-columns: 72px repeat(6, 1fr);
+            gap: 1px;
             border-radius: var(--radius-2xl);
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.02);
+            background: rgba(255, 255, 255, 0.03);
         }
 
-        .tt-header-cell {
+        .tt-corner {
+            background: rgba(99, 102, 241, .08);
+            display: grid;
+            place-items: center;
+            padding: 12px;
+        }
+
+        .tt-corner i {
+            font-size: 1.1rem;
+            color: var(--indigo-400);
+        }
+
+        .tt-day-header {
             padding: 14px 8px;
             text-align: center;
             font-weight: 700;
             font-size: 0.78rem;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.06em;
             color: var(--text-tertiary);
             background: var(--bg-glass);
         }
 
+        .tt-day-header.today {
+            color: var(--indigo-400);
+            background: rgba(99, 102, 241, .08);
+        }
+
         .tt-time-cell {
-            padding: 10px 8px;
-            font-size: 0.72rem;
+            padding: 8px;
+            font-size: 0.7rem;
             font-weight: 600;
             color: var(--text-tertiary);
             background: var(--bg-glass);
@@ -55,75 +98,262 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: 1px;
+            line-height: 1.3;
         }
 
         .tt-slot {
             background: var(--bg-glass);
-            padding: 10px;
-            min-height: 80px;
+            padding: 6px;
+            min-height: 85px;
             position: relative;
-            transition: all 0.2s;
+            transition: background .2s;
+            cursor: pointer;
         }
 
         .tt-slot:hover {
             background: var(--bg-glass-hover);
         }
 
+        .tt-slot::after {
+            content: '+';
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, .06);
+            opacity: 0;
+            transition: opacity .2s;
+        }
+
+        .tt-slot:hover::after {
+            opacity: 1;
+        }
+
+        .tt-slot:has(.tt-class):hover::after {
+            opacity: 0;
+        }
+
+        /* ─── Class Card ─── */
         .tt-class {
-            border-radius: var(--radius-lg);
-            padding: 10px 12px;
-            font-size: 0.78rem;
+            border-radius: var(--radius-md);
+            padding: 8px 10px;
+            font-size: 0.75rem;
             position: relative;
             overflow: hidden;
-            cursor: pointer;
-            transition: all 0.2s;
+            transition: all .2s;
+            margin-bottom: 4px;
+        }
+
+        .tt-class:last-child {
+            margin-bottom: 0;
         }
 
         .tt-class:hover {
-            transform: scale(1.03);
+            transform: scale(1.02);
             box-shadow: var(--shadow-md);
         }
 
         .tt-class .c-name {
             font-weight: 700;
-            font-size: 0.82rem;
-            margin-bottom: 3px;
+            font-size: 0.8rem;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .tt-class .c-code {
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             opacity: 0.7;
             font-family: 'JetBrains Mono', monospace;
         }
 
-        .tt-class .c-room {
-            font-size: 0.68rem;
-            margin-top: 6px;
+        .tt-class .c-meta {
             display: flex;
             align-items: center;
             gap: 4px;
-        }
-
-        .tt-class .c-teacher {
             font-size: 0.65rem;
-            margin-top: 2px;
-            opacity: 0.8;
+            margin-top: 4px;
+            color: inherit;
+            opacity: 0.85;
         }
 
-        .tt-empty {
+        .tt-class .c-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 2px;
+            opacity: 0;
+            transition: opacity .15s;
+        }
+
+        .tt-class:hover .c-actions {
+            opacity: 1;
+        }
+
+        .tt-class .c-actions button {
+            background: rgba(0, 0, 0, .4);
+            border: none;
+            color: #fff;
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.7rem;
             display: grid;
             place-items: center;
-            height: 100%;
-            color: rgba(255, 255, 255, 0.06);
-            font-size: 0.7rem;
         }
 
+        .tt-class .c-actions button:hover {
+            background: rgba(0, 0, 0, .7);
+        }
+
+        .tt-class .c-actions .del-btn:hover {
+            background: var(--rose-500);
+        }
+
+        /* ─── Stats Row ─── */
+        .tt-stats-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .tt-stat-card {
+            flex: 1;
+            min-width: 140px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tt-stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+            display: grid;
+            place-items: center;
+            font-size: 1.1rem;
+        }
+
+        .tt-stat-info .label {
+            font-size: 0.68rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: .05em;
+        }
+
+        .tt-stat-info .value {
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        /* ─── Modal Form ─── */
+        .slot-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            backdrop-filter: blur(6px);
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .slot-modal.active {
+            display: flex;
+        }
+
+        .slot-form {
+            background: #12122a;
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-2xl);
+            padding: 28px;
+            width: min(480px, 92vw);
+            box-shadow: var(--shadow-xl);
+            animation: confirmPop .2s var(--ease-spring);
+        }
+
+        .slot-form h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slot-form h3 i {
+            width: 32px;
+            height: 32px;
+            background: rgba(99, 102, 241, .15);
+            color: var(--indigo-400);
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .form-row.full {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            font-size: 0.88rem;
+            font-family: inherit;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            border-color: var(--indigo-500);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, .12);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+
+        /* ─── Legend ─── */
         .tt-legend {
             display: flex;
             gap: 16px;
             flex-wrap: wrap;
-            margin-top: 20px;
+            margin-top: 16px;
             justify-content: center;
         }
 
@@ -131,108 +361,34 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-secondary);
         }
 
         .tt-legend-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 4px;
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
         }
 
-        .loading-overlay {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 60px;
-        }
-
-        .loader {
-            width: 40px;
-            height: 40px;
-            border: 3px solid var(--border-subtle);
-            border-top-color: var(--indigo-500);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
+        /* ─── Mobile ─── */
         @media(max-width:900px) {
             .tt-week {
-                grid-template-columns: 60px repeat(6, 1fr);
+                grid-template-columns: 50px repeat(6, 1fr);
             }
 
             .tt-class {
-                padding: 6px 8px;
+                padding: 5px 6px;
             }
 
             .tt-class .c-name {
-                font-size: 0.72rem;
-            }
-        }
-
-        /* #37: Conflict detection */
-        .tt-class.conflict {
-            border: 2px solid var(--rose-400) !important;
-            animation: conflict-pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes conflict-pulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.3);
+                font-size: 0.68rem;
             }
 
-            50% {
-                box-shadow: 0 0 8px 3px rgba(244, 63, 94, 0.25);
+            .tt-stats-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
             }
-        }
-
-        .conflict-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-size: 0.6rem;
-            color: var(--rose-400);
-            margin-top: 4px;
-            font-weight: 700;
-        }
-
-        .conflict-banner {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(244, 63, 94, 0.1);
-            border: 1px solid rgba(244, 63, 94, 0.3);
-            border-radius: var(--radius-xl);
-            padding: 12px 18px;
-            margin-bottom: 16px;
-            font-size: 0.82rem;
-            color: var(--rose-400);
-            font-weight: 600;
-        }
-
-        .conflict-banner i {
-            font-size: 1.2rem;
-        }
-
-        .no-conflict-banner {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(52, 211, 153, 0.1);
-            border: 1px solid rgba(52, 211, 153, 0.3);
-            border-radius: var(--radius-xl);
-            padding: 12px 18px;
-            margin-bottom: 16px;
-            font-size: 0.82rem;
-            color: var(--emerald-400);
-            font-weight: 600;
-        }
-
-        .no-conflict-banner i {
-            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -244,17 +400,16 @@
             <div class="logo-icon"><i class="ri-graduation-cap-fill"></i></div><span>NeoVerse</span>
         </a>
         <nav class="header-nav" id="mainNav">
-            <a href="dashboard.html" data-tip="Dashboard"><i class="ri-dashboard-3-line"></i> Dashboard</a>
-            <a href="students.html" data-tip="Students"><i class="ri-group-line"></i> Students</a>
-            <a href="courses.html" data-tip="Courses"><i class="ri-book-open-line"></i> Courses</a>
-            <a href="teachers.html" data-tip="Teachers"><i class="ri-user-star-line"></i> Teachers</a>
-            <a href="timetable.html" class="active" data-tip="Timetable"><i class="ri-calendar-2-line"></i>
-                Timetable</a>
-            <a href="enrollment.html" data-tip="Enrollment"><i class="ri-file-list-3-line"></i> Enrollment</a>
-            <a href="fees.html" data-tip="Fees"><i class="ri-money-dollar-circle-line"></i> Fees</a>
-            <a href="attendance.html" data-tip="Attendance"><i class="ri-calendar-check-line"></i> Attendance</a>
-            <a href="exams.html" data-tip="Exams"><i class="ri-edit-2-line"></i> Exams</a>
-            <a href="messages.html" data-tip="Messages"><i class="ri-mail-line"></i> Messages</a>
+            <a href="dashboard.html"><i class="ri-dashboard-3-line"></i> Dashboard</a>
+            <a href="students.html"><i class="ri-group-line"></i> Students</a>
+            <a href="courses.html"><i class="ri-book-open-line"></i> Courses</a>
+            <a href="teachers.html"><i class="ri-user-star-line"></i> Teachers</a>
+            <a href="timetable.html" class="active"><i class="ri-calendar-2-line"></i> Timetable</a>
+            <a href="enrollment.html"><i class="ri-file-list-3-line"></i> Enrollment</a>
+            <a href="fees.html"><i class="ri-money-dollar-circle-line"></i> Fees</a>
+            <a href="attendance.html"><i class="ri-calendar-check-line"></i> Attendance</a>
+            <a href="exams.html"><i class="ri-edit-2-line"></i> Exams</a>
+            <a href="messages.html"><i class="ri-mail-line"></i> Messages</a>
         </nav>
         <div class="header-actions">
             <button class="btn-icon btn-ghost" style="border-radius:50%;" onclick="Auth.logout()"><i
@@ -267,194 +422,318 @@
 
     <main class="page-wrapper">
         <div class="container">
-            <div class="slide-up" style="margin-bottom:var(--space-6);">
-                <h1><i class="ri-calendar-2-fill" style="color:var(--sky-400);"></i> Weekly Timetable</h1>
-                <p class="text-sm text-muted mt-2">View class schedules by department and semester</p>
+            <!-- Header -->
+            <div class="slide-up"
+                style="margin-bottom:var(--space-6); display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div style="flex:1;">
+                    <h1><i class="ri-calendar-2-fill" style="color:var(--sky-400);"></i> Weekly Timetable</h1>
+                    <p class="text-sm text-muted mt-2">Manage class schedules — click empty slots to add, click classes
+                        to edit</p>
+                </div>
+                <button class="btn btn-primary" onclick="openAddModal()">
+                    <i class="ri-add-circle-line"></i> Add Slot
+                </button>
             </div>
 
-            <div class="tt-filters slide-up delay-1">
+            <!-- Stats Row -->
+            <div class="tt-stats-row slide-up delay-1" id="statsRow"></div>
+
+            <!-- Filters -->
+            <div class="tt-toolbar slide-up delay-2">
                 <select id="filterDept" onchange="renderTimetable()">
                     <option value="all">All Departments</option>
-                </select>
-                <select id="filterSem" onchange="renderTimetable()">
-                    <option value="all">All Semesters</option>
-                    <option value="1">Semester 1</option>
-                    <option value="2">Semester 2</option>
-                    <option value="3">Semester 3</option>
-                    <option value="4">Semester 4</option>
-                    <option value="5">Semester 5</option>
-                    <option value="6">Semester 6</option>
                 </select>
                 <select id="filterTeacher" onchange="renderTimetable()">
                     <option value="all">All Teachers</option>
                 </select>
+                <div class="spacer"></div>
+                <div class="tt-stat" id="slotCount">0 slots</div>
             </div>
 
-            <div class="loading-overlay" id="loadingOverlay">
-                <div class="loader"></div>
-            </div>
-            <!-- #37: Conflict banner -->
-            <div id="conflictBanner" style="display:none;"></div>
-            <div class="glass-card slide-up delay-2" style="padding:0;overflow-x:auto;">
+            <!-- Grid -->
+            <div class="glass-card slide-up delay-3" style="padding:0;overflow-x:auto;">
                 <div class="tt-week" id="ttGrid"></div>
             </div>
 
-            <div class="tt-legend slide-up delay-3">
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#818cf8;"></div> CS
-                </div>
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#2dd4bf;"></div> IT
-                </div>
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#fb923c;"></div> ECE
-                </div>
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#f472b6;"></div> ME
-                </div>
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#a78bfa;"></div> CE
-                </div>
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#fbbf24;"></div> EE
-                </div>
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#34d399;"></div> MATH
-                </div>
-                <div class="tt-legend-item">
-                    <div class="tt-legend-dot" style="background:#38bdf8;"></div> PHY
-                </div>
-            </div>
+            <!-- Legend -->
+            <div class="tt-legend slide-up delay-4" id="ttLegend"></div>
             <div style="height:60px;"></div>
         </div>
     </main>
+
+    <!-- Add/Edit Modal -->
+    <div class="slot-modal" id="slotModal">
+        <div class="slot-form">
+            <h3><i class="ri-calendar-todo-fill"></i> <span id="modalTitle">Add Time Slot</span></h3>
+            <input type="hidden" id="editSlotId">
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Course</label>
+                    <select id="slotCourse"></select>
+                </div>
+                <div class="form-group">
+                    <label>Teacher</label>
+                    <select id="slotTeacher"></select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Day</label>
+                    <select id="slotDay">
+                        <option>Monday</option>
+                        <option>Tuesday</option>
+                        <option>Wednesday</option>
+                        <option>Thursday</option>
+                        <option>Friday</option>
+                        <option>Saturday</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Room</label>
+                    <input type="text" id="slotRoom" placeholder="e.g. Lab-3, Room 201">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Start Time</label>
+                    <input type="time" id="slotStart" value="09:00">
+                </div>
+                <div class="form-group">
+                    <label>End Time</label>
+                    <input type="time" id="slotEnd" value="10:00">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="saveBtn" onclick="saveSlot()">
+                    <i class="ri-check-line"></i> Save Slot
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script src="../assets/js/api.js"></script>
     <script src="../assets/js/app.js"></script>
     <script>
         if (!Auth.requireAuth()) throw 'auth';
-        let slots = [], courses = [], teachers = [], depts = [];
+
+        let slots = [], courses = [], teachers = [], depts = [], enrollments = [];
         const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const todayDay = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()];
         const timeRows = [
-            { label: '9:00\nAM', start: '09:00', end: '10:00' },
-            { label: '10:15\nAM', start: '10:15', end: '11:15' },
-            { label: '11:30\nAM', start: '11:30', end: '12:30' },
-            { label: '2:00\nPM', start: '14:00', end: '15:00' },
-            { label: '3:15\nPM', start: '15:15', end: '16:15' },
+            { label: '9:00 AM', start: '09:00', end: '10:00' },
+            { label: '10:15 AM', start: '10:15', end: '11:15' },
+            { label: '11:30 AM', start: '11:30', end: '12:30' },
+            { label: '2:00 PM', start: '14:00', end: '15:00' },
+            { label: '3:15 PM', start: '15:15', end: '16:15' },
         ];
-        const deptColors = { 1: 'rgba(129,140,248,0.2)', 2: 'rgba(45,212,191,0.2)', 3: 'rgba(251,146,60,0.2)', 4: 'rgba(244,114,182,0.2)', 5: 'rgba(167,139,250,0.2)', 6: 'rgba(251,191,36,0.2)', 7: 'rgba(52,211,153,0.2)', 8: 'rgba(56,189,248,0.2)' };
-        const deptBorders = { 1: '#818cf8', 2: '#2dd4bf', 3: '#fb923c', 4: '#f472b6', 5: '#a78bfa', 6: '#fbbf24', 7: '#34d399', 8: '#38bdf8' };
 
+        const palette = [
+            { bg: 'rgba(129,140,248,.18)', border: '#818cf8', text: '#a5b4fc' },
+            { bg: 'rgba(45,212,191,.18)', border: '#2dd4bf', text: '#5eead4' },
+            { bg: 'rgba(251,146,60,.18)', border: '#fb923c', text: '#fdba74' },
+            { bg: 'rgba(244,114,182,.18)', border: '#f472b6', text: '#f9a8d4' },
+            { bg: 'rgba(167,139,250,.18)', border: '#a78bfa', text: '#c4b5fd' },
+            { bg: 'rgba(251,191,36,.18)', border: '#fbbf24', text: '#fcd34d' },
+            { bg: 'rgba(52,211,153,.18)', border: '#34d399', text: '#6ee7b7' },
+            { bg: 'rgba(56,189,248,.18)', border: '#38bdf8', text: '#7dd3fc' },
+            { bg: 'rgba(217,70,239,.18)', border: '#d946ef', text: '#e879f9' },
+        ];
+        function deptColor(deptId) { return palette[(deptId - 1) % palette.length] || palette[0]; }
+
+        // ─── Helpers ───
+        function courseName(id) { const c = courses.find(x => (x.courseId || x.id) === id); return c ? (c.courseName || c.name || '?') : '?'; }
+        function courseCode(id) { const c = courses.find(x => (x.courseId || x.id) === id); return c ? (c.courseCode || c.code || '') : ''; }
+        function courseDept(id) { const c = courses.find(x => (x.courseId || x.id) === id); return c ? c.departmentId : 0; }
+        function teacherName(id) {
+            if (!id) return '—';
+            const t = teachers.find(x => (x.teacherId || x.id) === id);
+            if (!t) return 'T#' + id;
+            if (t.firstName) return `${t.firstName} ${t.lastName || ''}`.trim();
+            if (t.user) return `${t.user.firstName || ''} ${t.user.lastName || ''}`.trim();
+            return t.displayName || t.name || 'T#' + id;
+        }
+        function fmtTime(ts) {
+            if (!ts) return '00:00';
+            const p = String(ts).split(':');
+            return p[0].padStart(2, '0') + ':' + p[1].padStart(2, '0');
+        }
+        function deptName(id) { const d = depts.find(x => (x.departmentId || x.id) === id); return d ? (d.name || d.departmentName || 'Dept') : 'Dept'; }
+
+        // ─── Load ───
         async function loadData() {
-            document.getElementById('loadingOverlay').style.display = 'flex';
             try {
-                const [s, c, t, d] = await Promise.all([API.getTimeSlots(), API.getCourses(), API.getTeachers(), API.getDepartments()]);
-                slots = Array.isArray(s) ? s : [];
-                courses = Array.isArray(c) ? c : [];
-                teachers = Array.isArray(t) ? t : (t || []);
-                depts = Array.isArray(d) ? d : [];
-                // populate filters
-                const deptSel = document.getElementById('filterDept');
-                depts.forEach(dp => { const o = document.createElement('option'); o.value = dp.departmentId || dp.id; o.textContent = dp.name || dp.departmentName; deptSel.appendChild(o); });
-                const tSel = document.getElementById('filterTeacher');
-                teachers.forEach(tc => { const o = document.createElement('option'); o.value = tc.teacherId || tc.id; o.textContent = tc.user ? (tc.user.firstName + ' ' + tc.user.lastName) : (tc.displayName || tc.name || 'Teacher #' + (tc.teacherId || tc.id)); tSel.appendChild(o); });
+                const D = await DataStore.fetchAll(['timeslots', 'courses', 'teachers', 'departments', 'enrollments']);
+                slots = D.timeslots; courses = D.courses; teachers = D.teachers; depts = D.departments; enrollments = D.enrollments;
+                populateFilters();
+                populateFormSelects();
+                renderStats();
                 renderTimetable();
-            } catch (e) { Toast.error(e.message); }
-            finally { document.getElementById('loadingOverlay').style.display = 'none'; }
+            } catch (e) { Toast.error('Load failed: ' + e.message); }
         }
 
-        function getCourseName(id) { const c = courses.find(x => (x.courseId || x.id) === id); return c ? { name: c.courseName || c.name, code: c.courseCode || c.code, deptId: c.departmentId } : { name: '?', code: '?', deptId: 0 }; }
-        function getTeacherName(id) { if (!id) return '—'; const t = teachers.find(x => (x.teacherId || x.id) === id); return t ? (t.user ? t.user.firstName + ' ' + t.user.lastName : (t.displayName || t.name || 'T#' + id)) : 'T#' + id; }
-
-        // #37: Detect conflicts
-        function detectConflicts(slotList) {
-            const conflictIds = new Set();
-            for (let i = 0; i < slotList.length; i++) {
-                for (let j = i + 1; j < slotList.length; j++) {
-                    const a = slotList[i], b = slotList[j];
-                    if (a.dayOfWeek !== b.dayOfWeek) continue;
-                    const aStart = formatTimeSpan(a.startTime);
-                    const bStart = formatTimeSpan(b.startTime);
-                    const aEnd = formatTimeSpan(a.endTime);
-                    const bEnd = formatTimeSpan(b.endTime);
-                    // Time overlap check
-                    const overlaps = aStart < bEnd && bStart < aEnd;
-                    if (!overlaps) continue;
-                    // Teacher conflict
-                    if (a.teacherId && b.teacherId && a.teacherId === b.teacherId) {
-                        conflictIds.add(a.timeSlotId || a.id);
-                        conflictIds.add(b.timeSlotId || b.id);
-                    }
-                    // Room conflict
-                    if (a.room && b.room && a.room === b.room) {
-                        conflictIds.add(a.timeSlotId || a.id);
-                        conflictIds.add(b.timeSlotId || b.id);
-                    }
-                }
-            }
-            return conflictIds;
+        function populateFilters() {
+            const dSel = document.getElementById('filterDept');
+            depts.forEach(d => { const o = new Option(d.name || d.departmentName, d.departmentId || d.id); dSel.add(o); });
+            const tSel = document.getElementById('filterTeacher');
+            teachers.forEach(t => { const o = new Option(teacherName(t.teacherId || t.id), t.teacherId || t.id); tSel.add(o); });
         }
 
+        function populateFormSelects() {
+            const cSel = document.getElementById('slotCourse');
+            cSel.innerHTML = '<option value="">Select course...</option>';
+            courses.forEach(c => { const o = new Option(`${c.courseCode || c.code} — ${c.courseName || c.name}`, c.courseId || c.id); cSel.add(o); });
+            const tSel = document.getElementById('slotTeacher');
+            tSel.innerHTML = '<option value="">Select teacher...</option>';
+            teachers.forEach(t => { const o = new Option(teacherName(t.teacherId || t.id), t.teacherId || t.id); tSel.add(o); });
+        }
+
+        function renderStats() {
+            const totalSlots = slots.length;
+            const usedDays = new Set(slots.map(s => s.dayOfWeek)).size;
+            const uniqueTeachers = new Set(slots.filter(s => s.teacherId).map(s => s.teacherId)).size;
+            const uniqueCourses = new Set(slots.map(s => s.courseId)).size;
+            document.getElementById('statsRow').innerHTML = `
+                <div class="tt-stat-card"><div class="tt-stat-icon" style="background:rgba(99,102,241,.15);color:var(--indigo-400);"><i class="ri-time-line"></i></div><div class="tt-stat-info"><div class="label">Total Slots</div><div class="value">${totalSlots}</div></div></div>
+                <div class="tt-stat-card"><div class="tt-stat-icon" style="background:rgba(20,184,166,.15);color:var(--teal-400);"><i class="ri-book-open-line"></i></div><div class="tt-stat-info"><div class="label">Courses</div><div class="value">${uniqueCourses}</div></div></div>
+                <div class="tt-stat-card"><div class="tt-stat-icon" style="background:rgba(217,70,239,.15);color:var(--fuchsia-400);"><i class="ri-user-star-line"></i></div><div class="tt-stat-info"><div class="label">Teachers</div><div class="value">${uniqueTeachers}</div></div></div>
+                <div class="tt-stat-card"><div class="tt-stat-icon" style="background:rgba(245,158,11,.15);color:var(--amber-400);"><i class="ri-calendar-line"></i></div><div class="tt-stat-info"><div class="label">Active Days</div><div class="value">${usedDays}/6</div></div></div>
+            `;
+        }
+
+        // ─── Render Grid ───
         function renderTimetable() {
             const fd = document.getElementById('filterDept').value;
-            const fs = document.getElementById('filterSem').value;
             const ft = document.getElementById('filterTeacher').value;
             let filtered = slots;
-            if (fd !== 'all') filtered = filtered.filter(s => { const c = getCourseName(s.courseId); return c.deptId == fd; });
-            if (fs !== 'all') filtered = filtered.filter(s => s.semester == fs);
+            if (fd !== 'all') filtered = filtered.filter(s => courseDept(s.courseId) == fd);
             if (ft !== 'all') filtered = filtered.filter(s => s.teacherId == ft);
+            document.getElementById('slotCount').innerHTML = `<strong>${filtered.length}</strong> slots`;
 
-            // #37: Detect conflicts
-            const conflictIds = detectConflicts(filtered);
-            const banner = document.getElementById('conflictBanner');
-            if (conflictIds.size > 0) {
-                banner.style.display = '';
-                banner.innerHTML = `<div class="conflict-banner"><i class="ri-error-warning-fill"></i> ${conflictIds.size} scheduling conflict${conflictIds.size > 1 ? 's' : ''} detected — teacher or room double-booked!</div>`;
-            } else {
-                banner.style.display = '';
-                banner.innerHTML = `<div class="no-conflict-banner"><i class="ri-check-double-fill"></i> No scheduling conflicts detected — all clear!</div>`;
-            }
-
-            let html = '<div class="tt-header-cell"></div>';
-            days.forEach(d => html += `<div class="tt-header-cell">${d.slice(0, 3)}</div>`);
+            let html = '<div class="tt-corner"><i class="ri-time-line"></i></div>';
+            days.forEach(d => html += `<div class="tt-day-header${d === todayDay ? ' today' : ''}">${d.slice(0, 3)}${d === todayDay ? ' <span style="font-size:.55rem;vertical-align:super;color:var(--indigo-400);">TODAY</span>' : ''}</div>`);
 
             timeRows.forEach(tr => {
-                html += `<div class="tt-time-cell">${tr.label.split('\n').map(l => `<span>${l}</span>`).join('')}</div>`;
+                const [h, m] = tr.start.split(':').map(Number);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const h12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+                html += `<div class="tt-time-cell"><span style="font-size:.78rem;font-weight:700;">${h12}:${String(m).padStart(2, '0')}</span><span style="font-size:.58rem;">${ampm}</span></div>`;
+
                 days.forEach(day => {
                     const matching = filtered.filter(s => {
-                        const st = formatTimeSpan(s.startTime);
+                        const st = fmtTime(s.startTime);
                         return s.dayOfWeek === day && st >= tr.start && st < tr.end;
                     });
-                    html += `<div class="tt-slot">`;
+                    html += `<div class="tt-slot" onclick="openAddModal('${day}','${tr.start}','${tr.end}')">`;
                     if (matching.length) {
                         matching.forEach(m => {
-                            const ci = getCourseName(m.courseId);
-                            const bg = deptColors[ci.deptId] || 'rgba(255,255,255,0.05)';
-                            const bc = deptBorders[ci.deptId] || '#555';
-                            const isConflict = conflictIds.has(m.timeSlotId || m.id);
-                            html += `<div class="tt-class${isConflict ? ' conflict' : ''}" style="background:${bg};border-left:3px solid ${bc};">
-                                <div class="c-name">${ci.name}</div>
-                                <div class="c-code">${ci.code}</div>
-                                <div class="c-room"><i class="ri-map-pin-2-fill"></i> ${m.room || 'TBA'}</div>
-                                <div class="c-teacher"><i class="ri-user-line"></i> ${getTeacherName(m.teacherId)}</div>
-                                ${isConflict ? '<div class="conflict-badge"><i class="ri-error-warning-fill"></i> Conflict</div>' : ''}
+                            const col = deptColor(courseDept(m.courseId));
+                            const eCnt = enrollments.filter(e => e.courseId === m.courseId).length;
+                            html += `<div class="tt-class" style="background:${col.bg};border-left:3px solid ${col.border};color:${col.text};" onclick="event.stopPropagation(); openEditModal(${m.timeSlotId || m.id})">
+                                <div class="c-actions">
+                                    <button onclick="event.stopPropagation();openEditModal(${m.timeSlotId || m.id})" title="Edit"><i class="ri-pencil-line"></i></button>
+                                    <button class="del-btn" onclick="event.stopPropagation();deleteSlot(${m.timeSlotId || m.id})" title="Delete"><i class="ri-delete-bin-line"></i></button>
+                                </div>
+                                <div class="c-name">${courseName(m.courseId)}</div>
+                                <div class="c-code">${courseCode(m.courseId)}</div>
+                                <div class="c-meta"><i class="ri-map-pin-2-fill"></i> ${m.room || 'TBA'}</div>
+                                <div class="c-meta"><i class="ri-user-line"></i> ${teacherName(m.teacherId)}</div>
+                                ${eCnt ? `<div class="c-meta"><i class="ri-group-line"></i> ${eCnt} enrolled</div>` : ''}
                             </div>`;
                         });
-                    } else html += `<div class="tt-empty">—</div>`;
-                    html += `</div>`;
+                    }
+                    html += '</div>';
                 });
             });
+
             document.getElementById('ttGrid').innerHTML = html;
+
+            // Dynamic legend from actual departments
+            const usedDepts = [...new Set(filtered.map(s => courseDept(s.courseId)).filter(Boolean))];
+            document.getElementById('ttLegend').innerHTML = usedDepts.map(id => {
+                const col = deptColor(id);
+                return `<div class="tt-legend-item"><div class="tt-legend-dot" style="background:${col.border};"></div>${deptName(id)}</div>`;
+            }).join('');
         }
 
-        function formatTimeSpan(ts) {
-            if (!ts) return '00:00';
-            if (typeof ts === 'string') {
-                const parts = ts.split(':');
-                return parts[0].padStart(2, '0') + ':' + parts[1].padStart(2, '0');
-            }
-            return '00:00';
+        // ─── CRUD ───
+        function openAddModal(day, start, end) {
+            document.getElementById('editSlotId').value = '';
+            document.getElementById('modalTitle').textContent = 'Add Time Slot';
+            document.getElementById('slotCourse').value = '';
+            document.getElementById('slotTeacher').value = '';
+            document.getElementById('slotDay').value = day || 'Monday';
+            document.getElementById('slotStart').value = start || '09:00';
+            document.getElementById('slotEnd').value = end || '10:00';
+            document.getElementById('slotRoom').value = '';
+            document.getElementById('saveBtn').innerHTML = '<i class="ri-add-circle-line"></i> Add Slot';
+            document.getElementById('slotModal').classList.add('active');
         }
+
+        function openEditModal(id) {
+            const s = slots.find(x => (x.timeSlotId || x.id) === id);
+            if (!s) return;
+            document.getElementById('editSlotId').value = id;
+            document.getElementById('modalTitle').textContent = 'Edit Time Slot';
+            document.getElementById('slotCourse').value = s.courseId;
+            document.getElementById('slotTeacher').value = s.teacherId || '';
+            document.getElementById('slotDay').value = s.dayOfWeek;
+            document.getElementById('slotStart').value = fmtTime(s.startTime);
+            document.getElementById('slotEnd').value = fmtTime(s.endTime);
+            document.getElementById('slotRoom').value = s.room || '';
+            document.getElementById('saveBtn').innerHTML = '<i class="ri-check-line"></i> Update Slot';
+            document.getElementById('slotModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('slotModal').classList.remove('active');
+        }
+
+        async function saveSlot() {
+            const editId = document.getElementById('editSlotId').value;
+            const courseId = parseInt(document.getElementById('slotCourse').value);
+            const teacherId = parseInt(document.getElementById('slotTeacher').value) || null;
+            const dayOfWeek = document.getElementById('slotDay').value;
+            const startTime = document.getElementById('slotStart').value + ':00';
+            const endTime = document.getElementById('slotEnd').value + ':00';
+            const room = document.getElementById('slotRoom').value;
+
+            if (!courseId) { Toast.error('Please select a course'); return; }
+
+            const data = { courseId, teacherId, dayOfWeek, startTime, endTime, room };
+
+            try {
+                if (editId) {
+                    await API.put(`/timeslot/${editId}`, data);
+                    Toast.success('Slot updated!');
+                } else {
+                    await API.createTimeSlot(data);
+                    Toast.success('Slot created!');
+                }
+                closeModal();
+                await loadData();
+            } catch (e) { Toast.error('Error: ' + e.message); }
+        }
+
+        async function deleteSlot(id) {
+            Confirm.show('Delete Slot', 'Remove this time slot from the timetable?', async () => {
+                try {
+                    await API.del(`/timeslot/${id}`);
+                    Toast.success('Slot deleted!');
+                    await loadData();
+                } catch (e) { Toast.error('Error: ' + e.message); }
+            }, 'Delete', 'Cancel');
+        }
+
+        // Close modal on background click
+        document.getElementById('slotModal').addEventListener('click', e => {
+            if (e.target.classList.contains('slot-modal')) closeModal();
+        });
+
         loadData();
     </script>
 </body>

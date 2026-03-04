@@ -11,7 +11,7 @@ builder.Services.AddSwaggerGen();
 
 // Configure Database
 builder.Services.AddDbContext<ChatDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Configure HttpClient for service integration
 builder.Services.AddHttpClient<ServiceIntegrationService>();

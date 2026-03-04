@@ -656,13 +656,14 @@
                                     <th>#</th>
                                     <th>Course Code</th>
                                     <th>Course Name</th>
+                                    <th>Teacher</th>
                                     <th>Credits</th>
-                                    <th>Department</th>
+                                    <th>Classmates</th>
                                 </tr>
                             </thead>
                             <tbody id="coursesBody">
                                 <tr>
-                                    <td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">
+                                    <td colspan="6" class="text-muted text-sm" style="text-align:center;padding:40px;">
                                         Loading courses...</td>
                                 </tr>
                             </tbody>
@@ -876,18 +877,19 @@
             document.getElementById('mainNav').classList.remove('mobile-open');
         }
 
-        let myStudent = null, myCourseIds = [], allCourses = [], allDepts = [];
+        let myStudent = null, myCourseIds = [], allCourses = [], allDepts = [], allTimeslots = [], allTeachers = [], allEnrollments = [];
 
         // ─── Main Loader ───
         async function loadStudentPortal() {
             try {
-                const [students, enrollments, courses, departments] = await Promise.allSettled([
-                    API.getStudents(), API.getEnrollments(), API.getCourses(), API.getDepartments()
-                ]);
-                const studs = Array.isArray(students.value) ? students.value : [];
-                const enrs = Array.isArray(enrollments.value) ? enrollments.value : [];
-                allCourses = Array.isArray(courses.value) ? courses.value : [];
-                allDepts = Array.isArray(departments.value) ? departments.value : [];
+                const D = await DataStore.fetchAll(['students', 'enrollments', 'courses', 'departments', 'timeslots', 'teachers', 'attendance']);
+                const studs = D.students;
+                const enrs = D.enrollments;
+                allCourses = D.courses;
+                allDepts = D.departments;
+                allTimeslots = D.timeslots;
+                allTeachers = D.teachers;
+                allEnrollments = enrs;
 
                 myStudent = studs.find(s => s.email === user?.email);
                 if (!myStudent) { document.getElementById('statCourses').textContent = '!'; return; }
@@ -905,11 +907,19 @@
                 document.getElementById('statCourses').textContent = myCourses.length;
                 document.getElementById('trendCourses').innerHTML = `<i class="ri-arrow-up-s-fill"></i> ${myCourses.length} active`;
 
+                // Attendance stat from preloaded data
+                const myAtt = D.attendance.filter(a => a.studentId === (myStudent.studentId || myStudent.id));
+                const attPct = Resolve.attendancePercent(myAtt);
+                if (attPct != null) {
+                    document.getElementById('statAttendance').textContent = attPct + '%';
+                    document.getElementById('trendAtt').innerHTML = `<i class="ri-arrow-${attPct >= 75 ? 'up' : 'down'}-s-fill"></i> ${attPct}% overall`;
+                }
+
                 // Profile tab
                 renderProfile(deptName);
                 renderCourses(myCourses, deptName);
 
-                // Load all other sections
+                // Load other sections (timetable/today share preloaded data)
                 loadAttendance(); loadGrades(); loadExams(); loadFees(); loadTimetable(); loadTodaySchedule(); loadNotices(); loadMessages();
 
             } catch (e) { console.error('Portal error:', e); }
@@ -920,9 +930,20 @@
             return d?.departmentName || d?.name || 'N/A';
         }
 
+        function getTeacherNameById(id) {
+            if (!id) return '—';
+            const t = allTeachers.find(x => (x.teacherId || x.id) == id);
+            if (!t) return 'T#' + id;
+            if (t.firstName) return `${t.firstName} ${t.lastName || ''}`.trim();
+            if (t.user) return `${t.user.firstName || ''} ${t.user.lastName || ''}`.trim();
+            return t.displayName || t.name || 'T#' + id;
+        }
+
         // ─── Profile ───
         function renderProfile(deptName) {
             const s = myStudent;
+            // Count classmates (same dept, excluding self)
+            const classmateCount = allEnrollments.filter(e => myCourseIds.includes(e.courseId) && e.studentId !== (s.studentId || s.id)).length;
             const personalFields = [
                 { icon: 'ri-user-fill', bg: 'rgba(99,102,241,.12)', color: 'var(--indigo-400)', label: 'Full Name', value: `${s.firstName || ''} ${s.lastName || ''}`.trim() || '—' },
                 { icon: 'ri-mail-fill', bg: 'rgba(20,184,166,.12)', color: 'var(--teal-400)', label: 'Email', value: s.email || '—' },
@@ -938,6 +959,7 @@
                 { icon: 'ri-calendar-fill', bg: 'rgba(99,102,241,.12)', color: 'var(--indigo-400)', label: 'Admission Year', value: s.admissionYear || '—' },
                 { icon: 'ri-checkbox-circle-fill', bg: 'rgba(16,185,129,.12)', color: 'var(--emerald-400)', label: 'Status', value: s.status || 'Active' },
                 { icon: 'ri-book-open-fill', bg: 'rgba(20,184,166,.12)', color: 'var(--teal-400)', label: 'Courses Enrolled', value: myCourseIds.length },
+                { icon: 'ri-group-fill', bg: 'rgba(217,70,239,.12)', color: 'var(--fuchsia-400)', label: 'Classmates', value: classmateCount + ' peers' },
             ];
             const renderRows = fields => fields.map(f => `<div class="info-row"><div class="info-icon" style="background:${f.bg};color:${f.color};"><i class="${f.icon}"></i></div><div style="flex:1;"><div class="info-label">${f.label}</div><div class="info-value">${f.value}</div></div></div>`).join('');
             document.getElementById('profileInfo').innerHTML = renderRows(personalFields);
@@ -948,15 +970,19 @@
         function renderCourses(myCourses, deptName) {
             const body = document.getElementById('coursesBody');
             document.getElementById('courseCount').textContent = myCourses.length + ' courses';
-            if (!myCourses.length) { body.innerHTML = '<tr><td colspan="5" class="text-muted text-sm" style="text-align:center;padding:40px;">No courses enrolled yet.</td></tr>'; return; }
+            if (!myCourses.length) { body.innerHTML = '<tr><td colspan="6" class="text-muted text-sm" style="text-align:center;padding:40px;">No courses enrolled yet.</td></tr>'; return; }
             body.innerHTML = myCourses.map((c, i) => {
-                const cd = getDeptName(c.departmentId);
+                const cid = c.courseId || c.id;
+                const teacher = Resolve.teacherForCourse(cid, allTimeslots, allTeachers);
+                const teacherName = teacher ? getTeacherNameById(teacher.teacherId || teacher.id) : '—';
+                const classmates = allEnrollments.filter(e => e.courseId === cid && e.studentId !== (myStudent.studentId || myStudent.id)).length;
                 return `<tr>
                     <td style="font-weight:700;color:var(--text-tertiary);">${i + 1}</td>
                     <td><span class="chip chip-indigo">${c.courseCode || '—'}</span></td>
                     <td style="font-weight:600;">${c.courseName || c.name || '—'}</td>
+                    <td><i class="ri-user-star-line" style="color:var(--fuchsia-400);"></i> ${teacherName}</td>
                     <td>${c.credits || '—'}</td>
-                    <td>${cd}</td>
+                    <td><i class="ri-group-line" style="color:var(--sky-400);"></i> ${classmates}</td>
                 </tr>`;
             }).join('');
         }
@@ -1121,55 +1147,49 @@
             } catch (e) { console.error('Fees:', e); }
         }
 
-        // ─── Timetable ───
-        async function loadTimetable() {
+        // ─── Timetable (uses preloaded allTimeslots) ───
+        function loadTimetable() {
             if (!myStudent) return;
-            try {
-                const data = await API.getTimeSlots();
-                const slots = Array.isArray(data) ? data : [];
-                const mySlots = slots.filter(s => myCourseIds.includes(s.courseId));
-                const el = document.getElementById('timetableGrid');
-                if (!mySlots.length) { el.innerHTML = '<p class="text-muted text-sm" style="padding:40px;text-align:center;">No timetable data available.</p>'; return; }
-                const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const barColors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--amber-400)', 'var(--rose-400)', 'var(--sky-400)', 'var(--fuchsia-400)'];
-                let html = '';
-                days.forEach(day => {
-                    const daySlots = mySlots.filter(s => s.dayOfWeek === day || s.day === day).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-                    if (!daySlots.length) return;
-                    html += `<div class="tt-day-header"><i class="ri-calendar-line" style="margin-right:6px;"></i>${day}</div>`;
-                    daySlots.forEach((s, i) => {
-                        const course = allCourses.find(c => (c.courseId || c.id) === s.courseId);
-                        const time = s.startTime ? s.startTime.substring(0, 5) : '—';
-                        const end = s.endTime ? s.endTime.substring(0, 5) : '';
-                        html += `<div class="tt-slot"><div class="tt-time" style="color:${barColors[i % barColors.length]};">${time}${end ? ' - ' + end : ''}</div><div class="tt-bar" style="background:${barColors[i % barColors.length]};"></div><div><div style="font-weight:600;font-size:.85rem;">${course?.courseName || 'Class'}</div><div class="text-xs text-muted">Room ${s.room || s.roomNumber || '—'}</div></div></div>`;
-                    });
+            const mySlots = allTimeslots.filter(s => myCourseIds.includes(s.courseId));
+            const el = document.getElementById('timetableGrid');
+            if (!mySlots.length) { el.innerHTML = '<p class="text-muted text-sm" style="padding:40px;text-align:center;">No timetable data available.</p>'; return; }
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const barColors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--amber-400)', 'var(--rose-400)', 'var(--sky-400)', 'var(--fuchsia-400)'];
+            let html = '';
+            days.forEach(day => {
+                const daySlots = mySlots.filter(s => s.dayOfWeek === day || s.day === day).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+                if (!daySlots.length) return;
+                html += `<div class="tt-day-header"><i class="ri-calendar-line" style="margin-right:6px;"></i>${day}</div>`;
+                daySlots.forEach((s, i) => {
+                    const course = allCourses.find(c => (c.courseId || c.id) === s.courseId);
+                    const time = s.startTime ? s.startTime.substring(0, 5) : '—';
+                    const end = s.endTime ? s.endTime.substring(0, 5) : '';
+                    const tName = getTeacherNameById(s.teacherId);
+                    html += `<div class="tt-slot"><div class="tt-time" style="color:${barColors[i % barColors.length]};">${time}${end ? ' - ' + end : ''}</div><div class="tt-bar" style="background:${barColors[i % barColors.length]};"></div><div><div style="font-weight:600;font-size:.85rem;">${course?.courseName || 'Class'}</div><div class="text-xs text-muted">Room ${s.room || s.roomNumber || '—'} • ${tName}</div></div></div>`;
                 });
-                el.innerHTML = html || '<p class="text-muted text-sm" style="padding:40px;text-align:center;">No scheduled classes.</p>';
-            } catch (e) { console.error('Timetable:', e); }
+            });
+            el.innerHTML = html || '<p class="text-muted text-sm" style="padding:40px;text-align:center;">No scheduled classes.</p>';
         }
 
-        // ─── Today's Schedule ───
-        async function loadTodaySchedule() {
+        // ─── Today's Schedule (uses preloaded allTimeslots) ───
+        function loadTodaySchedule() {
             if (!myStudent) return;
-            try {
-                const data = await API.getTimeSlots();
-                const slots = Array.isArray(data) ? data : [];
-                const mySlots = slots.filter(s => myCourseIds.includes(s.courseId));
-                const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                const today = days[new Date().getDay()];
-                document.getElementById('todayDay').textContent = today;
-                const todaySlots = mySlots.filter(s => s.dayOfWeek === today || s.day === today).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
-                const el = document.getElementById('todaySchedule');
-                const colors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--amber-400)', 'var(--rose-400)', 'var(--sky-400)'];
-                if (todaySlots.length) {
-                    el.innerHTML = todaySlots.map((s, i) => {
-                        const course = allCourses.find(c => (c.courseId || c.id) === s.courseId);
-                        const time = s.startTime ? s.startTime.substring(0, 5) : '—';
-                        const end = s.endTime ? s.endTime.substring(0, 5) : '';
-                        return `<div class="schedule-card"><div class="schedule-time" style="color:${colors[i % colors.length]};">${time}</div><div style="width:3px;height:36px;border-radius:2px;background:${colors[i % colors.length]};flex-shrink:0;"></div><div style="flex:1;"><div style="font-weight:700;font-size:.9rem;">${course?.courseName || 'Class'}</div><div class="text-xs text-muted">${end ? time + ' - ' + end : ''} • Room ${s.room || s.roomNumber || '—'}</div></div></div>`;
-                    }).join('');
-                } else el.innerHTML = '<div style="text-align:center;padding:30px;"><i class="ri-calendar-close-fill" style="font-size:2rem;color:var(--text-tertiary);"></i><p class="text-muted text-sm mt-2">No classes scheduled for today</p></div>';
-            } catch (e) { console.error('Today schedule:', e); }
+            const mySlots = allTimeslots.filter(s => myCourseIds.includes(s.courseId));
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const today = days[new Date().getDay()];
+            document.getElementById('todayDay').textContent = today;
+            const todaySlots = mySlots.filter(s => s.dayOfWeek === today || s.day === today).sort((a, b) => (a.startTime || '').localeCompare(b.startTime || ''));
+            const el = document.getElementById('todaySchedule');
+            const colors = ['var(--indigo-400)', 'var(--teal-400)', 'var(--amber-400)', 'var(--rose-400)', 'var(--sky-400)'];
+            if (todaySlots.length) {
+                el.innerHTML = todaySlots.map((s, i) => {
+                    const course = allCourses.find(c => (c.courseId || c.id) === s.courseId);
+                    const time = s.startTime ? s.startTime.substring(0, 5) : '—';
+                    const end = s.endTime ? s.endTime.substring(0, 5) : '';
+                    const tName = getTeacherNameById(s.teacherId);
+                    return `<div class="schedule-card"><div class="schedule-time" style="color:${colors[i % colors.length]};">${time}</div><div style="width:3px;height:36px;border-radius:2px;background:${colors[i % colors.length]};flex-shrink:0;"></div><div style="flex:1;"><div style="font-weight:700;font-size:.9rem;">${course?.courseName || 'Class'}</div><div class="text-xs text-muted">${end ? time + ' - ' + end : ''} • Room ${s.room || s.roomNumber || '—'} • ${tName}</div></div></div>`;
+                }).join('');
+            } else el.innerHTML = '<div style="text-align:center;padding:30px;"><i class="ri-calendar-close-fill" style="font-size:2rem;color:var(--text-tertiary);"></i><p class="text-muted text-sm mt-2">No classes scheduled for today</p></div>';
         }
 
         // ─── Notices ───

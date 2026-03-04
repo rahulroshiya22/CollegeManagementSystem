@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen();
 
 // Database
 builder.Services.AddDbContext<AcademicDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Services
 builder.Services.AddScoped<ITimeSlotService, TimeSlotService>();

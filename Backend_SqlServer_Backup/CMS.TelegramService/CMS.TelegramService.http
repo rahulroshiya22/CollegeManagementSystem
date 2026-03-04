@@ -1,0 +1,6 @@
+@CMS.TelegramService_HostAddress = http://localhost:5062
+
+GET {{CMS.TelegramService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

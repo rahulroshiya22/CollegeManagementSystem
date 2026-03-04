@@ -58,14 +58,27 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod());
 });
 
-// Kestrel configuration (like LMS)
-builder.WebHost.UseKestrel(kestrelOptions =>
+// Kestrel configuration
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
 {
-    kestrelOptions.ListenAnyIP(7000, listenOptions =>
+    // Running in Docker/Render — use HTTP on PORT
+    builder.WebHost.UseKestrel(kestrelOptions =>
     {
-        listenOptions.UseHttps();
+        kestrelOptions.ListenAnyIP(int.Parse(port));
     });
-});
+}
+else
+{
+    // Local development — use HTTPS on 7000
+    builder.WebHost.UseKestrel(kestrelOptions =>
+    {
+        kestrelOptions.ListenAnyIP(7000, listenOptions =>
+        {
+            listenOptions.UseHttps();
+        });
+    });
+}
 
 var app = builder.Build();
 

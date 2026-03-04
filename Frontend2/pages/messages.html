@@ -304,16 +304,26 @@
         let teachersList = [];
         let studentsList = [];
 
-        // Preload recipients
+        // Preload recipients using DataStore
         async function preloadRecipients() {
             try {
-                const [teachers, students] = await Promise.all([
-                    API.getTeachers().catch(() => []),
-                    API.getStudents().catch(() => [])
-                ]);
-                teachersList = Array.isArray(teachers) ? teachers : [];
-                studentsList = Array.isArray(students) ? students : (students?.students || students?.value || []);
+                const D = await DataStore.fetchAll(['teachers', 'students']);
+                teachersList = D.teachers;
+                studentsList = D.students;
             } catch { }
+        }
+
+        function resolveName(id, role) {
+            if (role === 'Teacher') {
+                const t = teachersList.find(x => (x.teacherId || x.id) == id);
+                if (t) return t.firstName ? `${t.firstName} ${t.lastName || ''}`.trim() : (t.user ? `${t.user.firstName} ${t.user.lastName}`.trim() : 'Teacher');
+            }
+            if (role === 'Student') {
+                const s = studentsList.find(x => (x.studentId || x.id) == id);
+                if (s) return `${s.firstName || ''} ${s.lastName || ''}`.trim();
+            }
+            if (role === 'Admin') return 'Admin';
+            return `${role || 'User'} #${id}`;
         }
 
         async function loadMessages() {
@@ -378,16 +388,22 @@
                 return;
             }
 
-            list.innerHTML = messages.map(m => {
+            list.innerHTML = messages.map((m, i) => {
                 const isUnread = !m.isRead && currentTab === 'inbox';
                 const isActive = m.messageId === selectedMsgId;
+                const personId = currentTab === 'inbox' ? m.senderId : m.receiverId;
+                const personRole = currentTab === 'inbox' ? m.senderRole : m.receiverRole;
+                const personName = resolveName(personId, personRole);
+                const avatar = Utils.initials(personName);
+                const clr = Utils.colorByIndex(i);
                 return `
                 <div class="message-list-item ${isUnread ? 'unread' : ''} ${isActive ? 'active-msg' : ''}" onclick="viewMessage(${m.messageId})">
-                    <div style="display:flex;align-items:center;gap:8px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div class="avatar" style="background:${clr};width:32px;height:32px;font-size:0.6rem;border-radius:8px;flex-shrink:0;">${avatar}</div>
                         ${isUnread ? '<span class="unread-dot"></span>' : ''}
                         <div style="flex:1;min-width:0;">
                             <div style="font-weight:${isUnread ? '600' : '400'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.subject || '(No Subject)'}</div>
-                            <div class="text-sm text-muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${(m.content || '').substring(0, 50)}${(m.content || '').length > 50 ? '...' : ''}</div>
+                            <div class="text-sm text-muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${personName} • ${(m.content || '').substring(0, 40)}${(m.content || '').length > 40 ? '...' : ''}</div>
                         </div>
                         <span class="msg-time">${formatTimestamp(m.sentAt)}</span>
                     </div>
@@ -411,9 +427,11 @@
                 } catch { }
             }
 
+            const senderName = resolveName(msg.senderId, msg.senderRole);
+            const recipientName = resolveName(msg.receiverId, msg.receiverRole);
             const senderLabel = currentTab === 'inbox'
-                ? `From: ${msg.senderRole || 'Unknown'} (#${msg.senderId || '?'})`
-                : `To: ${msg.receiverRole || 'Unknown'} (#${msg.receiverId || '?'})`;
+                ? `From: ${senderName} (${msg.senderRole || 'Unknown'})`
+                : `To: ${recipientName} (${msg.receiverRole || 'Unknown'})`;
 
             document.getElementById('messageContent').innerHTML = `
                 <div class="message-header">
@@ -450,16 +468,17 @@
 
         // #31: Delete message
         async function deleteMessage(id) {
-            if (!confirm('Delete this message?')) return;
-            try {
-                await API.request(`/message/${id}`, { method: 'DELETE' });
-                Toast.success('Message deleted');
-                allMessages = allMessages.filter(m => m.messageId !== id);
-                messages = messages.filter(m => m.messageId !== id);
-                selectedMsgId = null;
-                renderMessageList();
-                document.getElementById('messageContent').innerHTML = '<div class="empty-state"><i class="ri-mail-line"></i><h4>Select a message</h4></div>';
-            } catch (e) { Toast.error(e.message); }
+            Confirm.show('Delete Message', 'Delete this message?', async () => {
+                try {
+                    await API.request(`/message/${id}`, { method: 'DELETE' });
+                    Toast.success('Message deleted');
+                    allMessages = allMessages.filter(m => m.messageId !== id);
+                    messages = messages.filter(m => m.messageId !== id);
+                    selectedMsgId = null;
+                    renderMessageList();
+                    document.getElementById('messageContent').innerHTML = '<div class="empty-state"><i class="ri-mail-line"></i><h4>Select a message</h4></div>';
+                } catch (e) { Toast.error(e.message); }
+            }, 'Delete', 'Cancel');
         }
 
         // #32: Reply

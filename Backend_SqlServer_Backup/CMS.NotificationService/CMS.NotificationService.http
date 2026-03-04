@@ -1,0 +1,6 @@
+@CMS.NotificationService_HostAddress = http://localhost:5176
+
+GET {{CMS.NotificationService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

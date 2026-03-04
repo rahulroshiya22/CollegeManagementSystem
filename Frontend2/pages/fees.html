@@ -298,6 +298,7 @@
                         <thead>
                             <tr>
                                 <th>Student</th>
+                                <th>Department</th>
                                 <th>Amount</th>
                                 <th>Paid</th>
                                 <th>Due Date</th>
@@ -382,15 +383,16 @@
     <script src="../assets/js/app.js"></script>
     <script>
         if (!Auth.requireAuth()) throw 'auth';
-        let allFees = [], students = [];
+        let allFees = [], students = [], departments = [];
         let statusFilter = 'all';
 
         async function loadFees() {
             document.getElementById('loadingOverlay').style.display = 'flex';
             try {
-                const [fees, studs] = await Promise.all([API.getFees(), API.getStudents()]);
-                allFees = Array.isArray(fees) ? fees : [];
-                students = Array.isArray(studs) ? studs : (studs?.students || []);
+                const D = await DataStore.fetchAll(['fees', 'students', 'departments']);
+                allFees = D.fees;
+                students = D.students;
+                departments = D.departments;
                 filterFees();
                 updateStats();
                 buildDeptSummary();
@@ -405,7 +407,8 @@
 
         function getStudentDept(id) {
             const s = students.find(x => (x.studentId || x.id) === id);
-            return s ? (s.department || 'Unknown') : 'Unknown';
+            if (!s) return 'Unknown';
+            return Resolve.deptName(s.departmentId, departments);
         }
 
         function isOverdue(f) {
@@ -494,10 +497,18 @@
                 const isPaid = status === 'paid';
                 const isOD = status === 'overdue';
                 const paidAmt = f.paidAmount || (isPaid ? f.amount : 0);
+                const studentName = getStudentName(f.studentId);
+                const studentDept = getStudentDept(f.studentId);
 
                 return `
                 <tr class="${isOD ? 'overdue-row' : ''}">
-                    <td>${getStudentName(f.studentId)}</td>
+                    <td>
+                        <div class="flex items-center gap-3">
+                            <div class="avatar" style="background:${Utils.colorByIndex(i)};width:30px;height:30px;font-size:0.6rem;border-radius:8px;">${Utils.initials(studentName)}</div>
+                            <span>${studentName}</span>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-indigo" style="font-size:0.65rem;">${studentDept}</span></td>
                     <td><strong>₹${(f.amount || 0).toLocaleString()}</strong></td>
                     <td>${paidAmt > 0 ? `<span style="color:var(--emerald-400);">₹${paidAmt.toLocaleString()}</span>` : '—'}</td>
                     <td>${Utils.formatDate(f.dueDate)} ${isOD ? '<i class="ri-error-warning-line" style="color:var(--rose-400);" title="Overdue"></i>' : ''}</td>

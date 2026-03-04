@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS V3 | Student Directory</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Inter', 'sans-serif'] },
+                    colors: {
+                        obsidian: { 900: '#000000', 800: '#09090b', 700: '#18181b', 600: '#27272a' },
+                        ethereal: { gold: '#6366f1', green: '#10b981', red: '#ef4444' }, // 6366f1 is Indigo used in Durxen
+                        glass: '#18181b',
+                        glassBorder: '#27272a'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body class="bg-obsidian-800 text-gray-200 antialiased overflow-hidden h-screen flex">
+
+    <!-- Ambient Background -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-30">
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-ethereal-gold/10 blur-[120px] mix-blend-screen animate-pulse-slow">
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-obsidian-600/30 blur-[150px] mix-blend-screen">
+        </div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar"
+        class="relative z-20 w-20 hover:w-64 h-full sidebar-glass flex flex-col transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden group border-r border-glassBorder shadow-[5px_0_30px_rgba(0,0,0,0.5)]">
+        <div class="h-20 flex items-center px-6 min-w-max border-b border-glassBorder">
+            <div
+                class="w-8 h-8 rounded bg-ethereal-gold/20 flex items-center justify-center border border-ethereal-gold/50 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                <i class="ph ph-buildings text-ethereal-gold text-xl"></i>
+            </div>
+            <span
+                class="ml-4 font-serif font-bold text-xl text-white tracking-wide opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">CMS<span
+                    class="text-ethereal-gold">.</span>v3</span>
+        </div>
+
+        <nav class="flex-1 py-8 px-4 flex flex-col gap-2 min-w-max">
+            <a href="../index.html"
+                class="nav-item group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <div class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-0"></div>
+                <i
+                    class="ph ph-squares-four text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Dashboard</span>
+            </a>
+
+            <!-- Active link: Students -->
+            <a href="students.html"
+                class="nav-item active group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <!-- Active Indicator -->
+                <div
+                    class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-100 shadow-[0_0_10px_rgba(212,175,55,0.5)]">
+                </div>
+                <i
+                    class="ph ph-users text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:text-ethereal-gold"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Students</span>
+            </a>
+
+            <a href="#"
+                class="nav-item group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <div class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-0"></div>
+                <i
+                    class="ph ph-chalkboard-teacher text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Teachers</span>
+            </a>
+
+            <a href="#"
+                class="nav-item group/item flex items-center px-3 py-3 rounded-lg text-gray-400 hover:text-white relative transition-colors duration-300 mt-auto">
+                <div
+                    class="absolute inset-0 bg-white/5 rounded-lg opacity-0 group-hover/item:opacity-100 transition-opacity">
+                </div>
+                <div class="absolute left-0 w-1 h-6 bg-ethereal-gold rounded-r opacity-0"></div>
+                <i
+                    class="ph ph-gear text-2xl z-10 transition-transform duration-300 group-hover/item:scale-110 group-hover/item:rotate-90"></i>
+                <span
+                    class="ml-5 font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">Settings</span>
+            </a>
+        </nav>
+
+        <div
+            class="h-20 border-t border-glassBorder flex items-center px-5 min-w-max mt-auto cursor-pointer hover:bg-white/5 transition-colors">
+            <img src="https://i.pravatar.cc/150?img=11" alt="User"
+                class="w-9 h-9 rounded-full border border-glassBorder ring-2 ring-transparent group-hover:ring-ethereal-gold/30 transition-all">
+            <div class="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col">
+                <span class="text-sm font-bold text-white leading-tight">Admin User</span>
+                <span class="text-xs text-gray-500">Superadmin</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="relative z-10 flex-1 flex flex-col h-full overflow-hidden">
+
+        <header
+            class="h-20 flex items-center justify-between px-10 border-b border-glassBorder/50 w-full relative z-20">
+            <div class="flex items-center">
+                <h1 class="font-serif text-3xl font-semibold text-white tracking-wide gs-reveal">Student Directory</h1>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <!-- Notifications -->
+                <button class="relative text-gray-400 hover:text-white transition-colors duration-300 gs-reveal">
+                    <i class="ph ph-bell text-2xl"></i>
+                    <span
+                        class="absolute top-0 right-0 w-2.5 h-2.5 bg-ethereal-red rounded-full border border-obsidian-800 animate-pulse"></span>
+                </button>
+            </div>
+        </header>
+
+        <div id="page-content" class="flex-1 flex flex-col overflow-hidden p-6 lg:p-10 relative">
+
+            <!-- Toolbar Area -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-6 gs-reveal delay-1 relative">
+
+                <!-- Bulk Actions Overlay (Hidden by Default) -->
+                <div id="bulkActionsBar"
+                    class="absolute inset-0 bg-ethereal-gold/20 backdrop-blur-md rounded-xl border border-ethereal-gold/50 flex items-center justify-between px-6 z-20 opacity-0 pointer-events-none transition-all duration-300 translate-y-2">
+                    <div class="flex items-center gap-3">
+                        <span id="bulkCount"
+                            class="font-bold text-white bg-obsidian-900 px-3 py-1 rounded-full text-sm">0
+                            Selected</span>
+                        <span class="text-sm text-gray-300 font-medium">Bulk Actions:</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button
+                            class="bg-obsidian-800 hover:bg-obsidian-700 border border-glassBorder rounded-lg px-4 py-2 flex items-center transition-colors text-sm text-white">
+                            <i class="ph ph-envelope mr-2 text-ethereal-gold"></i> Email All
+                        </button>
+                        <button
+                            class="bg-obsidian-800 hover:bg-obsidian-700 border border-glassBorder rounded-lg px-4 py-2 flex items-center transition-colors text-sm text-white">
+                            <i class="ph ph-file-csv mr-2 text-ethereal-green"></i> Export Selected
+                        </button>
+                        <button id="cancelBulkBtn"
+                            class="bg-ethereal-red/20 hover:bg-ethereal-red text-white hover:text-obsidian-900 border border-ethereal-red/50 rounded-lg px-4 py-2 flex items-center transition-all text-sm font-bold">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="flex items-center gap-3 flex-1 min-w-[300px]">
+                    <div class="relative w-full max-w-sm">
+                        <i
+                            class="ph ph-magnifying-glass absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
+                        <input type="text" id="studentSearch" placeholder="Search by name, ID, email or region..."
+                            class="w-full bg-obsidian-700/50 border border-glassBorder rounded-full py-2.5 pl-11 pr-4 text-sm text-white outline-none focus:border-ethereal-gold/50 transition-colors">
+                    </div>
+                    <select id="yearFilter"
+                        class="bg-obsidian-700/50 hover:bg-obsidian-700 border border-glassBorder rounded-full px-4 py-2.5 text-sm font-medium transition-colors text-white outline-none appearance-none cursor-pointer">
+                        <option value="All">All Years</option>
+                    </select>
+                    <button
+                        class="bg-obsidian-700/50 hover:bg-obsidian-700 border border-glassBorder rounded-full px-4 py-2.5 text-sm font-medium flex items-center transition-colors">
+                        <i class="ph ph-faders mr-2 text-ethereal-gold"></i> Filters
+                    </button>
+                    <!-- Visual Filter Chips Placeholder -->
+                    <div id="filterChips" class="hidden md:flex items-center gap-2 ml-2"></div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center gap-3 relative z-10">
+                    <button id="analyticsBtn"
+                        class="bg-obsidian-800 hover:bg-obsidian-700 border border-glassBorder rounded-lg px-4 py-2 flex items-center transition-colors text-sm text-ethereal-gold">
+                        <i class="ph ph-chart-line-up mr-2"></i> Analytics Mode
+                    </button>
+                    <button
+                        class="bg-white/5 hover:bg-white/10 border border-glassBorder rounded-lg px-4 py-2 flex items-center transition-colors text-sm">
+                        <i class="ph ph-file-csv mr-2 text-ethereal-green"></i> Export CSV
+                    </button>
+                    <button id="addStudentBtn"
+                        class="bg-ethereal-gold/20 hover:bg-ethereal-gold hover:text-obsidian-900 border border-ethereal-gold/50 rounded-lg px-4 py-2 flex items-center font-bold transition-all text-sm shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+                        <i class="ph ph-plus-circle mr-2 text-lg group-hover:rotate-90 transition-transform"></i> Enroll
+                        Student
+                    </button>
+                </div>
+            </div>
+
+            <!-- The Grid Wrapper -->
+            <div
+                class="glass-card flex-1 rounded-2xl overflow-hidden border border-glassBorder flex flex-col gs-reveal delay-2">
+
+                <div class="flex-1 overflow-auto scrollbar-hide">
+                    <table class="w-full text-left border-collapse whitespace-nowrap">
+                        <thead class="sticky top-0 bg-obsidian-800/90 backdrop-blur z-10">
+                            <tr class="text-gray-400 text-xs uppercase tracking-wider border-b border-glassBorder">
+                                <th class="py-4 px-6 w-10">
+                                    <input type="checkbox" class="glass-checkbox">
+                                </th>
+                                <th class="py-4 px-6 font-medium cursor-pointer hover:text-white transition-colors">
+                                    Student <i class="ph ph-caret-up-down ml-1"></i></th>
+                                <th class="py-4 px-6 font-medium cursor-pointer hover:text-white transition-colors">ID /
+                                    Reg <i class="ph ph-caret-up-down ml-1"></i></th>
+                                <th class="py-4 px-6 font-medium">Department</th>
+                                <th class="py-4 px-6 font-medium cursor-pointer hover:text-white transition-colors">
+                                    Enrolled <i class="ph ph-caret-up-down ml-1"></i></th>
+                                <th class="py-4 px-6 font-medium text-center">Status</th>
+                                <th class="py-4 px-6 font-medium text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentGridBody" class="text-gray-300">
+                            <!-- Skeleton Loader -->
+                            <tr class="border-b border-glassBorder/50 animate-pulse">
+                                <td class="py-4 px-6">
+                                    <div class="h-10 w-48 bg-gray-700/30 rounded-full"></div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="h-4 w-20 bg-gray-700/30 rounded"></div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="h-4 w-32 bg-gray-700/30 rounded"></div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="h-4 w-24 bg-gray-700/30 rounded"></div>
+                                </td>
+                                <td class="py-4 px-6">
+                                    <div class="h-6 w-16 bg-gray-700/30 rounded-full mx-auto"></div>
+                                </td>
+                                <td class="py-4 px-6 text-right">
+                                    <div class="h-8 w-8 bg-gray-700/30 rounded-full ml-auto"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination Footer -->
+                <div
+                    class="p-4 border-t border-glassBorder bg-obsidian-800/50 flex items-center justify-between text-sm">
+                    <span class="text-gray-500" id="recordCountText">Showing loading...</span>
+                    <div class="flex items-center gap-2">
+                        <button
+                            class="p-1 px-3 rounded bg-obsidian-700 border border-glassBorder text-gray-400 hover:text-white"><i
+                                class="ph ph-caret-left"></i></button>
+                        <button
+                            class="p-1 px-3 rounded bg-ethereal-gold/20 border border-ethereal-gold/50 text-white font-medium">1</button>
+                        <button
+                            class="p-1 px-3 rounded bg-obsidian-700 border border-glassBorder text-gray-400 hover:text-white">2</button>
+                        <button
+                            class="p-1 px-3 rounded bg-obsidian-700 border border-glassBorder text-gray-400 hover:text-white">3</button>
+                        <button
+                            class="p-1 px-3 rounded bg-obsidian-700 border border-glassBorder text-gray-400 hover:text-white"><i
+                                class="ph ph-caret-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Side Drawer Component Included Here -->
+    <div id="side-drawer-container" class="fixed inset-0 z-40 flex justify-end opacity-0 pointer-events-none">
+        <div id="drawer-overlay" class="absolute inset-0 bg-obsidian-900/40 backdrop-blur-sm"></div>
+        <div id="side-drawer"
+            class="relative w-full max-w-md h-full bg-obsidian-800 border-l border-glassBorder shadow-[-10px_0_40px_rgba(0,0,0,0.5)] flex flex-col translate-x-full">
+            <div id="drawer-content-inject" class="w-full h-full flex flex-col">
+                <!-- Content will be injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu (hidden by default) -->
+    <div id="contextMenu"
+        class="fixed z-50 w-56 bg-obsidian-800 border border-glassBorder rounded-xl shadow-2xl opacity-0 pointer-events-none transform scale-95 transition-all duration-150 overflow-hidden">
+        <div class="px-4 py-2 border-b border-glassBorder/50">
+            <span class="text-xs text-gray-500 uppercase tracking-wider font-semibold">Quick Actions</span>
+        </div>
+        <div class="flex flex-col py-1">
+            <button
+                class="px-4 py-2 text-sm text-left text-gray-300 hover:bg-obsidian-700 hover:text-ethereal-gold flex items-center transition-colors"><i
+                    class="ph ph-pencil-simple mr-3 text-lg"></i> Edit Student</button>
+            <button
+                class="px-4 py-2 text-sm text-left text-gray-300 hover:bg-obsidian-700 hover:text-ethereal-gold flex items-center transition-colors"><i
+                    class="ph ph-exam mr-3 text-lg"></i> View Grades</button>
+            <button
+                class="px-4 py-2 text-sm text-left text-gray-300 hover:bg-obsidian-700 hover:text-ethereal-gold flex items-center transition-colors"><i
+                    class="ph ph-identification-card mr-3 text-lg"></i> Generate ID Card</button>
+            <button
+                class="px-4 py-2 text-sm text-left text-red-400 hover:bg-red-400/10 hover:text-red-300 flex items-center transition-colors"><i
+                    class="ph ph-warning-circle mr-3 text-lg"></i> Reset Password</button>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal / Enroll Student -->
+    <div id="enrollModal" class="fixed inset-0 z-[60] flex items-center justify-center opacity-0 pointer-events-none">
+        <div class="absolute inset-0 bg-obsidian-900/60 backdrop-blur-md" id="enrollOverlay"></div>
+        <div class="relative w-full max-w-4xl max-h-[90vh] bg-obsidian-800 border border-glassBorder rounded-2xl shadow-2xl flex overflow-hidden translate-y-8 transition-transform duration-500 ease-out"
+            id="enrollCard">
+            <!-- Left Side / Spline or Graphic -->
+            <div
+                class="w-1/3 bg-obsidian-900 border-r border-glassBorder relative hidden md:block overflow-hidden p-8 flex flex-col justify-end">
+                <div class="absolute inset-0 bg-gradient-to-t from-ethereal-gold/20 to-transparent opacity-50 z-0">
+                </div>
+                <div class="relative z-10">
+                    <h3 class="font-serif text-2xl text-white font-bold mb-2">New Arrival</h3>
+                    <p class="text-sm text-gray-400">Step 1 of 3: Enter the core identification metrics into the
+                        directory matrix.</p>
+                </div>
+            </div>
+            <!-- Right Side Form -->
+            <div class="flex-1 p-8 flex flex-col overflow-y-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-xl font-bold text-white">Enrollment Terminal</h2>
+                    <button id="closeEnroll"
+                        class="w-8 h-8 rounded-full bg-obsidian-700 hover:bg-obsidian-600 flex items-center justify-center text-gray-400 hover:text-white transition-colors"><i
+                            class="ph ph-x"></i></button>
+                </div>
+
+                <div class="flex gap-2 mb-8" id="formTabs">
+                    <div class="h-1 flex-1 bg-ethereal-gold rounded-full"></div>
+                    <div class="h-1 flex-1 bg-obsidian-700 rounded-full"></div>
+                    <div class="h-1 flex-1 bg-obsidian-700 rounded-full"></div>
+                </div>
+
+                <form id="enrollForm" class="flex-1 flex flex-col space-y-5">
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="flex flex-col">
+                            <label class="text-xs text-gray-400 uppercase font-semibold mb-1">First Name</label>
+                            <input type="text"
+                                class="w-full bg-obsidian-900 border border-glassBorder rounded-lg px-4 py-2.5 text-white outline-none focus:border-ethereal-gold focus:ring-1 focus:ring-ethereal-gold"
+                                placeholder="John">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-xs text-gray-400 uppercase font-semibold mb-1">Last Name</label>
+                            <input type="text"
+                                class="w-full bg-obsidian-900 border border-glassBorder rounded-lg px-4 py-2.5 text-white outline-none focus:border-ethereal-gold focus:ring-1 focus:ring-ethereal-gold"
+                                placeholder="Doe">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-5">
+                        <div class="flex flex-col">
+                            <label class="text-xs text-gray-400 uppercase font-semibold mb-1">Email</label>
+                            <input type="email"
+                                class="w-full bg-obsidian-900 border border-glassBorder rounded-lg px-4 py-2.5 text-white outline-none focus:border-ethereal-gold focus:ring-1 focus:ring-ethereal-gold"
+                                placeholder="john@cms.edu">
+                        </div>
+                        <div class="flex flex-col">
+                            <label class="text-xs text-gray-400 uppercase font-semibold mb-1">Gender</label>
+                            <select
+                                class="w-full bg-obsidian-900 border border-glassBorder rounded-lg px-4 py-2.5 text-white outline-none focus:border-ethereal-gold">
+                                <option>Male</option>
+                                <option>Female</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-6 flex justify-end gap-3 border-t border-glassBorder/50">
+                        <button type="button"
+                            class="px-6 py-2.5 rounded-lg border border-glassBorder text-gray-300 hover:bg-obsidian-700 transition-colors">Cancel</button>
+                        <button type="button"
+                            class="px-6 py-2.5 rounded-lg bg-ethereal-gold text-obsidian-900 font-bold shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:scale-105 transition-transform">Next
+                            Step <i class="ph ph-arrow-right ml-1"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/students.js"></script>
+</body>
+
+</html>
