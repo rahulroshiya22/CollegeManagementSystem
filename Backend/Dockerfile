@@ -67,6 +67,14 @@ RUN chmod +x ./start-all.sh
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV DOTNET_RUNNING_IN_CONTAINER=true
 
+# --- RENDER FREE TIER MEMORY OPTIMIZATIONS (Max 512MB RAM) ---
+# Disable Server GC (uses too much memory) and use Workstation GC
+ENV DOTNET_gcServer=0
+# Tell .NET it has very little memory to work with so it cleans up aggressively
+ENV DOTNET_GCHeapHardLimitPercent=15
+ENV COMPlus_gcServer=0
+# -----------------------------------------------------------
+
 # Expose Render's default port
 EXPOSE 10000
 
