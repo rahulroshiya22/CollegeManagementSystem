@@ -38,6 +38,18 @@ dotnet /app/services/CMS.TelegramService/CMS.TelegramService.dll --urls "http://
 echo "Waiting for services to initialize..."
 sleep 5
 
+# ─── Auto-Ping Keepalive (prevents Render free tier from sleeping) ───
+RENDER_URL="${RENDER_EXTERNAL_URL:-https://collegemanagementsystem-2gp3.onrender.com}"
+echo "[KEEPALIVE] Starting auto-ping every 5 minutes to $RENDER_URL"
+(
+  sleep 30  # Wait for gateway to fully start
+  while true; do
+    curl -s -o /dev/null -w "PING %{http_code} in %{time_total}s" "$RENDER_URL/swagger/index.html" 2>/dev/null || true
+    echo " [$(date '+%H:%M:%S')]"
+    sleep 300  # 5 minutes
+  done
+) &
+
 # Start the API Gateway (foreground - Render monitors this process)
 PORT=${PORT:-10000}
 echo "[9/9] Starting API Gateway on port $PORT..."
