@@ -4,7 +4,7 @@
 
 const API = {
     BASE: 'https://collegemanagementsystem-2gp3.onrender.com/api',
-    TIMEOUT: 15000,
+    TIMEOUT: 30000,
 
     async request(endpoint, opts = {}) {
         const token = localStorage.getItem('cms_token');
