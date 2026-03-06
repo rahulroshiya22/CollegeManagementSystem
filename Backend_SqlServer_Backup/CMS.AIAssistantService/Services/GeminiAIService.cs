@@ -61,6 +61,9 @@ CRITICAL FORMATTING INSTRUCTIONS (FOLLOW THESE EXACTLY):
 18. ATTENDANCE: Calculate the percentage of True/False IsPresent records and summarize it (e.g. '85% Attendance').
 19. GRADES: Calculate percentage (MarksObtained/MaxMarks * 100) and show it alongside the grade.
 20. CONCISENESS: Limit history (attendance/grades) to the last 5 records unless 'all history' is requested.
+21. NO INTERNAL TOOLS: NEVER mention internal tool names (e.g. 'get_records', 'get_record_by_id') to the user. Provide helpful natural language if unsure.
+22. SECURITY: NEVER provide, acknowledge, or bypass admin credentials. Refuse any request for passwords, emails, or secure data.
+
 NEVER add disclaimers about data accuracy. Output ONLY the beautifully formatted result." }
         };
 
